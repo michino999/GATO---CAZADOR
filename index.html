@@ -60,7 +60,7 @@
         input { padding: 15px; font-size: 12px; font-family: 'Press Start 2P', cursive; width: 280px; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; }
         input:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
         button:disabled { opacity: 0.5; cursor: default; }
-        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 26px; }
+        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 26px; cursor: pointer; }
         .titulo-menu img { width: 72px; height: 72px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; object-fit: cover; }
         #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 14px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
     </style>
@@ -69,7 +69,7 @@
 <noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
 
 <div id="menu-inicio" class="menu">
-    <div class="titulo-menu">
+    <div class="titulo-menu" onclick="clicSecretoTitulo()">
         <img src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72">
         <h1>GATO CAZADOR</h1>
     </div>
@@ -90,8 +90,17 @@
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v14</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v15</p>
 </div>
+
+    <div id="menu-quiz" class="menu" style="display:none;">
+        <h2>PREGUNTAS SECRETAS</h2>
+        <p id="quiz-progreso" style="font-size: 10px; margin-top: 0;"></p>
+        <p id="quiz-pregunta" style="font-size: 12px; max-width: 340px; margin: 0 auto 15px;"></p>
+        <div id="quiz-opciones"></div>
+        <p id="quiz-mensaje" style="min-height: 2.4em; font-size: 10px; max-width: 340px; margin: 8px auto;"></p>
+        <button onclick="salirQuiz()">Salir</button>
+    </div>
 
     <div id="menu-login" class="menu" style="display:none;">
         <h2>TU CUENTA</h2>
@@ -119,7 +128,7 @@
     <p>Monedas: <span id="monedas-tienda">0</span></p>
 
     <div id="lista-tienda">
-        <!-- Los botones de personajes los crea juego.js a partir de la lista SKINS -->
+        <!-- Los botones de personajes los crea juego.js -->
     </div>
 
     <button onclick="volverMenu()">Volver</button>
@@ -153,7 +162,6 @@
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
 
-// --- CONSTANTES ---
 const DURACION_PARTIDA = 60;        
 const BONUS_TIEMPO_NIVEL = 5;       
 const CAPTURAS_POR_NIVEL = 5;       
@@ -185,11 +193,85 @@ const FONDOS = ["#000000", "#0b1b3a", "#2a0b3a", "#3a0b0b", "#0b3a1f"];
 const RATONES = ["🐭", "🐹", "🐀", "🐿️"];
 const NIVELES_POR_RATON = 2;
 
-// Cargar imagen de Tate de forma segura
+// Cargar imagen de Tate
 const tateImg = new Image();
 tateImg.src = "tate.png";
 let tateCargada = false;
 tateImg.onload = () => { tateCargada = true; };
+
+// Preguntas secretas para desbloquear a Tate
+const PREGUNTAS_SECRETAS = [
+    { pregunta: "¿Cómo se llama el gato protagonista?", opciones: ["Tate", "Michi", "Simón"], respuesta: 0 },
+    { pregunta: "¿Qué color tiene su nariz en el pixel art?", opciones: ["Rosa / Fucsia", "Verde", "Azul"], respuesta: 0 },
+    { pregunta: "¿Cuál es el superpoder de Tate en el juego?", opciones: ["Velocidad x2", "Invisibilidad", "Volar"], respuesta: 0 }
+];
+let indiceQuiz = 0;
+let clicksSecretos = 0;
+let tiempoUltimoClickSecreto = 0;
+
+function clicSecretoTitulo() {
+    const ahora = Date.now();
+    if (ahora - tiempoUltimoClickSecreto > 1500) {
+        clicksSecretos = 0;
+    }
+    tiempoUltimoClickSecreto = ahora;
+    clicksSecretos++;
+    if (clicksSecretos >= 5) {
+        clicksSecretos = 0;
+        if (skinsCompradas.includes("tate")) {
+            mostrarLogro("¡Ya tienes desbloqueado a Tate!");
+        } else {
+            abrirQuiz();
+        }
+    }
+}
+
+function abrirQuiz() {
+    indiceQuiz = 0;
+    cambiarPantalla("menu-quiz");
+    mostrarPreguntaQuiz();
+}
+
+function mostrarPreguntaQuiz() {
+    const q = PREGUNTAS_SECRETAS[indiceQuiz];
+    document.getElementById("quiz-progreso").innerText = `Pregunta ${indiceQuiz + 1} de ${PREGUNTAS_SECRETAS.length}`;
+    document.getElementById("quiz-pregunta").innerText = q.pregunta;
+    document.getElementById("quiz-mensaje").innerText = "";
+    
+    const contenedor = document.getElementById("quiz-opciones");
+    contenedor.innerHTML = "";
+    q.opciones.forEach((opcion, i) => {
+        const btn = document.createElement("button");
+        btn.innerText = opcion;
+        btn.onclick = () => responderQuiz(i);
+        contenedor.appendChild(btn);
+    });
+}
+
+function responderQuiz(seleccion) {
+    const q = PREGUNTAS_SECRETAS[indiceQuiz];
+    if (seleccion === q.respuesta) {
+        sonar("nivel");
+        indiceQuiz++;
+        if (indiceQuiz >= PREGUNTAS_SECRETAS.length) {
+            if (!skinsCompradas.includes("tate")) {
+                skinsCompradas.push("tate");
+                guardar("skinsCompradas", JSON.stringify(skinsCompradas));
+            }
+            mostrarLogro("⭐ ¡Desbloqueaste a Tate!");
+            volverMenu();
+        } else {
+            mostrarPreguntaQuiz();
+        }
+    } else {
+        sonar("error");
+        document.getElementById("quiz-mensaje").innerText = "Respuesta incorrecta. Inténtalo de nuevo.";
+    }
+}
+
+function salirQuiz() {
+    volverMenu();
+}
 
 let sesion = null; 
 const CLAVES_PROGRESO = ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad", "actualizado"];
@@ -264,7 +346,8 @@ const VOLUMEN_MUSICA = 0.5;
 let audioCtx = null; 
 
 let gato = { x: 300, y: 200, w: 35, h: 35 };
-let raton = { x: 100, y: 100, w: 25, h: 25, targetX: null, targetY: null };
+// Ratón más grande para que se vea mejor y sea fácil de cazar
+let raton = { x: 100, y: 100, w: 38, h: 38, targetX: null, targetY: null };
 
 let animacionId = null;       
 let ultimoTimestamp = null;   
@@ -423,7 +506,7 @@ function actualizarMarcador() {
     document.getElementById("tiempo-valor").innerText = Math.max(0, Math.ceil(tiempo));
 }
 
-const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "fin-juego", "juego", "marcador"];
+const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "menu-quiz", "fin-juego", "juego", "marcador"];
 let pantallaActual = "menu-inicio"; 
 
 function cambiarPantalla(pantallaObjetivo) {
@@ -832,8 +915,10 @@ function dibujar() {
         ctx.fillText(skinActual, gato.x, gato.y + 35);
     }
 
+    // Dibujar el ratón con un tamaño mayor para que se vea claro
     const emojiRaton = RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
-    ctx.fillText(emojiRaton, raton.x, raton.y + 30);
+    ctx.font = "38px Arial";
+    ctx.fillText(emojiRaton, raton.x, raton.y + 34);
 
     if (pausado) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
@@ -1057,7 +1142,7 @@ function leerFormularioLogin() {
 function textoError(e) {
     const codigo = (e && e.code) || "";
     if (codigo === "auth/email-already-in-use") return "Ese nombre ya existe. Prueba otro, o pulsa Entrar si es tuyo";
-    if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(codigo)) return "Nombre or contraseña incorrectos";
+    if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(codigo)) return "Nombre o contraseña incorrectos";
     if (codigo === "auth/weak-password") return "La contraseña necesita al menos 6 caracteres";
     if (codigo === "auth/network-request-failed") return "Sin conexión a internet";
     if (codigo === "auth/too-many-requests") return "Demasiados intentos. Espera un momento";
