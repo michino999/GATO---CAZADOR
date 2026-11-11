@@ -98,8 +98,17 @@
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v13 · Tate en el menú</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v14</p>
 </div>
+
+    <div id="menu-quiz" class="menu" style="display:none;">
+        <h2>PREGUNTAS SECRETAS</h2>
+        <p id="quiz-progreso" style="font-size: 10px; margin-top: 0;"></p>
+        <p id="quiz-pregunta" style="font-size: 12px; max-width: 340px; margin: 0 auto 15px;"></p>
+        <div id="quiz-opciones"></div>
+        <p id="quiz-mensaje" style="min-height: 2.4em; font-size: 10px; max-width: 340px; margin: 8px auto;"></p>
+        <button onclick="salirQuiz()">Salir</button>
+    </div>
 
     <div id="menu-login" class="menu" style="display:none;">
         <h2>TU CUENTA</h2>
@@ -179,6 +188,10 @@ const DIFICULTADES = [
 
 // Personajes de la tienda. "velocidad" es un multiplicador (1 = normal, 1.1 = 10% más rápido).
 // Para añadir uno nuevo solo agrega una línea aquí: el botón de la tienda se crea solo.
+// Velocidad de Tate (multiplicador): 1 = normal, 2 = el doble (+100%), 3 = el triple...
+// Ojo: el gato base va a 5 px por frame; con 2 ya cruza la pantalla en un segundo. Más de 4 se vuelve incontrolable.
+const VELOCIDAD_TATE = 2;
+
 const SKINS = [
     { emoji: "🐱", nombre: "Gato",     precio: 0,    velocidad: 1 },
     { emoji: "🐯", nombre: "Tigre",    precio: 100,  velocidad: 1 },
@@ -186,7 +199,10 @@ const SKINS = [
     { emoji: "🦊", nombre: "Zorro",    precio: 300,  velocidad: 1.08 },
     { emoji: "🦁", nombre: "León",     precio: 500,  velocidad: 1.1 },
     { emoji: "🐺", nombre: "Lobo",     precio: 800,  velocidad: 1.12 },
-    { emoji: "🐲", nombre: "Dragón",   precio: 1500, velocidad: 1.15 }
+    { emoji: "🐲", nombre: "Dragón",   precio: 1500, velocidad: 1.15 },
+    // Personaje secreto: no sale en la tienda hasta que lo desbloqueas con el patrón y las preguntas.
+    // "emoji" es solo su identificador; en el juego se dibuja la imagen tate.png.
+    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate.png" }
 ];
 
 // Cada nivel cambia el color del fondo, y cada 2 niveles cambia el ratón
@@ -461,9 +477,11 @@ function actualizarMarcador() {
 }
 
 // --- GESTOR CENTRAL DE PANTALLAS ---
-const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "fin-juego", "juego", "marcador"];
+const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "menu-quiz", "fin-juego", "juego", "marcador"];
+let pantallaActual = "menu-inicio"; // para saber en qué pantalla estamos
 
 function cambiarPantalla(pantallaObjetivo) {
+    pantallaActual = pantallaObjetivo;
     // Apaga todas las pantallas
     PANTALLAS.forEach((id) => {
         const elemento = document.getElementById(id);
@@ -649,13 +667,18 @@ function actualizarBotonesTienda() {
         const boton = skin.elemento;
         if (!boton) return;
         const extra = skin.velocidad > 1 ? ` +${Math.round((skin.velocidad - 1) * 100)}%` : "";
+        const simbolo = skin.icono || skin.emoji;
+        const poseido = skinsCompradas.includes(skin.emoji);
+
+        // Un personaje secreto que no tienes (por ejemplo, al cambiar de cuenta) se esconde
+        boton.style.display = skin.secreta && !poseido ? "none" : "";
 
         if (skin.emoji === skinActual) {
-            boton.textContent = `${skin.emoji} Equipado: ${skin.nombre}`;
-        } else if (skinsCompradas.includes(skin.emoji)) {
-            boton.textContent = `${skin.emoji} Equipar ${skin.nombre}${extra}`;
+            boton.textContent = `${simbolo} Equipado: ${skin.nombre}`;
+        } else if (poseido) {
+            boton.textContent = `${simbolo} Equipar ${skin.nombre}${extra}`;
         } else {
-            boton.textContent = `${skin.emoji} ${skin.nombre} (${skin.precio} 💰)${extra}`;
+            boton.textContent = `${simbolo} ${skin.nombre} (${skin.precio} 💰)${extra}`;
         }
     });
 }
@@ -664,8 +687,9 @@ function actualizarBotonesTienda() {
 function construirTienda() {
     const lista = document.getElementById("lista-tienda");
     if (!lista) return;
-    if (SKINS[0].elemento) return; // ya construida: no duplicar botones
     SKINS.forEach((skin) => {
+        if (skin.elemento) return; // este botón ya existe: no duplicar
+        if (skin.secreta && !skinsCompradas.includes(skin.emoji)) return; // los secretos salen solo al desbloquearlos
         const boton = document.createElement("button");
         boton.onclick = () => comprarOEquipar(skin.emoji, skin.precio);
         skin.elemento = boton;
@@ -703,7 +727,9 @@ function equiparSkin(emoji, mensaje) {
     skinActual = emoji;
     guardar("skin", skinActual);
     const extra = bonusSkin() > 1 ? ` (+${Math.round((bonusSkin() - 1) * 100)}% velocidad)` : "";
-    mostrarLogro((mensaje || "Skin equipada: " + emoji) + extra);
+    const info = SKINS.find((s) => s.emoji === emoji);
+    const simbolo = info && info.icono ? info.icono : emoji;
+    mostrarLogro((mensaje || "Skin equipada: " + simbolo) + extra);
 }
 
 // --- LÓGICA DEL JUEGO ---
@@ -878,6 +904,23 @@ function gameLoop(timestamp) {
     }
 }
 
+// Tate se dibuja con su foto (tate.png); los demás personajes son emojis
+const imagenTate = typeof Image !== "undefined" ? new Image() : null;
+if (imagenTate) imagenTate.src = "tate.png";
+
+function dibujarGato() {
+    const skin = SKINS.find((s) => s.emoji === skinActual);
+    if (skin && skin.imagen) {
+        if (imagenTate && imagenTate.complete && imagenTate.naturalWidth > 0) {
+            ctx.drawImage(imagenTate, gato.x, gato.y - 2, 40, 40);
+        } else {
+            ctx.fillText(skin.icono || "🐱", gato.x, gato.y + 35); // plan B si la imagen no cargó
+        }
+    } else {
+        ctx.fillText(skinActual, gato.x, gato.y + 35);
+    }
+}
+
 function dibujar() {
     ctx.fillStyle = FONDOS[(nivel - 1) % FONDOS.length];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -890,7 +933,7 @@ function dibujar() {
     ctx.fillRect(0, 0, canvas.width * progreso, 8);
 
     ctx.font = "40px Arial";
-    ctx.fillText(skinActual, gato.x, gato.y + 35);
+    dibujarGato();
     const emojiRaton = RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
     ctx.fillText(emojiRaton, raton.x, raton.y + 30);
 
@@ -938,6 +981,160 @@ window.addEventListener("keyup", (e) => {
 window.addEventListener("blur", () => {
     if (juegoIniciado) pausado = true; // al cambiar de ventana, se pausa sola
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
+});
+
+// ============================================================
+//  SECRETO: patrón de teclas -> preguntas de gatos -> personaje Tate
+// ============================================================
+// En el menú principal, escribe el patrón con las flechas (o W A S D). Si lo haces bien aparecen
+// preguntas sobre gatos; si las contestas todas bien, se desbloquea a Tate. Cambia el patrón aquí abajo.
+const PATRON_SECRETO = ["arriba", "arriba", "abajo", "abajo", "izquierda", "derecha", "izquierda", "derecha"];
+const PAUSA_MAX_PATRON = 2500;   // ms: si te demoras más que esto entre dos pasos, el patrón se reinicia
+const PREGUNTAS_POR_INTENTO = 5; // cuántas preguntas salen (se eligen al azar de la lista de abajo)
+const RETRASO_ACIERTO = 800;     // ms antes de pasar a la siguiente pregunta
+const RETRASO_FALLO = 2200;      // ms que se muestra la respuesta correcta tras equivocarte
+
+// "correcta" es la posición (0, 1, 2, 3) de la respuesta buena dentro de "opciones".
+// Las opciones se mezclan solas cada vez, así que no importa en qué lugar las escribas.
+const PREGUNTAS = [
+    { pregunta: "¿Cuántas horas al día duerme, en promedio, un gato adulto?",
+      opciones: ["De 3 a 5 horas", "Unas 8 horas", "De 12 a 16 horas", "Casi 22 horas"], correcta: 2 },
+    { pregunta: "¿Qué diosa del antiguo Egipto se representaba con cabeza de gata?",
+      opciones: ["Bastet", "Hathor", "Isis", "Neftis"], correcta: 0 },
+    { pregunta: "En Japón, ¿cómo se llama el gato de la suerte que levanta una pata?",
+      opciones: ["Maneki-neko", "Daruma", "Tanuki", "Kitsune"], correcta: 0 },
+    { pregunta: "¿Cómo se llama el gato de sonrisa gigante que aparece y desaparece en «Alicia en el país de las maravillas»?",
+      opciones: ["El gato de Cheshire", "Garfield", "El gato con botas", "Félix"], correcta: 0 },
+    { pregunta: "¿Cómo se llama el gesto del gato de presionar con las patas delanteras, una y otra, sobre una superficie blanda?",
+      opciones: ["Amasar", "Rasguñar", "Marcar", "Cazar"], correcta: 0 },
+    { pregunta: "¿Qué sabor NO pueden percibir los gatos?",
+      opciones: ["Dulce", "Salado", "Amargo", "Ácido"], correcta: 0 },
+    { pregunta: "Si un gato se acerca a ti con la cola levantada, ¿qué suele significar?",
+      opciones: ["Que te saluda con confianza", "Que quiere pelear", "Que tiene mucho frío", "Que se va a dormir"], correcta: 0 },
+    { pregunta: "¿Qué famoso experimento mental de la física usa a un gato dentro de una caja?",
+      opciones: ["El gato de Schrödinger", "El péndulo de Foucault", "La paradoja de Zenón", "La rueda de Faraday"], correcta: 0 },
+    { pregunta: "¿De qué animal salvaje descienden los gatos domésticos?",
+      opciones: ["Del gato montés (Felis silvestris lybica)", "Del lince ibérico", "Del leopardo", "Del tigre"], correcta: 0 },
+    { pregunta: "¿Qué gato naranja de las tiras cómicas es famoso por amar la lasaña?",
+      opciones: ["Garfield", "Tom", "Silvestre", "Félix"], correcta: 0 },
+    { pregunta: "¿De qué color es la nariz de Tate?",
+      opciones: ["Rosada", "Negra", "Azul", "Verde"], correcta: 0 }
+];
+
+let patronEntrada = [];
+let ultimaEntradaPatron = 0;
+let quiz = null;                 // { preguntas, indice, bloqueado } mientras hay un cuestionario abierto
+let temporizadorQuiz = null;
+
+function mezclar(lista) {
+    const copia = lista.slice();
+    for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia;
+}
+
+// Cada flecha que escribes en el menú pasa por aquí; si las últimas coinciden con el patrón, se abre el cuestionario
+function registrarPatron(direccion) {
+    const ahora = Date.now();
+    if (ahora - ultimaEntradaPatron > PAUSA_MAX_PATRON) patronEntrada = [];
+    ultimaEntradaPatron = ahora;
+    patronEntrada.push(direccion);
+    if (patronEntrada.length > PATRON_SECRETO.length) patronEntrada.shift();
+    if (patronEntrada.length === PATRON_SECRETO.length && patronEntrada.every((d, i) => d === PATRON_SECRETO[i])) {
+        patronEntrada = [];
+        abrirQuiz();
+    }
+}
+
+function abrirQuiz() {
+    if (skinsCompradas.includes("tate")) {
+        mostrarLogro("Ya encontraste a Tate ⭐");
+        return;
+    }
+    const elegidas = mezclar(PREGUNTAS).slice(0, PREGUNTAS_POR_INTENTO).map((p) => ({
+        texto: p.pregunta,
+        opciones: mezclar(p.opciones.map((texto, i) => ({ texto: texto, ok: i === p.correcta })))
+    }));
+    quiz = { preguntas: elegidas, indice: 0, bloqueado: false };
+    sonar("equipar");
+    cambiarPantalla("menu-quiz");
+    mostrarPregunta();
+}
+
+function mostrarPregunta() {
+    const pregunta = quiz.preguntas[quiz.indice];
+    document.getElementById("quiz-progreso").textContent = `Pregunta ${quiz.indice + 1} de ${quiz.preguntas.length}`;
+    document.getElementById("quiz-pregunta").textContent = pregunta.texto;
+    document.getElementById("quiz-mensaje").textContent = "";
+    const contenedor = document.getElementById("quiz-opciones");
+    contenedor.textContent = ""; // quita los botones de la pregunta anterior
+    pregunta.opciones.forEach((opcion) => {
+        const boton = document.createElement("button");
+        boton.textContent = opcion.texto;
+        boton.style.display = "block";
+        boton.style.margin = "8px auto";
+        boton.onclick = () => responderQuiz(opcion, boton);
+        contenedor.appendChild(boton);
+    });
+    quiz.bloqueado = false;
+}
+
+function responderQuiz(opcion, boton) {
+    if (!quiz || quiz.bloqueado) return; // evita doble clic mientras se muestra el resultado
+    quiz.bloqueado = true;
+    const mensaje = document.getElementById("quiz-mensaje");
+    if (opcion.ok) {
+        boton.style.background = "#8fd694";
+        mensaje.textContent = "¡Correcto!";
+        sonar("equipar");
+        temporizadorQuiz = setTimeout(() => {
+            if (!quiz) return;
+            quiz.indice++;
+            if (quiz.indice >= quiz.preguntas.length) terminarQuiz(true);
+            else mostrarPregunta();
+        }, RETRASO_ACIERTO);
+    } else {
+        boton.style.background = "#e07a7a";
+        const buena = quiz.preguntas[quiz.indice].opciones.find((o) => o.ok).texto;
+        mensaje.textContent = "Incorrecto. La respuesta era: " + buena;
+        sonar("error");
+        temporizadorQuiz = setTimeout(() => terminarQuiz(false), RETRASO_FALLO);
+    }
+}
+
+function terminarQuiz(exito) {
+    clearTimeout(temporizadorQuiz);
+    quiz = null;
+    entrarAlMenu();
+    if (exito) desbloquearTate();
+    else mostrarLogro("Casi... ¡vuelve a intentarlo!");
+}
+
+function salirQuiz() {
+    clearTimeout(temporizadorQuiz);
+    quiz = null;
+    entrarAlMenu();
+}
+
+function desbloquearTate() {
+    if (!skinsCompradas.includes("tate")) {
+        skinsCompradas.push("tate");
+        guardar("skinsCompradas", JSON.stringify(skinsCompradas)); // con cuenta, también se sube a la nube
+    }
+    construirTienda(); // ahora Tate aparece en la tienda
+    sonar("record");
+    equiparSkin("tate", "⭐ ¡Encontraste a Tate!");
+    actualizarBotonesTienda();
+}
+
+// Solo escucha en el menú principal (no mientras juegas ni mientras escribes tu nombre)
+window.addEventListener("keydown", (e) => {
+    if (juegoIniciado || pantallaActual !== "menu-inicio") return;
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    const direccion = MAPA_TECLAS[String(e.key || "").toLowerCase()];
+    if (direccion) registrarPatron(direccion);
 });
 
 // Control táctil / mouse: mantén apoyado el dedo y el gato va hacia él
@@ -1067,6 +1264,7 @@ function recargarProgreso() {
     if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
     actualizarTextoDificultad();
     actualizarNivelVisualIA();
+    construirTienda();       // por si esta cuenta tiene personajes secretos desbloqueados
     actualizarBotonesTienda();
 }
 
