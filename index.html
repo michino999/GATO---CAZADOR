@@ -202,7 +202,7 @@ const SKINS = [
     { emoji: "🐲", nombre: "Dragón",   precio: 1500, velocidad: 1.15 },
     // Personaje secreto: no sale en la tienda hasta que lo desbloqueas con el patrón y las preguntas.
     // "emoji" es solo su identificador; en el juego se dibuja la imagen tate.png.
-    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate-personaje.png" }
+    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate.png" }
 ];
 
 // Cada nivel cambia el color del fondo, y cada 2 niveles cambia el ratón
@@ -911,7 +911,7 @@ if (imagenTate) imagenTate.src = "tate.png";
 function dibujarGato() {
     const skin = SKINS.find((s) => s.emoji === skinActual);
     if (skin && skin.imagen) {
-      if (imagenTate) imagenTate.src = "tate-personaje.png";
+        if (imagenTate && imagenTate.complete && imagenTate.naturalWidth > 0) {
             ctx.drawImage(imagenTate, gato.x, gato.y - 2, 40, 40);
         } else {
             ctx.fillText(skin.icono || "🐱", gato.x, gato.y + 35); // plan B si la imagen no cargó
