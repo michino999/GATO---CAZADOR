@@ -10,115 +10,99 @@
     <link rel="canonical" href="https://michino999.github.io/GATO---CAZADOR/">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
-    <!-- Para que Google reconozca el nombre y la página al compartirla -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Gato Cazador">
     <meta property="og:title" content="Gato Cazador – juego gratis de gatos y ratones">
     <meta property="og:description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.">
-   <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
+    <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
     <meta property="og:locale" content="es_LA">
     <meta name="twitter:card" content="summary">
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "VideoGame",
-        "name": "Gato Cazador",
-        "url": "https://michino999.github.io/GATO---CAZADOR/",
-        "description": "Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.",
-        "inLanguage": "es",
-        "genre": "Arcade",
-        "gamePlatform": "Navegador web",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-    }
-    </script>
-    <!-- Cuando Google Search Console te dé la etiqueta de verificación, pégala aquí abajo:
-    <meta name="google-site-verification" content="TU_CODIGO"> -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #256087; font-family: 'Press Start 2P', cursive; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: white; }
-        .menu { text-align: center; background: #c6c6c6; padding: 40px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; }
-        button { padding: 15px; font-size: 14px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 280px; }
+        .menu { text-align: center; background: #c6c6c6; padding: 35px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; max-width: 92%; box-sizing: border-box; }
+        button { padding: 14px; font-size: 13px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 280px; max-width: 100%; }
         button:hover { background: #e0e0e0; }
-        /* Para quien navega con teclado: se ve qué botón está seleccionado */
         button:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
         canvas { border: 4px solid #fff; background: black; display: none; max-width: 100%; height: auto; touch-action: none; }
         #marcador {
-            display: none; /* Se oculta por defecto, el JS lo muestra con "flex" */
+            display: none;
             width: 600px;
             max-width: 100%;
-            box-sizing: border-box; /* El padding y el borde ya no ensanchan la caja */
-            margin: 10px auto; /* Centrado automático */
+            box-sizing: border-box;
+            margin: 10px auto;
             padding: 12px;
             background: #1f1f1f;
             color: white;
             border: 4px solid white;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             justify-content: space-between;
-            flex-wrap: wrap; /* Si la pantalla es angosta, baja a otra fila en vez de salirse */
+            flex-wrap: wrap;
             gap: 8px;
             box-shadow: 4px 4px 0px black;
-            /* Esto ayuda a que no empuje otros elementos */
             position: relative;
         }
-        /* Con 7 personajes la lista puede ser larga: se desplaza dentro de la tienda */
         #lista-tienda { max-height: 45vh; overflow-y: auto; }
-        input { padding: 15px; font-size: 12px; font-family: 'Press Start 2P', cursive; width: 280px; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; }
+        input { padding: 14px; font-size: 12px; font-family: 'Press Start 2P', cursive; width: 280px; max-width: 100%; box-sizing: border-box; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; }
         input:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
         button:disabled { opacity: 0.5; cursor: default; }
-        /* Título del menú con Tate al lado (se pone encima si la pantalla es angosta) */
         .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 26px; }
-        .titulo-menu img { width: 72px; height: 72px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; }
-        #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 14px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
+        .titulo-menu img { width: 72px; height: 72px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; cursor: pointer; }
+        #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 13px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
     </style>
 </head>
 <body>
 <noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
 
+<!-- Reproductor de audio opcional con la presentación del desarrollador -->
+<audio id="audio-presentacion" src="presentacion.mp3" preload="auto"></audio>
+
 <div id="menu-inicio" class="menu">
     <div class="titulo-menu">
-        <img src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72">
+        <img id="foto-tate-menu" src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72" onclick="toqueSecretoFoto()">
         <h1>GATO CAZADOR</h1>
     </div>
 
-    <!-- Color corregido: antes era #e600082c (el "2c" final lo volvía casi transparente) -->
     <p style="font-size: 13px; color: #b30009; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; font-weight: bold;">
         AMENAZA I.A.: LVL <span id="ia-nivel">1</span>
     </p>
     <p style="font-size: 12px; margin-top: 0; margin-bottom: 10px;">
         Récord: <span id="record-valor">0</span>
     </p>
-    <p style="font-size: 10px; margin-top: 0; margin-bottom: 25px;">
+    <p style="font-size: 10px; margin-top: 0; margin-bottom: 20px;">
         Flechas o WASD para moverte · P pausa<br>En móvil: mantén el dedo en la pantalla
     </p>
 
-    <p style="font-size: 9px; max-width: 280px; margin: 0 auto 20px;">Juego gratis para el navegador: caza ratones, sube de nivel y desbloquea personajes.</p>
-
-    <button onclick="empezarJuego()">Jugar</button>
-    <button onclick="abrirMultijugador()">1v1 Online</button>
+    <button onclick="empezarJuego()">Jugar Solo</button>
+    <button id="btn-multi" onclick="abrirMultijugador()" style="display:none;">Multijugador 1v1</button>
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v14</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v16 · Completo</p>
 </div>
 
-    <div id="menu-multijugador" class="menu" style="display:none;">
-        <h2>MODO 1V1</h2>
-        <p style="font-size: 10px; margin-bottom: 15px;">¡Un jugador es el Gato y otro el Ratón!</p>
-        <button onclick="crearSala()">Crear sala nueva</button><br><br>
-        <input id="input-sala" type="text" placeholder="CÓDIGO SALA" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false"><br>
-        <button onclick="unirseSala()">Unirse a sala</button><br><br>
+    <!-- MENÚ MULTIJUGADOR 1v1 -->
+    <div id="menu-multi" class="menu" style="display:none;">
+        <h2>1v1 ONLINE</h2>
+        <p style="font-size: 10px; max-width: 300px; margin: 0 auto 15px;">Un jugador es el Gato cazador y el otro es el Ratón que escapa.</p>
+        <button id="btn-crear-sala" onclick="crearSalaMulti()">Crear sala (Gato)</button>
+        <p style="font-size: 10px; margin: 15px 0 5px;">— O únete con un código —</p>
+        <input id="multi-codigo-input" type="text" placeholder="CÓDIGO (6 LETRAS)" maxlength="6" autocapitalize="characters" spellcheck="false" style="text-transform: uppercase; text-align: center;" onkeydown="if (event.key === 'Enter') unirseSalaMulti()"><br>
+        <button id="btn-unirse-sala" onclick="unirseSalaMulti()">Unirse (Ratón)</button>
+        <p id="multi-mensaje" style="min-height: 2.2em; font-size: 10px; color: #b30009; margin: 8px 0;"></p>
         <button onclick="volverMenu()">Volver</button>
     </div>
 
-    <div id="menu-espera" class="menu" style="display:none;">
-        <h2>SALA DE ESPERA</h2>
-        <p style="font-size: 10px;">Código de sala:</p>
-        <h3 id="codigo-sala-texto" style="color: #b30009; font-size: 20px; margin: 10px 0;">------</h3>
-        <p id="rol-asignado" style="font-size: 11px; margin: 15px 0;"></p>
-        <p id="estado-espera" style="font-size: 10px; color: #555;"></p>
-        <button id="btn-comenzar-1v1" onclick="iniciarPartida1v1()" style="display:none;">¡Comenzar partida!</button>
-        <button onclick="salirSala()">Salir</button>
+    <!-- SALA DE ESPERA 1v1 -->
+    <div id="menu-sala" class="menu" style="display:none;">
+        <h2>SALA 1v1</h2>
+        <p style="font-size: 10px; margin-bottom: 5px;">Comparte este código con tu amigo:</p>
+        <div id="sala-codigo-display" style="font-size: 24px; background: #1f1f1f; color: gold; padding: 12px; border: 3px solid #fff; margin: 10px auto; width: 220px; letter-spacing: 3px;">------</div>
+        <p id="sala-rol-texto" style="font-size: 11px; margin: 10px 0;"></p>
+        <p id="sala-estado-texto" style="font-size: 10px; color: #333; margin: 10px 0;">Esperando rival...</p>
+        <button id="btn-iniciar-multi" onclick="lanzarPartidaMulti()" style="display:none;">¡Empezar partida!</button>
+        <button onclick="salirSalaMulti()">Salir de la sala</button>
     </div>
 
     <div id="menu-quiz" class="menu" style="display:none;">
@@ -150,34 +134,32 @@
         <button onclick="borrarProgreso()">Borrar progreso</button>
         <button onclick="volverMenu()">Volver</button>
     </div>
-<div id="menu-tienda" class="menu" style="display:none;">
-    <h2>TIENDA</h2>
-    <p>Monedas: <span id="monedas-tienda">0</span></p>
 
-    <div id="lista-tienda">
-        <!-- Los botones de personajes los crea juego.js a partir de la lista SKINS -->
+    <div id="menu-tienda" class="menu" style="display:none;">
+        <h2>TIENDA</h2>
+        <p>Monedas: <span id="monedas-tienda">0</span></p>
+        <div id="lista-tienda"></div>
+        <button onclick="volverMenu()">Volver</button>
     </div>
-
-    <button onclick="volverMenu()">Volver</button>
-</div>
 
     <canvas id="juego" width="600" height="400"></canvas>
 
     <div id="marcador">
-        <span id="rol-valor" style="display:none;"></span>
+        <span id="marcador-rol" style="display:none; color: gold;">Rol: Gato</span>
         <span>Puntos: <span id="puntos-valor">0</span></span>
-        <span>Monedas: <span id="monedas-valor">0</span></span>
-        <span>Nivel: <span id="nivel-valor">1</span></span>
+        <span id="marcador-monedas">Monedas: <span id="monedas-valor">0</span></span>
+        <span id="marcador-nivel">Nivel: <span id="nivel-valor">1</span></span>
         <span>Tiempo: <span id="tiempo-valor">60</span></span>
     </div>
 
     <div id="fin-juego" class="menu" style="display:none;">
-        <h1>¡TIEMPO AGOTADO!</h1>
-        <p>Puntuación: <span id="puntos-finales"></span></p>
-        <p>Monedas ganadas: <span id="monedas-partida">0</span></p>
-        <p>Récord: <span id="record-final">0</span></p>
+        <h1 id="fin-titulo">¡TIEMPO AGOTADO!</h1>
+        <p id="fin-subtitulo" style="font-size: 11px;"></p>
+        <p id="fin-puntos-linea">Puntuación: <span id="puntos-finales"></span></p>
+        <p id="fin-monedas-linea">Monedas ganadas: <span id="monedas-partida">0</span></p>
+        <p id="fin-record-linea">Récord: <span id="record-final">0</span></p>
         <p id="mensaje-record" style="display:none; color: #b30009;">¡NUEVO RÉCORD!</p>
-        <button id="btn-revancha" onclick="reiniciarJuego()">Volver a jugar</button>
+        <button id="btn-reiniciar" onclick="reiniciarJuego()">Volver a jugar</button>
         <button onclick="volverMenu()">Ir al Menú</button>
     </div>
 
@@ -186,31 +168,25 @@
     <script src="firebase-config.js"></script>
     <script>
 // ============================================================
-//  GATO CAZADOR - juego.js (versión corregida)
+//  GATO CAZADOR - juego.js + Secreto Tate + Multijugador 1v1
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
 
-// --- CONSTANTES: todos los números "de diseño" en un solo lugar ---
-const DURACION_PARTIDA = 60;        // segundos que dura una partida
-const BONUS_TIEMPO_NIVEL = 5;       // segundos extra al subir de nivel (pon 0 para quitarlo)
-const CAPTURAS_POR_NIVEL = 5;       // ratones que hay que cazar para subir de nivel
-const RADIO_CAPTURA = 40;           // distancia (px) entre centros para contar como captura
-const DISTANCIA_MIN_APARICION = 150; // el ratón nunca reaparece más cerca que esto del gato
-const TOPE_APRENDIZAJE = 100;       // a partir de aquí la IA del ratón ya no mejora más
-const CAPTURAS_POR_NIVEL_IA = 5;    // capturas históricas necesarias para subir 1 nivel de "Amenaza I.A."
+const DURACION_PARTIDA = 60;
+const BONUS_TIEMPO_NIVEL = 5;
+const CAPTURAS_POR_NIVEL = 5;
+const RADIO_CAPTURA = 40;
+const DISTANCIA_MIN_APARICION = 150;
+const TOPE_APRENDIZAJE = 100;
+const CAPTURAS_POR_NIVEL_IA = 5;
 
-// La dificultad ahora SÍ afecta al ratón (antes solo cambiaba la velocidad del gato)
 const DIFICULTADES = [
     { nombre: "Fácil",   velGato: 5, factorRaton: 0.8, factorVision: 0.8, monedasPorCaptura: 10 },
     { nombre: "Normal",  velGato: 5, factorRaton: 1.0, factorVision: 1.0, monedasPorCaptura: 20 },
     { nombre: "Difícil", velGato: 5, factorRaton: 1.2, factorVision: 1.15, monedasPorCaptura: 30 }
 ];
 
-// Personajes de la tienda. "velocidad" es un multiplicador (1 = normal, 1.1 = 10% más rápido).
-// Para añadir uno nuevo solo agrega una línea aquí: el botón de la tienda se crea solo.
-// Velocidad de Tate (multiplicador): 1 = normal, 2 = el doble (+100%), 3 = el triple...
-// Ojo: el gato base va a 5 px por frame; con 2 ya cruza la pantalla en un segundo. Más de 4 se vuelve incontrolable.
 const VELOCIDAD_TATE = 2;
 
 const SKINS = [
@@ -221,69 +197,50 @@ const SKINS = [
     { emoji: "🦁", nombre: "León",     precio: 500,  velocidad: 1.1 },
     { emoji: "🐺", nombre: "Lobo",     precio: 800,  velocidad: 1.12 },
     { emoji: "🐲", nombre: "Dragón",   precio: 1500, velocidad: 1.15 },
-    // Personaje secreto: no sale en la tienda hasta que lo desbloqueas con el patrón y las preguntas.
-    // "emoji" es solo su identificador; en el juego se dibuja la imagen tate.png.
     { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate.png" }
 ];
 
-// Cada nivel cambia el color del fondo, y cada 2 niveles cambia el ratón
 const FONDOS = ["#000000", "#0b1b3a", "#2a0b3a", "#3a0b0b", "#0b3a1f"];
 const RATONES = ["🐭", "🐹", "🐀", "🐿️"];
 const NIVELES_POR_RATON = 2;
 
 // --- PERFIL ACTIVO ---
-// Sin cuenta, el progreso se guarda con claves normales. Con cuenta, las claves del progreso llevan el
-// id del usuario delante: así dos cuentas (o una cuenta y "sin cuenta") nunca mezclan su progreso.
-let sesion = null; // { uid, nombre } cuando hay cuenta iniciada
+let sesion = null;
 const CLAVES_PROGRESO = ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad", "actualizado"];
 
 function claveAlmacen(clave) {
     return sesion && CLAVES_PROGRESO.includes(clave) ? `u_${sesion.uid}_${clave}` : clave;
 }
 
-// --- ALMACENAMIENTO SEGURO ---
-// localStorage puede fallar (modo privado, datos corruptos). Estas funciones evitan que el juego se rompa.
 function leerNumero(clave) {
     try {
         const n = Number(localStorage.getItem(claveAlmacen(clave)));
         return Number.isFinite(n) ? n : 0;
-    } catch (e) {
-        return 0;
-    }
+    } catch (e) { return 0; }
 }
 
 function leerTexto(clave, porDefecto) {
     try {
         const valor = localStorage.getItem(claveAlmacen(clave));
         return valor !== null ? valor : porDefecto;
-    } catch (e) {
-        return porDefecto;
-    }
+    } catch (e) { return porDefecto; }
 }
 
 function leerLista(clave, porDefecto) {
     try {
         const dato = JSON.parse(localStorage.getItem(claveAlmacen(clave)));
         return Array.isArray(dato) ? dato : porDefecto;
-    } catch (e) {
-        return porDefecto;
-    }
+    } catch (e) { return porDefecto; }
 }
 
-// Guarda solo en este dispositivo
 function guardarLocal(clave, valor) {
-    try {
-        localStorage.setItem(claveAlmacen(clave), valor);
-    } catch (e) {
-        // Si no se puede guardar, el juego sigue funcionando (solo no recordará el progreso)
-    }
+    try { localStorage.setItem(claveAlmacen(clave), valor); } catch (e) {}
 }
 
-// Guarda en el dispositivo y, si hay cuenta, programa la subida a la nube
 function guardar(clave, valor) {
     guardarLocal(clave, valor);
     if (sesion && CLAVES_PROGRESO.includes(clave) && clave !== "actualizado") {
-        guardarLocal("actualizado", Date.now()); // para saber qué copia es más reciente
+        guardarLocal("actualizado", Date.now());
         programarSubidaNube();
     }
 }
@@ -301,31 +258,41 @@ let monedasPartida = 0;
 let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
 if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
 let skinActual = leerTexto("skin", "🐱");
-if (!skinsCompradas.includes(skinActual)) skinActual = "🐱"; // por si el dato guardado es inválido
+if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
 let experienciaRaton = leerNumero("experienciaRaton");
-let sonidoActivo = leerTexto("sonido", "1") === "1"; // el jugador puede silenciarlo en Ajustes
-let musicaActiva = leerTexto("musica", "1") === "1"; // música de fondo (archivo musica.mp3)
-let musicaBuffer = null;      // la canción ya decodificada
-let musicaGanancia = null;    // control de volumen de la música
-let musicaElemento = null;    // plan B: <audio> normal si el navegador no deja cargar el archivo con fetch
-let musicaIntentada = false;  // para cargar el archivo una sola vez
-let musicaQuiereSonar = null; // último estado pedido (sonando / en silencio)
-const VOLUMEN_MUSICA = 0.5;    // 0 a 1 (el MP3 ya está normalizado; baja este número si se oye muy fuerte)
-let audioCtx = null; // se crea con el primer clic/tecla (los navegadores no permiten audio antes)
+let sonidoActivo = leerTexto("sonido", "1") === "1";
+let musicaActiva = leerTexto("musica", "1") === "1";
+let musicaBuffer = null;
+let musicaGanancia = null;
+let musicaElemento = null;
+let musicaIntentada = false;
+let musicaQuiereSonar = null;
+const VOLUMEN_MUSICA = 0.5;
+let audioCtx = null;
 
 let gato = { x: 300, y: 200, w: 35, h: 35 };
-let raton = { x: 100, y: 100, w: 25, h: 25, targetX: null, targetY: null };
+let raton = { x: 100, y: 100, w: 28, h: 28, targetX: null, targetY: null };
 
-// Control del bucle y de las teclas
-let animacionId = null;       // id del requestAnimationFrame actual (para no duplicar bucles)
-let ultimoTimestamp = null;   // marca de tiempo del frame anterior
+let animacionId = null;
+let ultimoTimestamp = null;
 let ultimoSegundoMostrado = null;
 const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
-let pausado = false;                        // true mientras el juego está en pausa
-const toque = { activo: false, x: 0, y: 0 }; // dedo o mouse apoyado sobre el canvas
+let pausado = false;
+const toque = { activo: false, x: 0, y: 0 };
+
+// --- VARIABLES MULTIJUGADOR 1v1 ---
+let modoMulti = false;
+let rolMulti = null;
+let salaId = null;
+let desuscribirSala = null;
+let skinGatoSala = "🐱";
+let destinoRemoto = { x: 100, y: 100 };
+let ultimaSyncRed = 0;
+const INTERVALO_SYNC_RED = 65;
+const VELOCIDAD_GAT0_1V1 = 5;
+const VELOCIDAD_RATON_1V1 = 4.8;
 
 // --- SONIDO ---
-// Todos los sonidos se fabrican con osciladores (Web Audio API): no hay archivos .mp3 que cargar.
 function prepararAudio() {
     if (audioCtx) {
         if (audioCtx.state === "suspended") audioCtx.resume();
@@ -333,41 +300,28 @@ function prepararAudio() {
     }
     const Contexto = window.AudioContext || window.webkitAudioContext;
     if (!Contexto) return;
-    try {
-        audioCtx = new Contexto();
-    } catch (e) {
-        audioCtx = null;
-    }
+    try { audioCtx = new Contexto(); } catch (e) { audioCtx = null; }
     cargarMusica();
 }
 
-// --- MÚSICA DE FONDO ---
-// Se carga "musica.mp3" (debe estar en la misma carpeta que index.html) y se repite sin cortes.
 function cargarMusica() {
     if (!audioCtx || musicaIntentada) return;
     musicaIntentada = true;
     try {
         fetch("musica.mp3")
             .then((respuesta) => {
-                if (!respuesta.ok) {
-                    mostrarLogro("No se encontró musica.mp3 junto a index.html");
-                    throw new Error("musica.mp3 no encontrado");
-                }
+                if (!respuesta.ok) throw new Error("musica.mp3 no encontrado");
                 return respuesta.arrayBuffer();
             })
             .then((datos) => new Promise((resolver, fallar) => audioCtx.decodeAudioData(datos, resolver, fallar)))
             .then((buffer) => {
                 musicaBuffer = buffer;
-                mostrarLogro("🎵 Música lista");
                 iniciarMusica();
             })
             .catch(planBMusica);
-    } catch (e) {
-        planBMusica();
-    }
+    } catch (e) { planBMusica(); }
 }
 
-// Reproductor con Web Audio: el bucle es perfecto (sin pausa al repetir)
 function iniciarMusica() {
     if (!audioCtx || !musicaBuffer) return;
     musicaGanancia = audioCtx.createGain();
@@ -382,39 +336,32 @@ function iniciarMusica() {
     sincronizarMusica();
 }
 
-// Plan B: si abres index.html directo desde la carpeta (file://), fetch no puede leer el archivo.
-// Entonces se usa un <audio> normal, que repite con una pausita casi imperceptible.
 function planBMusica() {
     if (musicaElemento || musicaBuffer) return;
     try {
         musicaElemento = new Audio("musica.mp3");
         musicaElemento.loop = true;
         musicaElemento.volume = 0;
-        musicaElemento.addEventListener("error", () => mostrarLogro("No se pudo cargar musica.mp3 (¿está junto a index.html?)"));
         const promesa = musicaElemento.play();
         if (promesa && promesa.catch) promesa.catch(() => {});
-    } catch (e) {
-        musicaElemento = null;
-    }
+    } catch (e) { musicaElemento = null; }
     musicaQuiereSonar = null;
     sincronizarMusica();
 }
 
 function ponerVolumenMusica(volumen) {
     if (musicaGanancia && audioCtx) {
-        musicaGanancia.gain.setTargetAtTime(volumen, audioCtx.currentTime, 0.1); // sube/baja suave
+        musicaGanancia.gain.setTargetAtTime(volumen, audioCtx.currentTime, 0.1);
     } else if (musicaElemento) {
         musicaElemento.volume = volumen;
     }
 }
 
-// La música suena solo durante la partida, y se silencia en pausa, al terminar o si la apagas
 function sincronizarMusica() {
     const quiereSonar = musicaActiva && juegoIniciado && !pausado;
     if (quiereSonar === musicaQuiereSonar) return;
     musicaQuiereSonar = quiereSonar;
     if (quiereSonar) {
-        // Algunos navegadores dejan el audio "dormido" hasta que el jugador interactúa: lo despertamos
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
         if (musicaElemento && musicaElemento.paused) {
             const promesa = musicaElemento.play();
@@ -424,7 +371,6 @@ function sincronizarMusica() {
     ponerVolumenMusica(quiereSonar ? VOLUMEN_MUSICA : 0);
 }
 
-// Un pitido: va de "frecuencia" a "frecuenciaFinal" durante "duracion" segundos y se apaga suave
 function tono(frecuencia, frecuenciaFinal, duracion, tipo, volumen, retraso) {
     if (!sonidoActivo || !audioCtx) return;
     const inicio = audioCtx.currentTime + (retraso || 0);
@@ -441,7 +387,6 @@ function tono(frecuencia, frecuenciaFinal, duracion, tipo, volumen, retraso) {
     oscilador.stop(inicio + duracion + 0.02);
 }
 
-// Melodía corta: lista de notas, una detrás de otra
 function melodia(notas, duracionNota, tipo, volumen) {
     notas.forEach((nota, i) => tono(nota, nota, duracionNota, tipo, volumen, i * duracionNota * 0.9));
 }
@@ -461,7 +406,6 @@ function sonar(nombre) {
     if (SONIDOS[nombre]) SONIDOS[nombre]();
 }
 
-// --- AVISOS EN PANTALLA (el cuadro dorado #logro, que antes no se usaba) ---
 let temporizadorLogro = null;
 
 function mostrarLogro(texto) {
@@ -475,42 +419,36 @@ function mostrarLogro(texto) {
     }, 2200);
 }
 
-// --- IA Y ACTUALIZACIÓN VISUAL ---
 function actualizarNivelVisualIA() {
-    // Ahora lee la variable en memoria (siempre está sincronizada con localStorage)
     let nivelIA = Math.floor(experienciaRaton / CAPTURAS_POR_NIVEL_IA) + 1;
-
     const elemento = document.getElementById("ia-nivel");
     if (elemento) {
         elemento.innerText = experienciaRaton >= TOPE_APRENDIZAJE ? nivelIA + " (MAX)" : nivelIA;
     }
-
     const elementoRecord = document.getElementById("record-valor");
     if (elementoRecord) elementoRecord.innerText = record;
 }
 
-// Pone en el marcador los valores reales (antes las monedas no se refrescaban al empezar)
 function actualizarMarcador() {
-    marcadorOnline(false);
     document.getElementById("puntos-valor").innerText = puntos;
     document.getElementById("monedas-valor").innerText = monedas;
     document.getElementById("nivel-valor").innerText = nivel;
     document.getElementById("tiempo-valor").innerText = Math.max(0, Math.ceil(tiempo));
 }
 
-// --- GESTOR CENTRAL DE PANTALLAS ---
-const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "menu-quiz", "menu-multijugador", "menu-espera", "fin-juego", "juego", "marcador"];
-let pantallaActual = "menu-inicio"; // para saber en qué pantalla estamos
+const PANTALLAS = ["menu-inicio", "menu-multi", "menu-sala", "menu-login", "menu-ajustes", "menu-tienda", "menu-quiz", "fin-juego", "juego", "marcador"];
+let pantallaActual = "menu-inicio";
 
 function cambiarPantalla(pantallaObjetivo) {
     pantallaActual = pantallaObjetivo;
-    // Apaga todas las pantallas
+    if (document.activeElement && document.activeElement.tagName === "BUTTON") {
+        document.activeElement.blur();
+    }
     PANTALLAS.forEach((id) => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.style.display = "none";
     });
 
-    // Enciende solo la correspondiente
     if (pantallaObjetivo === "juego") {
         document.getElementById("juego").style.display = "block";
         document.getElementById("marcador").style.display = "flex";
@@ -520,9 +458,7 @@ function cambiarPantalla(pantallaObjetivo) {
     }
 }
 
-// --- NAVEGACIÓN ---
 function reaparecerRaton() {
-    // Busca un punto aleatorio que no quede encima del gato
     const centroGatoX = gato.x + gato.w / 2;
     const centroGatoY = gato.y + gato.h / 2;
 
@@ -539,7 +475,6 @@ function reaparecerRaton() {
         }
     }
 
-    // Plan B (casi nunca ocurre): la esquina opuesta al gato
     raton.x = centroGatoX < canvas.width / 2 ? canvas.width - raton.w : 0;
     raton.y = centroGatoY < canvas.height / 2 ? canvas.height - raton.h : 0;
     raton.targetX = null;
@@ -547,7 +482,8 @@ function reaparecerRaton() {
 }
 
 function empezarJuego() {
-    // Si por algún motivo ya había un bucle corriendo, lo cancelamos para no tener dos a la vez
+    modoMulti = false;
+    rolMulti = null;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
         animacionId = null;
@@ -563,11 +499,14 @@ function empezarJuego() {
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
 
-    // Reinicia posiciones y teclas
     gato.x = canvas.width / 2 - gato.w / 2;
     gato.y = canvas.height / 2 - gato.h / 2;
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
     reaparecerRaton();
+
+    document.getElementById("marcador-rol").style.display = "none";
+    document.getElementById("marcador-monedas").style.display = "";
+    document.getElementById("marcador-nivel").style.display = "";
 
     actualizarMarcador();
     cambiarPantalla("juego");
@@ -582,7 +521,6 @@ function terminarJuego() {
         animacionId = null;
     }
 
-    // Récord: ahora se guarda de verdad
     const esRecord = puntos > record;
     if (esRecord) {
         record = puntos;
@@ -590,9 +528,17 @@ function terminarJuego() {
     }
 
     sincronizarMusica();
-    subirProgreso(); // al terminar la partida se sube de inmediato
+    subirProgreso();
     sonar(esRecord ? "record" : "fin");
     cambiarPantalla("fin-juego");
+
+    document.getElementById("fin-titulo").innerText = "¡TIEMPO AGOTADO!";
+    document.getElementById("fin-subtitulo").innerText = "";
+    document.getElementById("fin-puntos-linea").style.display = "";
+    document.getElementById("fin-monedas-linea").style.display = "";
+    document.getElementById("fin-record-linea").style.display = "";
+    document.getElementById("btn-reiniciar").style.display = "";
+
     document.getElementById("puntos-finales").innerText = puntos;
     document.getElementById("monedas-partida").innerText = monedasPartida;
     document.getElementById("record-final").innerText = record;
@@ -609,14 +555,22 @@ function abrirAjustes() {
 }
 
 function abrirTienda() {
-    construirTienda(); // por seguridad: si aún no existían los botones, se crean ahora
+    construirTienda();
     cambiarPantalla("menu-tienda");
     document.getElementById("monedas-tienda").innerText = monedas;
     actualizarBotonesTienda();
 }
 
 function volverMenu() {
-    cancelarOnline();
+    limpiarSalaMulti();
+    modoMulti = false;
+    rolMulti = null;
+    juegoIniciado = false;
+    if (animacionId !== null) {
+        cancelAnimationFrame(animacionId);
+        animacionId = null;
+    }
+    sincronizarMusica();
     cambiarPantalla("menu-inicio");
     actualizarNivelVisualIA();
 }
@@ -641,7 +595,7 @@ function cambiarSonido() {
     guardar("sonido", sonidoActivo ? "1" : "0");
     actualizarTextoSonido();
     prepararAudio();
-    sonar("equipar"); // pitido de confirmación (solo suena si se acaba de activar)
+    sonar("equipar");
 }
 
 function actualizarTextoMusica() {
@@ -663,9 +617,7 @@ function borrarProgreso() {
         ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad"].forEach((clave) => {
             localStorage.removeItem(claveAlmacen(clave));
         });
-    } catch (e) {
-        // Si no se puede borrar, igual reiniciamos las variables de esta sesión
-    }
+    } catch (e) {}
 
     record = 0;
     monedas = 0;
@@ -679,7 +631,7 @@ function borrarProgreso() {
     actualizarNivelVisualIA();
     if (sesion) {
         guardarLocal("actualizado", Date.now());
-        subirProgreso(); // también se borra en la nube
+        subirProgreso();
     }
     mostrarLogro("Progreso borrado");
 }
@@ -693,7 +645,6 @@ function actualizarBotonesTienda() {
         const simbolo = skin.icono || skin.emoji;
         const poseido = skinsCompradas.includes(skin.emoji);
 
-        // Un personaje secreto que no tienes (por ejemplo, al cambiar de cuenta) se esconde
         boton.style.display = skin.secreta && !poseido ? "none" : "";
 
         if (skin.emoji === skinActual) {
@@ -706,13 +657,12 @@ function actualizarBotonesTienda() {
     });
 }
 
-// Crea un botón por cada personaje del catálogo (antes estaban escritos a mano en el HTML)
 function construirTienda() {
     const lista = document.getElementById("lista-tienda");
     if (!lista) return;
     SKINS.forEach((skin) => {
-        if (skin.elemento) return; // este botón ya existe: no duplicar
-        if (skin.secreta && !skinsCompradas.includes(skin.emoji)) return; // los secretos salen solo al desbloquearlos
+        if (skin.elemento) return;
+        if (skin.secreta && !skinsCompradas.includes(skin.emoji)) return;
         const boton = document.createElement("button");
         boton.onclick = () => comprarOEquipar(skin.emoji, skin.precio);
         skin.elemento = boton;
@@ -721,7 +671,6 @@ function construirTienda() {
     actualizarBotonesTienda();
 }
 
-// Multiplicador de velocidad del personaje equipado
 function bonusSkin() {
     const skin = SKINS.find((s) => s.emoji === skinActual);
     return skin ? skin.velocidad : 1;
@@ -755,24 +704,21 @@ function equiparSkin(emoji, mensaje) {
     mostrarLogro((mensaje || "Skin equipada: " + simbolo) + extra);
 }
 
-// --- LÓGICA DEL JUEGO ---
-function actualizarGato(f) {
-    // Dirección según las teclas que están pulsadas AHORA (movimiento continuo y suave)
+// --- LÓGICA DE MOVIMIENTO ---
+function obtenerVectorEntrada(entidad) {
     let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
     let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
 
-    // En diagonal se normaliza para que no sea más rápido que en línea recta
     if (dx !== 0 && dy !== 0) {
         dx *= Math.SQRT1_2;
         dy *= Math.SQRT1_2;
     }
 
-    // Control táctil: si hay un dedo apoyado, el gato va hacia él (tiene prioridad sobre el teclado)
     if (toque.activo) {
-        const ox = toque.x - (gato.x + gato.w / 2);
-        const oy = toque.y - (gato.y + gato.h / 2);
+        const ox = toque.x - (entidad.x + entidad.w / 2);
+        const oy = toque.y - (entidad.y + entidad.h / 2);
         const distanciaToque = Math.hypot(ox, oy);
-        if (distanciaToque > 8) { // zona muerta para que no tiemble al llegar
+        if (distanciaToque > 8) {
             dx = ox / distanciaToque;
             dy = oy / distanciaToque;
         } else {
@@ -780,8 +726,12 @@ function actualizarGato(f) {
             dy = 0;
         }
     }
+    return { dx, dy };
+}
 
-    const velocidadActual = velocidadGato * bonusSkin();
+function actualizarGato(f) {
+    const { dx, dy } = obtenerVectorEntrada(gato);
+    const velocidadActual = modoMulti ? VELOCIDAD_GAT0_1V1 : (velocidadGato * bonusSkin());
     gato.x += dx * velocidadActual * f;
     gato.y += dy * velocidadActual * f;
 
@@ -789,43 +739,41 @@ function actualizarGato(f) {
     gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
 }
 
+function actualizarRatonJugador(f) {
+    const { dx, dy } = obtenerVectorEntrada(raton);
+    raton.x += dx * VELOCIDAD_RATON_1V1 * f;
+    raton.y += dy * VELOCIDAD_RATON_1V1 * f;
+
+    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
+    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
+}
+
 function actualizarRaton(f) {
     const dif = DIFICULTADES[dificultad - 1];
-
-    // Vector que va del gato hacia el ratón (la dirección en la que el ratón debe huir)
     const dx = (raton.x + raton.w / 2) - (gato.x + gato.w / 2);
     const dy = (raton.y + raton.h / 2) - (gato.y + gato.h / 2);
     const dist = Math.hypot(dx, dy);
 
-    // Cuanto más ha cazado el jugador en total, más "aprende" el ratón
     const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-
     const radioVision = (180 + nivelAprendizaje * 1.5) * dif.factorVision;
 
     let vel = (2.2 + nivel * 0.3 + nivelAprendizaje * 0.012) * dif.factorRaton;
-    // Tope: el ratón nunca es más rápido que el gato por mucho, así que siempre se le puede cazar
     vel = Math.min(vel, velocidadGato * 1.05);
 
     if (dist < radioVision) {
-        // HUIDA
         let vx = dist > 0 ? dx / dist : 1;
         let vy = dist > 0 ? dy / dist : 0;
 
-        // Si choca con una pared, desliza a lo largo de ella en vez de quedarse pegado
         const margen = 2;
         const bloqueadoX = (raton.x <= margen && vx < 0) || (raton.x >= canvas.width - raton.w - margen && vx > 0);
         const bloqueadoY = (raton.y <= margen && vy < 0) || (raton.y >= canvas.height - raton.h - margen && vy > 0);
 
         if (bloqueadoX && bloqueadoY) {
-            // Está en una esquina: no tiene salida
-            vx = 0;
-            vy = 0;
+            vx = 0; vy = 0;
         } else if (bloqueadoX) {
-            vy = vy >= 0 ? 1 : -1;
-            vx = 0;
+            vy = vy >= 0 ? 1 : -1; vx = 0;
         } else if (bloqueadoY) {
-            vx = vx >= 0 ? 1 : -1;
-            vy = 0;
+            vx = vx >= 0 ? 1 : -1; vy = 0;
         }
 
         raton.x += vx * vel * f;
@@ -833,8 +781,6 @@ function actualizarRaton(f) {
         raton.targetX = null;
         raton.targetY = null;
     } else {
-        // PASEO ALEATORIO
-        // (antes "!raton.targetX" fallaba si el objetivo era justo 0)
         if (raton.targetX === null || Math.random() < 0.02 * f) {
             raton.targetX = Math.random() * (canvas.width - 50);
             raton.targetY = Math.random() * (canvas.height - 50);
@@ -847,13 +793,23 @@ function actualizarRaton(f) {
     raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
 }
 
-// La colisión ahora se revisa en CADA frame (antes solo al pulsar una tecla)
 function revisarColision() {
     const distancia = Math.hypot(
         (gato.x + gato.w / 2) - (raton.x + raton.w / 2),
         (gato.y + gato.h / 2) - (raton.y + raton.h / 2)
     );
     if (distancia >= RADIO_CAPTURA) return;
+
+    if (modoMulti) {
+        if (rolMulti === "gato") {
+            puntos++;
+            sonar("captura");
+            reaparecerRaton();
+            document.getElementById("puntos-valor").innerText = puntos;
+            enviarEstadoMulti(true);
+        }
+        return;
+    }
 
     const dif = DIFICULTADES[dificultad - 1];
 
@@ -862,11 +818,9 @@ function revisarColision() {
     monedasPartida += dif.monedasPorCaptura;
     experienciaRaton++;
 
-    // Las monedas ahora se guardan al ganarlas (antes solo al comprar, y se perdían)
     guardar("monedas", monedas);
     guardar("experienciaRaton", experienciaRaton);
 
-    // Subida de nivel: cada CAPTURAS_POR_NIVEL ratones
     const nivelNuevo = Math.floor(puntos / CAPTURAS_POR_NIVEL) + 1;
     if (nivelNuevo > nivel) {
         nivel = nivelNuevo;
@@ -885,23 +839,29 @@ function revisarColision() {
 function actualizarTiempo(dt) {
     tiempo -= dt;
 
-    // Solo tocamos el HTML cuando cambia el número entero de segundos
     const segundos = Math.max(0, Math.ceil(tiempo));
     if (segundos !== ultimoSegundoMostrado) {
         ultimoSegundoMostrado = segundos;
         document.getElementById("tiempo-valor").innerText = segundos;
     }
 
-    if (tiempo <= 0) terminarJuego();
+    if (tiempo <= 0) {
+        if (modoMulti) {
+            if (rolMulti === "gato") {
+                nube.actualizarSala(salaId, { estado: "fin", puntos: puntos, tiempo: 0 }).catch(() => {});
+            }
+            terminarJuegoMulti();
+        } else {
+            terminarJuego();
+        }
+    }
 }
 
-// --- BUCLE PRINCIPAL DEL JUEGO ---
 function gameLoop(timestamp) {
     if (!juegoIniciado) return;
     sincronizarMusica();
 
-    // En pausa no se actualiza nada, solo se redibuja. Se reinicia el reloj para que al volver no haya salto.
-    if (pausado) {
+    if (pausado && !modoMulti) {
         ultimoTimestamp = null;
         dibujar();
         animacionId = requestAnimationFrame(gameLoop);
@@ -909,16 +869,28 @@ function gameLoop(timestamp) {
     }
 
     if (ultimoTimestamp === null) ultimoTimestamp = timestamp;
-    // dt = segundos desde el frame anterior. Se limita a 0.1 para que, si la pestaña
-    // estuvo en segundo plano, el juego no "salte" ni se acabe el tiempo de golpe.
     const dt = Math.min((timestamp - ultimoTimestamp) / 1000, 0.1);
     ultimoTimestamp = timestamp;
-    // f = cuántos "frames a 60 FPS" equivale este frame; así la velocidad es igual en pantallas de 60 o 144 Hz
     const f = dt * 60;
 
-    actualizarGato(f);
-    actualizarRaton(f);
-    revisarColision();
+    if (modoMulti) {
+        if (rolMulti === "gato") {
+            actualizarGato(f);
+            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.35 * f);
+            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.35 * f);
+            revisarColision();
+        } else {
+            actualizarRatonJugador(f);
+            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.35 * f);
+            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.35 * f);
+        }
+        enviarEstadoMulti(false);
+    } else {
+        actualizarGato(f);
+        actualizarRaton(f);
+        revisarColision();
+    }
+
     dibujar();
     actualizarTiempo(dt);
 
@@ -927,40 +899,42 @@ function gameLoop(timestamp) {
     }
 }
 
-// Tate se dibuja con su foto (tate.png); los demás personajes son emojis
 const imagenTate = typeof Image !== "undefined" ? new Image() : null;
 if (imagenTate) imagenTate.src = "tate.png";
 
 function dibujarGato() {
-    const skin = SKINS.find((s) => s.emoji === skinActual);
+    const skinId = modoMulti ? skinGatoSala : skinActual;
+    const skin = SKINS.find((s) => s.emoji === skinId);
     if (skin && skin.imagen) {
         if (imagenTate && imagenTate.complete && imagenTate.naturalWidth > 0) {
             ctx.drawImage(imagenTate, gato.x, gato.y - 2, 40, 40);
         } else {
-            ctx.fillText(skin.icono || "🐱", gato.x, gato.y + 35); // plan B si la imagen no cargó
+            ctx.fillText(skin.icono || "🐱", gato.x, gato.y + 35);
         }
     } else {
-        ctx.fillText(skinActual, gato.x, gato.y + 35);
+        ctx.fillText(skinId || "🐱", gato.x, gato.y + 35);
     }
 }
 
 function dibujar() {
-    ctx.fillStyle = FONDOS[(nivel - 1) % FONDOS.length];
+    ctx.fillStyle = modoMulti ? "#0b1b3a" : FONDOS[(nivel - 1) % FONDOS.length];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Barra dorada: cuánto falta para el siguiente nivel
-    const progreso = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
-    ctx.fillStyle = "#333333";
-    ctx.fillRect(0, 0, canvas.width, 8);
-    ctx.fillStyle = "gold";
-    ctx.fillRect(0, 0, canvas.width * progreso, 8);
+    if (!modoMulti) {
+        const progreso = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
+        ctx.fillStyle = "#333333";
+        ctx.fillRect(0, 0, canvas.width, 8);
+        ctx.fillStyle = "gold";
+        ctx.fillRect(0, 0, canvas.width * progreso, 8);
+    }
 
     ctx.font = "40px Arial";
     dibujarGato();
-    const emojiRaton = RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
+
+    const emojiRaton = modoMulti ? "🐭" : RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
     ctx.fillText(emojiRaton, raton.x, raton.y + 30);
 
-    if (pausado) {
+    if (pausado && !modoMulti) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "white";
@@ -973,25 +947,21 @@ function dibujar() {
 
 // --- CONTROLES ---
 const MAPA_TECLAS = {
-    arrowup: "arriba",
-    w: "arriba",
-    arrowdown: "abajo",
-    s: "abajo",
-    arrowleft: "izquierda",
-    a: "izquierda",
-    arrowright: "derecha",
-    d: "derecha"
+    arrowup: "arriba", w: "arriba",
+    arrowdown: "abajo", s: "abajo",
+    arrowleft: "izquierda", a: "izquierda",
+    arrowright: "derecha", d: "derecha"
 };
 
 window.addEventListener("keydown", (e) => {
-    if (juegoIniciado && (e.key === "p" || e.key === "P" || e.key === "Escape")) {
+    if (juegoIniciado && !modoMulti && (e.key === "p" || e.key === "P" || e.key === "Escape")) {
         pausado = !pausado;
         sonar("pausa");
         return;
     }
     const direccion = MAPA_TECLAS[e.key.toLowerCase()];
     if (!direccion || !juegoIniciado) return;
-    e.preventDefault(); // evita que las flechas hagan scroll en la página
+    e.preventDefault();
     teclas[direccion] = true;
 });
 
@@ -1000,25 +970,20 @@ window.addEventListener("keyup", (e) => {
     if (direccion) teclas[direccion] = false;
 });
 
-// Si la ventana pierde el foco con una tecla pulsada, el gato no se queda "atascado" caminando
 window.addEventListener("blur", () => {
-    if (juegoIniciado) pausado = true; // al cambiar de ventana, se pausa sola
+    if (juegoIniciado && !modoMulti) pausado = true;
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
 });
 
 // ============================================================
-//  SECRETO: patrón de teclas -> preguntas de gatos -> personaje Tate
+//  SECRETO DE TATE: Patrón ↑↑↓↓←→←→ (o 5 toques en su foto) -> Quiz
 // ============================================================
-// En el menú principal, escribe el patrón con las flechas (o W A S D). Si lo haces bien aparecen
-// preguntas sobre gatos; si las contestas todas bien, se desbloquea a Tate. Cambia el patrón aquí abajo.
 const PATRON_SECRETO = ["arriba", "arriba", "abajo", "abajo", "izquierda", "derecha", "izquierda", "derecha"];
-const PAUSA_MAX_PATRON = 2500;   // ms: si te demoras más que esto entre dos pasos, el patrón se reinicia
-const PREGUNTAS_POR_INTENTO = 5; // cuántas preguntas salen (se eligen al azar de la lista de abajo)
-const RETRASO_ACIERTO = 800;     // ms antes de pasar a la siguiente pregunta
-const RETRASO_FALLO = 2200;      // ms que se muestra la respuesta correcta tras equivocarte
+const PAUSA_MAX_PATRON = 3000;
+const PREGUNTAS_POR_INTENTO = 5;
+const RETRASO_ACIERTO = 800;
+const RETRASO_FALLO = 2200;
 
-// "correcta" es la posición (0, 1, 2, 3) de la respuesta buena dentro de "opciones".
-// Las opciones se mezclan solas cada vez, así que no importa en qué lugar las escribas.
 const PREGUNTAS = [
     { pregunta: "¿Cuántas horas al día duerme, en promedio, un gato adulto?",
       opciones: ["De 3 a 5 horas", "Unas 8 horas", "De 12 a 16 horas", "Casi 22 horas"], correcta: 2 },
@@ -1046,8 +1011,21 @@ const PREGUNTAS = [
 
 let patronEntrada = [];
 let ultimaEntradaPatron = 0;
-let quiz = null;                 // { preguntas, indice, bloqueado } mientras hay un cuestionario abierto
+let toquesFoto = 0;
+let ultimoToqueFoto = 0;
+let quiz = null;
 let temporizadorQuiz = null;
+
+function toqueSecretoFoto() {
+    const ahora = Date.now();
+    if (ahora - ultimoToqueFoto > 1500) toquesFoto = 0;
+    ultimoToqueFoto = ahora;
+    toquesFoto++;
+    if (toquesFoto >= 5) {
+        toquesFoto = 0;
+        abrirQuiz();
+    }
+}
 
 function mezclar(lista) {
     const copia = lista.slice();
@@ -1058,7 +1036,6 @@ function mezclar(lista) {
     return copia;
 }
 
-// Cada flecha que escribes en el menú pasa por aquí; si las últimas coinciden con el patrón, se abre el cuestionario
 function registrarPatron(direccion) {
     const ahora = Date.now();
     if (ahora - ultimaEntradaPatron > PAUSA_MAX_PATRON) patronEntrada = [];
@@ -1092,7 +1069,7 @@ function mostrarPregunta() {
     document.getElementById("quiz-pregunta").textContent = pregunta.texto;
     document.getElementById("quiz-mensaje").textContent = "";
     const contenedor = document.getElementById("quiz-opciones");
-    contenedor.textContent = ""; // quita los botones de la pregunta anterior
+    contenedor.textContent = "";
     pregunta.opciones.forEach((opcion) => {
         const boton = document.createElement("button");
         boton.textContent = opcion.texto;
@@ -1105,7 +1082,7 @@ function mostrarPregunta() {
 }
 
 function responderQuiz(opcion, boton) {
-    if (!quiz || quiz.bloqueado) return; // evita doble clic mientras se muestra el resultado
+    if (!quiz || quiz.bloqueado) return;
     quiz.bloqueado = true;
     const mensaje = document.getElementById("quiz-mensaje");
     if (opcion.ok) {
@@ -1144,33 +1121,34 @@ function salirQuiz() {
 function desbloquearTate() {
     if (!skinsCompradas.includes("tate")) {
         skinsCompradas.push("tate");
-        guardar("skinsCompradas", JSON.stringify(skinsCompradas)); // con cuenta, también se sube a la nube
+        guardar("skinsCompradas", JSON.stringify(skinsCompradas));
     }
-    construirTienda(); // ahora Tate aparece en la tienda
+    construirTienda();
     sonar("record");
     equiparSkin("tate", "⭐ ¡Encontraste a Tate!");
     actualizarBotonesTienda();
 }
 
-// Solo escucha en el menú principal (no mientras juegas ni mientras escribes tu nombre)
 window.addEventListener("keydown", (e) => {
     if (juegoIniciado || pantallaActual !== "menu-inicio") return;
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
     const direccion = MAPA_TECLAS[String(e.key || "").toLowerCase()];
-    if (direccion) registrarPatron(direccion);
+    if (direccion) {
+        e.preventDefault();
+        registrarPatron(direccion);
+    }
 });
 
-// Control táctil / mouse: mantén apoyado el dedo y el gato va hacia él
+// Control táctil / mouse
 function posicionEnCanvas(e) {
     const caja = canvas.getBoundingClientRect();
-    // El canvas puede verse más pequeño que 600x400 en pantallas chicas, por eso se escala
     toque.x = (e.clientX - caja.left) * (canvas.width / caja.width);
     toque.y = (e.clientY - caja.top) * (canvas.height / caja.height);
 }
 
 canvas.addEventListener("pointerdown", (e) => {
     if (!juegoIniciado) return;
-    if (pausado) { pausado = false; return; } // tocar el canvas en pausa reanuda
+    if (pausado && !modoMulti) { pausado = false; return; }
     e.preventDefault();
     toque.activo = true;
     posicionEnCanvas(e);
@@ -1182,30 +1160,25 @@ canvas.addEventListener("pointermove", (e) => {
     canvas.addEventListener(tipo, () => { toque.activo = false; });
 });
 
-// Inicialización automática de la interfaz al cargar
 // ============================================================
-//  CUENTAS (opcional): nombre + contraseña, con Firebase
+//  CUENTAS + MULTIJUGADOR FIRESTORE
 // ============================================================
-// Cómo activarlo: crea un proyecto en console.firebase.google.com, registra una app web y pega su
-// configuración en el archivo firebase-config.js (así no se borra cuando actualices este código).
-// Mientras no exista ese archivo, el juego funciona normal y sin pantalla de login.
 const FIREBASE_CONFIG = window.FIREBASE_CONFIG_USUARIO || {
-    apiKey: "AIzaSyAYuJPYqMiRqKDj3FsjIOcPDU3CtPTbn3s",
-    authDomain: "gato-cazador.firebaseapp.com",
-    projectId: "gato-cazador",
-    appId: "1:1056097287521:web:838a566997f1a8623c9920"
+    apiKey: "PEGA_AQUI",
+    authDomain: "",
+    projectId: "",
+    appId: ""
 };
 const FIREBASE_VERSION = "12.19.0";
-const DOMINIO_CUENTAS = "gatocazador.example.com"; // Firebase pide un correo: se fabrica con tu nombre (no se envía nada)
-const RETRASO_SUBIDA_NUBE = 2000;                   // ms que se espera antes de subir cambios (agrupa varios en uno)
+const DOMINIO_CUENTAS = "gatocazador.example.com";
+const RETRASO_SUBIDA_NUBE = 2000;
 const FIREBASE_ACTIVO = FIREBASE_CONFIG.apiKey !== "" && !FIREBASE_CONFIG.apiKey.startsWith("PEGA");
 
 let temporizadorNube = null;
-let accionEnCurso = false;        // true mientras se crea cuenta / entra / sale (evita que el "oyente" de sesión se pise)
+let accionEnCurso = false;
 let nubeConectada = false;
 let avisoPermisoMostrado = false;
 
-// Todo lo que habla con Firebase está en este objeto. El resto del juego no sabe qué servicio hay detrás.
 const nube = {
     listo: false,
     auth: null,
@@ -1225,6 +1198,11 @@ const nube = {
         this.f = { ...mAuth, ...mDb };
         this.listo = true;
     },
+    async asegurarAuthParaSala() {
+        if (!this.auth.currentUser && this.f.signInAnonymously) {
+            try { await this.f.signInAnonymously(this.auth); } catch (e) {}
+        }
+    },
     alCambiarSesion(funcion) { return this.f.onAuthStateChanged(this.auth, funcion); },
     async registrar(email, clave) { return (await this.f.createUserWithEmailAndPassword(this.auth, email, clave)).user; },
     async entrar(email, clave) { return (await this.f.signInWithEmailAndPassword(this.auth, email, clave)).user; },
@@ -1235,8 +1213,300 @@ const nube = {
     },
     async escribir(uid, datos) {
         await this.f.setDoc(this.f.doc(this.db, "jugadores", uid), datos, { merge: true });
+    },
+    async crearSala(codigo, datos) {
+        await this.f.setDoc(this.f.doc(this.db, "salas", codigo), datos);
+    },
+    async leerSala(codigo) {
+        const snap = await this.f.getDoc(this.f.doc(this.db, "salas", codigo));
+        return snap.exists() ? snap.data() : null;
+    },
+    async actualizarSala(codigo, datos) {
+        if (!codigo) return;
+        await this.f.updateDoc(this.f.doc(this.db, "salas", codigo), datos);
+    },
+    async borrarSala(codigo) {
+        if (!codigo) return;
+        await this.f.deleteDoc(this.f.doc(this.db, "salas", codigo));
+    },
+    escucharSala(codigo, callback) {
+        return this.f.onSnapshot(this.f.doc(this.db, "salas", codigo), (snap) => {
+            callback(snap.exists() ? snap.data() : null);
+        }, (err) => {
+            console.error("Error escuchando sala:", err);
+            mostrarLogro("Error de red en la sala");
+        });
     }
 };
+
+// --- LÓGICA DE SALAS 1v1 ---
+function abrirMultijugador() {
+    document.getElementById("multi-mensaje").textContent = "";
+    document.getElementById("multi-codigo-input").value = "";
+    cambiarPantalla("menu-multi");
+}
+
+function generarCodigoSala() {
+    const letras = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let res = "";
+    for (let i = 0; i < 6; i++) res += letras[Math.floor(Math.random() * letras.length)];
+    return res;
+}
+
+function limpiarSalaMulti() {
+    if (desuscribirSala) {
+        desuscribirSala();
+        desuscribirSala = null;
+    }
+    salaId = null;
+}
+
+async function crearSalaMulti() {
+    const msg = document.getElementById("multi-mensaje");
+    if (!nube.listo && !(await conectarNube())) {
+        msg.textContent = "Sin conexión con el servidor.";
+        return;
+    }
+    msg.textContent = "Creando sala...";
+    await nube.asegurarAuthParaSala();
+
+    const codigo = generarCodigoSala();
+    const datosIniciales = {
+        estado: "esperando",
+        skinGato: skinActual,
+        gato: { x: 450, y: 200 },
+        raton: { x: 120, y: 200 },
+        puntos: 0,
+        tiempo: DURACION_PARTIDA,
+        actualizado: Date.now()
+    };
+
+    try {
+        await nube.crearSala(codigo, datosIniciales);
+        salaId = codigo;
+        rolMulti = "gato";
+        skinGatoSala = skinActual;
+
+        document.getElementById("sala-codigo-display").textContent = codigo;
+        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🐱 GATO (Cazador)";
+        document.getElementById("sala-estado-texto").textContent = "Esperando a que entre el Ratón...";
+        document.getElementById("btn-iniciar-multi").style.display = "none";
+        cambiarPantalla("menu-sala");
+
+        suscribirSala(codigo);
+    } catch (e) {
+        console.error(e);
+        msg.textContent = e && e.code === "permission-denied"
+            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            : "Error: " + (e.message || "no se pudo crear");
+    }
+}
+
+async function unirseSalaMulti() {
+    const msg = document.getElementById("multi-mensaje");
+    const codigo = document.getElementById("multi-codigo-input").value.trim().toUpperCase();
+    if (codigo.length !== 6) {
+        msg.textContent = "Escribe el código de 6 caracteres.";
+        return;
+    }
+    if (!nube.listo && !(await conectarNube())) {
+        msg.textContent = "Sin conexión con el servidor.";
+        return;
+    }
+    msg.textContent = "Buscando sala...";
+    await nube.asegurarAuthParaSala();
+
+    try {
+        const datos = await nube.leerSala(codigo);
+        if (!datos) {
+            msg.textContent = "Esa sala no existe.";
+            return;
+        }
+        if (datos.estado !== "esperando") {
+            msg.textContent = "La sala ya está llena o en partida.";
+            return;
+        }
+
+        await nube.actualizarSala(codigo, { estado: "listo" });
+        salaId = codigo;
+        rolMulti = "raton";
+        skinGatoSala = datos.skinGato || "🐱";
+
+        document.getElementById("sala-codigo-display").textContent = codigo;
+        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🐭 RATÓN (¡Escapa!)";
+        document.getElementById("sala-estado-texto").textContent = "¡Conectado! Esperando que el Gato inicie...";
+        document.getElementById("btn-iniciar-multi").style.display = "none";
+        cambiarPantalla("menu-sala");
+
+        suscribirSala(codigo);
+    } catch (e) {
+        console.error(e);
+        msg.textContent = e && e.code === "permission-denied"
+            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            : "Error al entrar en la sala.";
+    }
+}
+
+function suscribirSala(codigo) {
+    if (desuscribirSala) desuscribirSala();
+    desuscribirSala = nube.escucharSala(codigo, (datos) => {
+        if (!datos) {
+            if (pantallaActual === "menu-sala" || juegoIniciado) {
+                mostrarLogro("El otro jugador cerró la sala");
+                volverMenu();
+            }
+            return;
+        }
+
+        if (datos.skinGato) skinGatoSala = datos.skinGato;
+
+        if (pantallaActual === "menu-sala") {
+            if (datos.estado === "listo" && rolMulti === "gato") {
+                document.getElementById("sala-estado-texto").textContent = "¡El Ratón está listo!";
+                document.getElementById("btn-iniciar-multi").style.display = "inline-block";
+                sonar("equipar");
+            }
+            if (datos.estado === "jugando") {
+                iniciarJuegoMultiLocal(datos);
+            }
+            return;
+        }
+
+        if (juegoIniciado && modoMulti) {
+            if (datos.estado === "fin") {
+                puntos = datos.puntos || puntos;
+                terminarJuegoMulti();
+                return;
+            }
+
+            if (rolMulti === "gato" && datos.raton) {
+                destinoRemoto.x = datos.raton.x;
+                destinoRemoto.y = datos.raton.y;
+            } else if (rolMulti === "raton") {
+                if (datos.gato) {
+                    destinoRemoto.x = datos.gato.x;
+                    destinoRemoto.y = datos.gato.y;
+                }
+                if (typeof datos.puntos === "number" && datos.puntos > puntos) {
+                    puntos = datos.puntos;
+                    sonar("captura");
+                    if (datos.raton) {
+                        raton.x = datos.raton.x;
+                        raton.y = datos.raton.y;
+                    }
+                    document.getElementById("puntos-valor").innerText = puntos;
+                }
+                if (typeof datos.tiempo === "number") {
+                    tiempo = datos.tiempo;
+                }
+            }
+        }
+    });
+}
+
+async function lanzarPartidaMulti() {
+    if (!salaId) return;
+    await nube.actualizarSala(salaId, {
+        estado: "jugando",
+        gato: { x: 450, y: 200 },
+        raton: { x: 120, y: 200 },
+        puntos: 0,
+        tiempo: DURACION_PARTIDA
+    });
+}
+
+function iniciarJuegoMultiLocal(datos) {
+    if (animacionId !== null) {
+        cancelAnimationFrame(animacionId);
+        animacionId = null;
+    }
+
+    modoMulti = true;
+    juegoIniciado = true;
+    pausado = false;
+    toque.activo = false;
+    tiempo = DURACION_PARTIDA;
+    puntos = 0;
+    ultimoTimestamp = null;
+    ultimoSegundoMostrado = null;
+
+    gato.x = (datos.gato && datos.gato.x) || 450;
+    gato.y = (datos.gato && datos.gato.y) || 200;
+    raton.x = (datos.raton && datos.raton.x) || 120;
+    raton.y = (datos.raton && datos.raton.y) || 200;
+    destinoRemoto = rolMulti === "gato" ? { x: raton.x, y: raton.y } : { x: gato.x, y: gato.y };
+
+    teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
+
+    const elRol = document.getElementById("marcador-rol");
+    elRol.style.display = "";
+    elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 Gato" : "Rol: 🐭 Ratón";
+    document.getElementById("marcador-monedas").style.display = "none";
+    document.getElementById("marcador-nivel").style.display = "none";
+    document.getElementById("puntos-valor").innerText = "0";
+    document.getElementById("tiempo-valor").innerText = DURACION_PARTIDA;
+
+    cambiarPantalla("juego");
+    sincronizarMusica();
+    animacionId = requestAnimationFrame(gameLoop);
+}
+
+function enviarEstadoMulti(forzar) {
+    if (!salaId || !nube.listo) return;
+    const ahora = Date.now();
+    if (!forzar && ahora - ultimaSyncRed < INTERVALO_SYNC_RED) return;
+    ultimaSyncRed = ahora;
+
+    if (rolMulti === "gato") {
+        const paquete = {
+            gato: { x: Math.round(gato.x), y: Math.round(gato.y) },
+            puntos: puntos,
+            tiempo: Math.max(0, Number(tiempo.toFixed(1)))
+        };
+        if (forzar) {
+            paquete.raton = { x: Math.round(raton.x), y: Math.round(raton.y) };
+        }
+        nube.actualizarSala(salaId, paquete).catch(() => {});
+    } else if (rolMulti === "raton") {
+        nube.actualizarSala(salaId, {
+            raton: { x: Math.round(raton.x), y: Math.round(raton.y) }
+        }).catch(() => {});
+    }
+}
+
+async function salirSalaMulti() {
+    const codigo = salaId;
+    limpiarSalaMulti();
+    if (codigo && nube.listo) {
+        nube.borrarSala(codigo).catch(() => {});
+    }
+    volverMenu();
+}
+
+function terminarJuegoMulti() {
+    juegoIniciado = false;
+    if (animacionId !== null) {
+        cancelAnimationFrame(animacionId);
+        animacionId = null;
+    }
+    const codigo = salaId;
+    limpiarSalaMulti();
+    if (codigo && rolMulti === "gato" && nube.listo) {
+        nube.borrarSala(codigo).catch(() => {});
+    }
+
+    sincronizarMusica();
+    sonar("fin");
+    cambiarPantalla("fin-juego");
+
+    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
+    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
+    document.getElementById("fin-puntos-linea").style.display = "none";
+    document.getElementById("fin-monedas-linea").style.display = "none";
+    document.getElementById("fin-record-linea").style.display = "none";
+    document.getElementById("mensaje-record").style.display = "none";
+    document.getElementById("btn-reiniciar").style.display = "none";
+}
 
 // --- Progreso <-> nube ---
 function datosDeProgreso() {
@@ -1265,7 +1535,6 @@ async function subirProgreso() {
         await nube.escribir(sesion.uid, datosDeProgreso());
         return true;
     } catch (e) {
-        // Sin internet no pasa nada: queda guardado en el dispositivo y se sube en el próximo cambio
         if (e && e.code === "permission-denied" && !avisoPermisoMostrado) {
             avisoPermisoMostrado = true;
             mostrarLogro("La nube rechazó guardar: revisa las reglas de Firestore");
@@ -1274,7 +1543,6 @@ async function subirProgreso() {
     }
 }
 
-// Vuelve a leer todas las variables del progreso desde el almacenamiento del perfil activo
 function recargarProgreso() {
     record = leerNumero("record");
     monedas = leerNumero("monedas");
@@ -1287,13 +1555,12 @@ function recargarProgreso() {
     if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
     actualizarTextoDificultad();
     actualizarNivelVisualIA();
-    construirTienda();       // por si esta cuenta tiene personajes secretos desbloqueados
+    construirTienda();
     actualizarBotonesTienda();
 }
 
-// Devuelve true si pudo hablar con la nube, false si no hubo conexión
 async function bajarProgreso() {
-    recargarProgreso(); // primero lo que haya guardado en este dispositivo para esta cuenta
+    recargarProgreso();
     let datos = null;
     try {
         datos = await nube.leer(sesion.uid);
@@ -1301,7 +1568,6 @@ async function bajarProgreso() {
         mostrarLogro("Sin conexión: se usa el progreso de este dispositivo");
         return false;
     }
-    // Gana lo más reciente: si jugaste sin internet, tu progreso local es más nuevo y se sube
     if (!datos || leerNumero("actualizado") > Number(datos.actualizado || 0)) {
         await subirProgreso();
         return true;
@@ -1366,14 +1632,17 @@ function textoError(e) {
 function actualizarSesionUI() {
     const boton = document.getElementById("btn-sesion");
     const estado = document.getElementById("sesion-estado");
+    const btnMulti = document.getElementById("btn-multi");
     if (!boton || !estado) return;
     if (!FIREBASE_ACTIVO) {
         boton.style.display = "none";
         estado.style.display = "none";
+        if (btnMulti) btnMulti.style.display = "none";
         return;
     }
     boton.style.display = "inline-block";
     estado.style.display = "block";
+    if (btnMulti) btnMulti.style.display = "inline-block";
     if (sesion) {
         estado.textContent = `Jugador: ${sesion.nombre}`;
         boton.textContent = "Cerrar sesión";
@@ -1405,9 +1674,7 @@ async function conectarNube() {
         nube.alCambiarSesion(alCambiarSesion);
         nubeConectada = true;
         return true;
-    } catch (e) {
-        return false;
-    }
+    } catch (e) { return false; }
 }
 
 async function activarSesion(usuario) {
@@ -1428,7 +1695,6 @@ async function crearCuenta() {
         }
         const usuario = await nube.registrar(formulario.email, formulario.clave);
         sesion = { uid: usuario.uid, nombre: formulario.nombre };
-        // El progreso que ya tenías jugando sin cuenta pasa a la cuenta nueva
         guardarLocal("monedas", monedas);
         guardarLocal("record", record);
         guardarLocal("skin", skinActual);
@@ -1461,7 +1727,7 @@ async function iniciarSesion() {
         const usuario = await nube.entrar(formulario.email, formulario.clave);
         const enLinea = await activarSesion(usuario);
         entrarAlMenu();
-        if (enLinea) mostrarLogro("Bienvenido de nuevo, " + sesion.nombre); // si no hubo conexión, se deja el aviso de "Sin conexión"
+        if (enLinea) mostrarLogro("Bienvenido de nuevo, " + sesion.nombre);
     } catch (e) {
         mensajeLogin(textoError(e), true);
     } finally {
@@ -1475,13 +1741,11 @@ async function cerrarSesion() {
     try {
         await subirProgreso();
         await nube.salir();
-    } catch (e) {
-        // Aunque falle, cerramos la sesión en este dispositivo
-    }
+    } catch (e) {}
     sesion = null;
     accionEnCurso = false;
     guardar("invitado", "0");
-    recargarProgreso(); // vuelve el progreso de "sin cuenta" de este dispositivo
+    recargarProgreso();
     actualizarSesionUI();
     mostrarLogin("Sesión cerrada");
 }
@@ -1492,20 +1756,18 @@ function botonSesion() {
 }
 
 function jugarSinCuenta() {
-    guardar("invitado", "1"); // se recuerda para no volver a mostrar el login cada vez
+    guardar("invitado", "1");
     entrarAlMenu();
 }
 
-// Firebase avisa aquí cuando hay (o no) una sesión guardada en el navegador
 function alCambiarSesion(usuario) {
     if (accionEnCurso || juegoIniciado) return;
-    if (usuario && usuario.isAnonymous) return; // sesión anónima del 1v1: no es una cuenta
-    if (usuario) {
+    if (usuario && !usuario.isAnonymous) {
         if (sesion && sesion.uid === usuario.uid) return;
         activarSesion(usuario).then(entrarAlMenu);
     } else {
         if (sesion) {
-            sesion = null; // la sesión se cerró desde otro sitio
+            sesion = null;
             recargarProgreso();
         }
         if (leerTexto("invitado", "0") === "1") entrarAlMenu();
@@ -1524,8 +1786,13 @@ async function prepararNube() {
     }
 }
 
-// Los navegadores solo permiten audio después de que el jugador interactúa: lo activamos con el primer clic, toque o tecla
-["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, prepararAudio));
+["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, () => {
+    prepararAudio();
+    const audioPres = document.getElementById("audio-presentacion");
+    if (audioPres && audioPres.paused && audioPres.currentTime === 0) {
+        audioPres.play().catch(() => {});
+    }
+}));
 
 construirTienda();
 actualizarTextoSonido();
@@ -1534,351 +1801,6 @@ actualizarTextoDificultad();
 actualizarNivelVisualIA();
 actualizarSesionUI();
 prepararNube();
-
-    
-// ============================================================
-//  MODO 1V1 ONLINE (Gato vs Ratón, con Firebase)
-// ============================================================
-const SALAS_COLECCION = "salas1v1";
-const TIEMPO_1V1 = 60;               // segundos de partida
-const VEL_GATO_1V1 = 4.4;            // px por frame a 60 fps. Punto de partida: ajustar en pruebas
-const VEL_RATON_1V1 = 4.8;           // el ratón escapa un poco más rápido para compensar la captura
-const RADIO_CAPTURA_1V1 = 42;        // distancia para capturar
-const ENVIO_CADA_MS = 100;           // ~10 envíos por segundo y jugador (limita escrituras)
-const SUAVIZADO_RIVAL = 12;          // velocidad de interpolación de la posición del rival
-const TIMEOUT_DESCONEXION_MS = 6000;
-const ALFABETO_SALA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin I, O, 0 ni 1 para evitar confusiones
-
-let partidaOnline = null;
-
-function errorOnline(e) {
-    const codigo = e && e.message;
-    const texto = codigo === "llena" ? "La sala ya está llena o en partida"
-        : codigo === "propia" ? "No puedes unirte a tu propia sala"
-        : codigo === "no-existe" ? "La sala no existe"
-        : codigo === "sin-conexion" ? "Sin conexión con el servidor"
-        : "No se pudo completar la acción en 1v1";
-    mostrarLogro(texto);
-}
-
-function esperarUsuarioNube() {
-    return new Promise((resolver) => {
-        const quitar = nube.f.onAuthStateChanged(nube.auth, (u) => { quitar(); resolver(u); });
-    });
-}
-
-// Reutiliza la sesión que ya exista (no la reemplaza) o crea una anónima
-async function uidOnline() {
-    if (!(await conectarNube())) throw new Error("sin-conexion");
-    const actual = await esperarUsuarioNube();
-    if (actual) return actual.uid;
-    return (await nube.f.signInAnonymously(nube.auth)).user.uid;
-}
-
-// Muestra rol y tiempo en el marcador, y oculta monedas y nivel mientras dura la partida online
-function marcadorOnline(activo) {
-    const mon = document.getElementById("monedas-valor");
-    const niv = document.getElementById("nivel-valor");
-    const rol = document.getElementById("rol-valor");
-    if (!mon || !niv || !rol) return;
-    mon.parentElement.style.display = activo ? "none" : "";
-    niv.parentElement.style.display = activo ? "none" : "";
-    rol.style.display = activo ? "" : "none";
-}
-
-function codigoAleatorio() {
-    let c = "";
-    for (let i = 0; i < 6; i++) c += ALFABETO_SALA[Math.floor(Math.random() * ALFABETO_SALA.length)];
-    return c;
-}
-
-function abrirMultijugador() {
-    if (!FIREBASE_ACTIVO) return mostrarLogro("Falta la configuración de Firebase para el modo 1v1");
-    cambiarPantalla("menu-multijugador");
-}
-
-async function crearSala() {
-    if (partidaOnline) return;
-    try {
-        const uid = await uidOnline();
-        let codigo, ref, ocupado = true;
-        while (ocupado) {
-            codigo = codigoAleatorio();
-            ref = nube.f.doc(nube.db, SALAS_COLECCION, codigo);
-            ocupado = (await nube.f.getDoc(ref)).exists();
-        }
-        await nube.f.setDoc(ref, {
-            estado: "esperando", gato: uid, raton: null,
-            gatoX: 250, gatoY: 150, ratonX: 100, ratonY: 100,
-            puntos: 0, respawnX: 0, respawnY: 0,
-            inicio: 0, fin: 0, vistoGato: Date.now(), vistoRaton: 0
-        });
-        conectarPartida(codigo, ref, "gato", uid);
-    } catch (e) { errorOnline(e); }
-}
-
-async function unirseSala() {
-    if (partidaOnline) return;
-    const codigo = document.getElementById("input-sala").value.trim().toUpperCase();
-    if (codigo.length !== 6) return mostrarLogro("El código tiene 6 caracteres");
-    try {
-        const uid = await uidOnline();
-        const ref = nube.f.doc(nube.db, SALAS_COLECCION, codigo);
-        // La transacción evita que dos personas entren como ratón a la vez
-        await nube.f.runTransaction(nube.db, async (tx) => {
-            const s = await tx.get(ref);
-            if (!s.exists()) throw new Error("no-existe");
-            const d = s.data();
-            if (d.gato === uid) throw new Error("propia");
-            if (d.estado !== "esperando" || d.raton) throw new Error("llena");
-            tx.update(ref, { raton: uid, estado: "listo", vistoRaton: Date.now() });
-        });
-        conectarPartida(codigo, ref, "raton", uid);
-    } catch (e) { errorOnline(e); }
-}
-
-function conectarPartida(codigo, ref, rol, uid) {
-    partidaOnline = {
-        codigo, ref, rol, uid, datos: null, sub: null,
-        arrancado: false, arrancadoEn: 0, fin: false, cerrando: false,
-        tgt: null, ts: null, anim: null,
-        ultimoEnvio: 0, ultX: NaN, ultY: NaN, puntosVistos: 0
-    };
-    partidaOnline.sub = nube.f.onSnapshot(ref, onSalaCambio,
-        () => mostrarLogro("Se perdió la conexión con la sala"));
-    document.getElementById("codigo-sala-texto").innerText = codigo;
-    document.getElementById("rol-asignado").innerText = rol === "gato" ? "Tu rol: 🐱 GATO (Cazador)" : "Tu rol: 🐭 RATÓN (Escapa!)";
-    document.getElementById("estado-espera").innerText = rol === "gato" ? "Esperando a que entre el ratón..." : "Conectado. Esperando a que el gato empiece...";
-    document.getElementById("btn-comenzar-1v1").style.display = "none";
-    cambiarPantalla("menu-espera");
-}
-
-// Solo el gato (anfitrión) puede iniciar la partida
-async function iniciarPartida1v1() {
-    const p = partidaOnline;
-    if (!p || p.rol !== "gato" || !p.datos || p.datos.estado !== "listo") return;
-    const ahora = Date.now();
-    try {
-        await nube.f.updateDoc(p.ref, {
-            estado: "jugando", gatoX: 250, gatoY: 150, ratonX: 100, ratonY: 100,
-            puntos: 0, respawnX: 0, respawnY: 0,
-            inicio: ahora, fin: ahora + TIEMPO_1V1 * 1000,
-            vistoGato: ahora, vistoRaton: ahora
-        });
-    } catch (e) { errorOnline(e); }
-}
-
-// Cada jugador escucha la sala. Solo lee datos del rival; su propio movimiento es local
-function onSalaCambio(snap) {
-    const p = partidaOnline;
-    if (!p || p.fin) return;
-    if (!snap.exists()) {
-        if (p.arrancado) return finalizarOnline("¡PARTIDA CANCELADA!", "La sala se cerró");
-        mostrarLogro("La sala se cerró");
-        return salirSala();
-    }
-    const d = snap.data();
-    p.datos = d;
-    const soy = p.rol === "gato";
-
-    if (!p.arrancado) {
-        if (d.estado === "jugando") return arrancarPartida(d);
-        if (soy) {
-            document.getElementById("estado-espera").innerText = d.raton ? "¡Jugador conectado!" : "Esperando a que entre el ratón...";
-            document.getElementById("btn-comenzar-1v1").style.display = (d.raton && d.estado === "listo") ? "inline-block" : "none";
-        }
-        return;
-    }
-
-    if (d.estado === "abandonada") return finalizarOnline("¡PARTIDA CANCELADA!", "El otro jugador salió de la sala");
-    if (d.estado === "terminado") return finalizarOnline("¡FIN DE PARTIDA!", `El gato atrapó al ratón ${d.puntos} veces.`);
-
-    // Solo se guarda el destino del rival; el dibujo se suaviza en el bucle
-    p.tgt = soy ? { x: d.ratonX, y: d.ratonY } : { x: d.gatoX, y: d.gatoY };
-    if (!soy) {
-        puntos = d.puntos;
-        // El gato capturó: el ratón aparece donde decidió el gato
-        if (d.puntos > p.puntosVistos) {
-            raton.x = d.respawnX;
-            raton.y = d.respawnY;
-            p.ultX = NaN;
-        }
-    }
-    p.puntosVistos = d.puntos;
-}
-
-function arrancarPartida(d) {
-    const p = partidaOnline;
-    p.arrancado = true;
-    p.arrancadoEn = Date.now();
-    p.datos = d;
-    juegoIniciado = true;
-    pausado = false;
-    const soy = p.rol === "gato";
-    const yo = soy ? gato : raton;
-    const rival = soy ? raton : gato;
-    yo.x = soy ? d.gatoX : d.ratonX;
-    yo.y = soy ? d.gatoY : d.ratonY;
-    rival.x = soy ? d.ratonX : d.gatoX;
-    rival.y = soy ? d.ratonY : d.gatoY;
-    p.tgt = { x: rival.x, y: rival.y };
-    p.ultX = NaN;
-    p.puntosVistos = d.puntos;
-    puntos = d.puntos;
-    p.ts = null;
-    teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
-    document.getElementById("rol-valor").innerText = soy ? "🐱 Gato" : "🐭 Ratón";
-    marcadorOnline(true);
-    cambiarPantalla("juego");
-    p.anim = requestAnimationFrame(loopOnline);
-}
-
-function moverLocal(obj, velocidad, f) {
-    let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
-    let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
-    if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; } // diagonal no es más rápida
-    obj.x = Math.max(0, Math.min(canvas.width - obj.w, obj.x + dx * velocidad * f));
-    obj.y = Math.max(0, Math.min(canvas.height - obj.h, obj.y + dy * velocidad * f));
-}
-
-function puntoLejosDelGato() {
-    const cx = gato.x + gato.w / 2, cy = gato.y + gato.h / 2;
-    for (let i = 0; i < 30; i++) {
-        const x = Math.random() * (canvas.width - raton.w);
-        const y = Math.random() * (canvas.height - raton.h);
-        if (Math.hypot(x + raton.w / 2 - cx, y + raton.h / 2 - cy) >= DISTANCIA_MIN_APARICION) return { x, y };
-    }
-    return { x: cx < canvas.width / 2 ? canvas.width - raton.w : 0, y: cy < canvas.height / 2 ? canvas.height - raton.h : 0 };
-}
-
-// Envío limitado: cada ENVIO_CADA_MS si hay movimiento, y un latido cada 1,5 s si estás quieto
-function enviarEstado(extra = null, forzar = false) {
-    const p = partidaOnline;
-    const ahora = performance.now();
-    const yo = p.rol === "gato" ? gato : raton;
-    const movido = Math.abs(yo.x - p.ultX) > 0.5 || Math.abs(yo.y - p.ultY) > 0.5;
-    if (!forzar && (ahora - p.ultimoEnvio < ENVIO_CADA_MS || (!movido && ahora - p.ultimoEnvio < 1500))) return;
-    p.ultimoEnvio = ahora;
-    p.ultX = yo.x;
-    p.ultY = yo.y;
-    const campos = p.rol === "gato"
-        ? { gatoX: yo.x, gatoY: yo.y, vistoGato: Date.now(), puntos: puntos }
-        : { ratonX: yo.x, ratonY: yo.y, vistoRaton: Date.now() };
-    if (extra) Object.assign(campos, extra);
-    nube.f.updateDoc(p.ref, campos).catch(() => {});
-}
-
-function loopOnline(ts) {
-    const p = partidaOnline;
-    if (!p || !p.arrancado || p.fin) return;
-    const dt = p.ts === null ? 0 : Math.min((ts - p.ts) / 1000, 0.1);
-    p.ts = ts;
-    const f = dt * 60;
-    const soy = p.rol === "gato";
-    const yo = soy ? gato : raton;
-    const rival = soy ? raton : gato;
-
-    moverLocal(yo, soy ? VEL_GATO_1V1 : VEL_RATON_1V1, f);
-    if (p.tgt) {
-        const k = Math.min(1, dt * SUAVIZADO_RIVAL);
-        rival.x += (p.tgt.x - rival.x) * k;
-        rival.y += (p.tgt.y - rival.y) * k;
-    }
-
-    const ahora = Date.now();
-    const restante = Math.max(0, (p.datos.fin - ahora) / 1000);
-
-    // Solo el gato decide las capturas: así no se cuentan dos veces
-    if (soy) {
-        const dist = Math.hypot((gato.x + gato.w / 2) - (raton.x + raton.w / 2), (gato.y + gato.h / 2) - (raton.y + raton.h / 2));
-        if (dist < RADIO_CAPTURA_1V1) {
-            puntos++;
-            const pos = puntoLejosDelGato();
-            raton.x = pos.x;
-            raton.y = pos.y;
-            p.tgt = { x: pos.x, y: pos.y };
-            enviarEstado({ puntos: puntos, respawnX: pos.x, respawnY: pos.y }, true);
-        }
-        if (restante <= 0 && !p.cerrando) {
-            p.cerrando = true;
-            nube.f.updateDoc(p.ref, { estado: "terminado" }).catch(() => {});
-        }
-    } else if (restante <= 0 && ahora - p.datos.fin > 4000) {
-        // Si el gato no cerró la partida (se cayó su conexión), la cerramos aquí
-        return finalizarOnline("¡FIN DE PARTIDA!", `El gato atrapó al ratón ${puntos} veces.`);
-    }
-
-    // Detecta desconexión del rival por falta de latidos
-    const visto = soy ? p.datos.vistoRaton : p.datos.vistoGato;
-    if (ahora - p.arrancadoEn > 3000 && ahora - visto > TIMEOUT_DESCONEXION_MS && restante > 0) {
-        return finalizarOnline("¡PARTIDA CANCELADA!", "El otro jugador se desconectó");
-    }
-
-    enviarEstado();
-
-    document.getElementById("puntos-valor").innerText = puntos;
-    document.getElementById("tiempo-valor").innerText = Math.ceil(restante);
-
-    ctx.fillStyle = "#0b1b3a";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    dibujarGato();
-    ctx.font = "38px Arial";
-    ctx.fillText("🐭", raton.x, raton.y + 34);
-
-    p.anim = requestAnimationFrame(loopOnline);
-}
-
-function finalizarOnline(titulo, subtitulo) {
-    const p = partidaOnline;
-    if (!p || p.fin) return;
-    p.fin = true;
-    juegoIniciado = false;
-    cancelAnimationFrame(p.anim);
-    sonar("fin");
-    cambiarPantalla("fin-juego");
-    document.querySelector("#fin-juego h1").textContent = titulo;
-    document.getElementById("puntos-finales").textContent = puntos;
-    document.getElementById("monedas-partida").parentElement.style.display = "none";
-    document.getElementById("record-final").parentElement.style.display = "none";
-    const msg = document.getElementById("mensaje-record");
-    msg.textContent = subtitulo;
-    msg.style.display = "block";
-    document.getElementById("btn-revancha").style.display = "none";
-}
-
-// Devuelve el fin de partida a su versión solo
-function restaurarFinSolo() {
-    document.querySelector("#fin-juego h1").textContent = "¡TIEMPO AGOTADO!";
-    document.getElementById("monedas-partida").parentElement.style.display = "";
-    document.getElementById("record-final").parentElement.style.display = "";
-    const msg = document.getElementById("mensaje-record");
-    msg.textContent = "¡NUEVO RÉCORD!";
-    msg.style.display = "none";
-    document.getElementById("btn-revancha").style.display = "";
-}
-
-async function cancelarOnline() {
-    const p = partidaOnline;
-    if (!p) return;
-    partidaOnline = null;
-    juegoIniciado = false;
-    cancelAnimationFrame(p.anim);
-    if (p.sub) p.sub();
-    marcadorOnline(false);
-    restaurarFinSolo();
-    try {
-        if (p.rol === "gato") {
-            await nube.f.deleteDoc(p.ref); // el anfitrión cierra la sala
-        } else if (!p.fin) {
-            await nube.f.updateDoc(p.ref, { raton: null, estado: p.arrancado ? "abandonada" : "esperando" });
-        }
-    } catch (e) { /* si la sala ya no existe, no pasa nada */ }
-}
-
-function salirSala() {
-    cancelarOnline();
-    cambiarPantalla("menu-multijugador");
-}
-</script>
+    </script>
 </body>
 </html>
