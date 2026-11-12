@@ -3,38 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gato Cazador – juego gratis de gatos y ratones</title>
-    <meta name="description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.">
+    <title>Gato Cazador – Multijugador 1v1</title>
+    <meta name="description" content="Gato Cazador: Modo 1v1 multijugador en tiempo real. Un jugador es el gato y el otro el ratón.">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#256087">
-    <link rel="canonical" href="https://michino999.github.io/GATO---CAZADOR/">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Gato Cazador">
-    <meta property="og:title" content="Gato Cazador – juego gratis de gatos y ratones">
-    <meta property="og:description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.">
-    <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
-    <meta property="og:locale" content="es_LA">
-    <meta name="twitter:card" content="summary">
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "VideoGame",
-        "name": "Gato Cazador",
-        "url": "https://michino999.github.io/GATO---CAZADOR/",
-        "description": "Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.",
-        "inLanguage": "es",
-        "genre": "Arcade",
-        "gamePlatform": "Navegador web",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-    }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #256087; font-family: 'Press Start 2P', cursive; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: white; }
-        .menu { text-align: center; background: #c6c6c6; padding: 40px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; }
-        button { padding: 15px; font-size: 14px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 280px; }
+        .menu { text-align: center; background: #c6c6c6; padding: 30px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; max-width: 90%; }
+        button { padding: 12px; font-size: 12px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 280px; }
         button:hover { background: #e0e0e0; }
         button:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
         canvas { border: 4px solid #fff; background: black; display: none; max-width: 100%; height: auto; touch-action: none; }
@@ -44,1276 +21,411 @@
             max-width: 100%;
             box-sizing: border-box;
             margin: 10px auto;
-            padding: 12px;
+            padding: 10px;
             background: #1f1f1f;
             color: white;
             border: 4px solid white;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 8px;
             box-shadow: 4px 4px 0px black;
-            position: relative;
         }
-        #lista-tienda { max-height: 45vh; overflow-y: auto; }
-        input { padding: 15px; font-size: 12px; font-family: 'Press Start 2P', cursive; width: 280px; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; }
-        input:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
-        button:disabled { opacity: 0.5; cursor: default; }
-        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 26px; cursor: pointer; }
-        .titulo-menu img { width: 72px; height: 72px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; object-fit: cover; }
-        #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 14px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
+        input { padding: 12px; font-size: 11px; font-family: 'Press Start 2P', cursive; width: 260px; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; text-align: center; }
+        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 20px; }
+        .titulo-menu img { width: 60px; height: 60px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; object-fit: cover; }
+        #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 12px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
     </style>
 </head>
 <body>
-<noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
+<noscript><p style="font-size: 12px;">Se necesita JavaScript para jugar.</p></noscript>
 
+<!-- MENÚ PRINCIPAL -->
 <div id="menu-inicio" class="menu">
-    <div class="titulo-menu" onclick="clicSecretoTitulo()">
-        <img src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72">
+    <div class="titulo-menu">
+        <img src="tate.png" alt="Tate" width="60" height="60">
         <h1>GATO CAZADOR</h1>
     </div>
-
-    <p style="font-size: 13px; color: #b30009; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; font-weight: bold;">
-        AMENAZA I.A.: LVL <span id="ia-nivel">1</span>
-    </p>
-    <p style="font-size: 12px; margin-top: 0; margin-bottom: 10px;">
-        Récord: <span id="record-valor">0</span>
-    </p>
-    <p style="font-size: 10px; margin-top: 0; margin-bottom: 25px;">
-        Flechas o WASD para moverte · P pausa<br>En móvil: mantén el dedo en la pantalla
-    </p>
-
-    <p style="font-size: 9px; max-width: 280px; margin: 0 auto 20px;">Juego gratis para el navegador: caza ratones, sube de nivel y desbloquea personajes.</p>
-
-    <button onclick="empezarJuego()">Jugar</button>
+    <p style="font-size: 11px; margin: 15px 0;">Modo Multijugador 1v1</p>
+    <button onclick="cambiarPantalla('menu-multijugador')">Modo 1v1 Online</button>
+    <button onclick="empezarJuegoSolo()">Modo Solo (vs IA)</button>
     <button onclick="abrirAjustes()">Ajustes</button>
-    <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
-    <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v15</p>
 </div>
 
-    <div id="menu-quiz" class="menu" style="display:none;">
-        <h2>PREGUNTAS SECRETAS</h2>
-        <p id="quiz-progreso" style="font-size: 10px; margin-top: 0;"></p>
-        <p id="quiz-pregunta" style="font-size: 12px; max-width: 340px; margin: 0 auto 15px;"></p>
-        <div id="quiz-opciones"></div>
-        <p id="quiz-mensaje" style="min-height: 2.4em; font-size: 10px; max-width: 340px; margin: 8px auto;"></p>
-        <button onclick="salirQuiz()">Salir</button>
-    </div>
-
-    <div id="menu-login" class="menu" style="display:none;">
-        <h2>TU CUENTA</h2>
-        <p style="font-size: 10px; margin-top: 0;">Guarda tu progreso y juega en cualquier dispositivo</p>
-        <input id="login-nombre" type="text" placeholder="Nombre" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" onkeydown="if (event.key === 'Enter') iniciarSesion()"><br>
-        <input id="login-clave" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if (event.key === 'Enter') iniciarSesion()">
-        <p id="login-mensaje" style="min-height: 2.4em; font-size: 10px; margin: 8px 0;"></p>
-        <button id="btn-entrar" onclick="iniciarSesion()">Entrar</button>
-        <button id="btn-crear" onclick="crearCuenta()">Crear cuenta</button>
-        <button onclick="jugarSinCuenta()">Jugar sin cuenta</button>
-    </div>
-
-    <div id="menu-ajustes" class="menu" style="display:none;">
-        <h2>AJUSTES</h2>
-        <button onclick="cambiarDificultad()" id="btn-dificultad">Dificultad: Fácil</button>
-        <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button>
-        <button onclick="cambiarMusica()" id="btn-musica">Música: Sí</button>
-        <button onclick="abrirTienda()">Tienda de Skins</button>
-        <button onclick="borrarProgreso()">Borrar progreso</button>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
-
-<div id="menu-tienda" class="menu" style="display:none;">
-    <h2>TIENDA</h2>
-    <p>Monedas: <span id="monedas-tienda">0</span></p>
-
-    <div id="lista-tienda">
-        <!-- Los botones de personajes los crea juego.js -->
-    </div>
-
+<!-- MENÚ MULTIJUGADOR 1V1 -->
+<div id="menu-multijugador" class="menu" style="display:none;">
+    <h2>MODO 1V1</h2>
+    <p style="font-size: 10px; margin-bottom: 15px;">¡Un jugador es el Gato y otro el Ratón!</p>
+    <button onclick="crearSala()">Crear Sala Nueva</button>
+    <br><br>
+    <input id="input-sala" type="text" placeholder="CÓDIGO SALA" maxlength="6" autocomplete="off"><br>
+    <button onclick="unirseSala()">Unirse a Sala</button>
+    <br><br>
     <button onclick="volverMenu()">Volver</button>
 </div>
 
-    <canvas id="juego" width="600" height="400"></canvas>
-
-    <div id="marcador">
-        <span>Puntos: <span id="puntos-valor">0</span></span>
-        <span>Monedas: <span id="monedas-valor">0</span></span>
-        <span>Nivel: <span id="nivel-valor">1</span></span>
-        <span>Tiempo: <span id="tiempo-valor">60</span></span>
-    </div>
-
-    <div id="fin-juego" class="menu" style="display:none;">
-        <h1>¡TIEMPO AGOTADO!</h1>
-        <p>Puntuación: <span id="puntos-finales"></span></p>
-        <p>Monedas ganadas: <span id="monedas-partida">0</span></p>
-        <p>Récord: <span id="record-final">0</span></p>
-        <p id="mensaje-record" style="display:none; color: #b30009;">¡NUEVO RÉCORD!</p>
-        <button onclick="reiniciarJuego()">Volver a jugar</button>
-        <button onclick="volverMenu()">Ir al Menú</button>
-    </div>
-
-    <div id="logro"></div>
-
-    <script>
-// ============================================================
-//  GATO CAZADOR - juego.js
-// ============================================================
-const canvas = document.getElementById("juego");
-const ctx = canvas.getContext("2d");
-
-const DURACION_PARTIDA = 60;        
-const BONUS_TIEMPO_NIVEL = 5;       
-const CAPTURAS_POR_NIVEL = 5;       
-const RADIO_CAPTURA = 40;           
-const DISTANCIA_MIN_APARICION = 150; 
-const TOPE_APRENDIZAJE = 100;       
-const CAPTURAS_POR_NIVEL_IA = 5;    
-
-const DIFICULTADES = [
-    { nombre: "Fácil",   velGato: 5, factorRaton: 0.8, factorVision: 0.8, monedasPorCaptura: 10 },
-    { nombre: "Normal",  velGato: 5, factorRaton: 1.0, factorVision: 1.0, monedasPorCaptura: 20 },
-    { nombre: "Difícil", velGato: 5, factorRaton: 1.2, factorVision: 1.15, monedasPorCaptura: 30 }
-];
-
-const VELOCIDAD_TATE = 2;
-
-const SKINS = [
-    { emoji: "🐱", nombre: "Gato",     precio: 0,    velocidad: 1 },
-    { emoji: "🐯", nombre: "Tigre",    precio: 100,  velocidad: 1 },
-    { emoji: "🐆", nombre: "Leopardo", precio: 200,  velocidad: 1.05 },
-    { emoji: "🦊", nombre: "Zorro",    precio: 300,  velocidad: 1.08 },
-    { emoji: "🦁", nombre: "León",     precio: 500,  velocidad: 1.1 },
-    { emoji: "🐺", nombre: "Lobo",     precio: 800,  velocidad: 1.12 },
-    { emoji: "🐲", nombre: "Dragón",   precio: 1500, velocidad: 1.15 },
-    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate.png" }
-];
-
-const FONDOS = ["#000000", "#0b1b3a", "#2a0b3a", "#3a0b0b", "#0b3a1f"];
-const RATONES = ["🐭", "🐹", "🐀", "🐿️"];
-const NIVELES_POR_RATON = 2;
-
-// Cargar imagen de Tate
-const tateImg = new Image();
-tateImg.src = "tate.png";
-let tateCargada = false;
-tateImg.onload = () => { tateCargada = true; };
-
-// Preguntas secretas para desbloquear a Tate
-const PREGUNTAS_SECRETAS = [
-    { pregunta: "¿Cómo se llama el gato protagonista?", opciones: ["Tate", "Michi", "Simón"], respuesta: 0 },
-    { pregunta: "¿Qué color tiene su nariz en el pixel art?", opciones: ["Rosa / Fucsia", "Verde", "Azul"], respuesta: 0 },
-    { pregunta: "¿Cuál es el superpoder de Tate en el juego?", opciones: ["Velocidad x2", "Invisibilidad", "Volar"], respuesta: 0 }
-];
-let indiceQuiz = 0;
-let clicksSecretos = 0;
-let tiempoUltimoClickSecreto = 0;
-
-function clicSecretoTitulo() {
-    const ahora = Date.now();
-    if (ahora - tiempoUltimoClickSecreto > 1500) {
-        clicksSecretos = 0;
-    }
-    tiempoUltimoClickSecreto = ahora;
-    clicksSecretos++;
-    if (clicksSecretos >= 5) {
-        clicksSecretos = 0;
-        if (skinsCompradas.includes("tate")) {
-            mostrarLogro("¡Ya tienes desbloqueado a Tate!");
-        } else {
-            abrirQuiz();
-        }
-    }
-}
-
-function abrirQuiz() {
-    indiceQuiz = 0;
-    cambiarPantalla("menu-quiz");
-    mostrarPreguntaQuiz();
-}
-
-function mostrarPreguntaQuiz() {
-    const q = PREGUNTAS_SECRETAS[indiceQuiz];
-    document.getElementById("quiz-progreso").innerText = `Pregunta ${indiceQuiz + 1} de ${PREGUNTAS_SECRETAS.length}`;
-    document.getElementById("quiz-pregunta").innerText = q.pregunta;
-    document.getElementById("quiz-mensaje").innerText = "";
-    
-    const contenedor = document.getElementById("quiz-opciones");
-    contenedor.innerHTML = "";
-    q.opciones.forEach((opcion, i) => {
-        const btn = document.createElement("button");
-        btn.innerText = opcion;
-        btn.onclick = () => responderQuiz(i);
-        contenedor.appendChild(btn);
-    });
-}
-
-function responderQuiz(seleccion) {
-    const q = PREGUNTAS_SECRETAS[indiceQuiz];
-    if (seleccion === q.respuesta) {
-        sonar("nivel");
-        indiceQuiz++;
-        if (indiceQuiz >= PREGUNTAS_SECRETAS.length) {
-            if (!skinsCompradas.includes("tate")) {
-                skinsCompradas.push("tate");
-                guardar("skinsCompradas", JSON.stringify(skinsCompradas));
-            }
-            mostrarLogro("⭐ ¡Desbloqueaste a Tate!");
-            volverMenu();
-        } else {
-            mostrarPreguntaQuiz();
-        }
-    } else {
-        sonar("error");
-        document.getElementById("quiz-mensaje").innerText = "Respuesta incorrecta. Inténtalo de nuevo.";
-    }
-}
-
-function salirQuiz() {
-    volverMenu();
-}
-
-let sesion = null; 
-const CLAVES_PROGRESO = ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad", "actualizado"];
-
-function claveAlmacen(clave) {
-    return sesion && CLAVES_PROGRESO.includes(clave) ? `u_${sesion.uid}_${clave}` : clave;
-}
-
-function leerNumero(clave) {
-    try {
-        const n = Number(localStorage.getItem(claveAlmacen(clave)));
-        return Number.isFinite(n) ? n : 0;
-    } catch (e) {
-        return 0;
-    }
-}
-
-function leerTexto(clave, porDefecto) {
-    try {
-        const valor = localStorage.getItem(claveAlmacen(clave));
-        return valor !== null ? valor : porDefecto;
-    } catch (e) {
-        return porDefecto;
-    }
-}
-
-function leerLista(clave, porDefecto) {
-    try {
-        const dato = JSON.parse(localStorage.getItem(claveAlmacen(clave)));
-        return Array.isArray(dato) ? dato : porDefecto;
-    } catch (e) {
-        return porDefecto;
-    }
-}
-
-function guardarLocal(clave, valor) {
-    try {
-        localStorage.setItem(claveAlmacen(clave), valor);
-    } catch (e) {}
-}
-
-function guardar(clave, valor) {
-    guardarLocal(clave, valor);
-    if (sesion && CLAVES_PROGRESO.includes(clave) && clave !== "actualizado") {
-        guardarLocal("actualizado", Date.now());
-        programarSubidaNube();
-    }
-}
-
-let tiempo = DURACION_PARTIDA;
-let puntos = 0;
-let record = leerNumero("record");
-let juegoIniciado = false;
-let nivel = 1;
-let dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
-let velocidadGato = DIFICULTADES[dificultad - 1].velGato;
-let monedas = leerNumero("monedas");
-let monedasPartida = 0;
-let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
-if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
-let skinActual = leerTexto("skin", "🐱");
-if (!skinsCompradas.includes(skinActual)) skinActual = "🐱"; 
-let experienciaRaton = leerNumero("experienciaRaton");
-let sonidoActivo = leerTexto("sonido", "1") === "1"; 
-let musicaActiva = leerTexto("musica", "1") === "1"; 
-let musicaBuffer = null;      
-let musicaGanancia = null;    
-let musicaElemento = null;    
-let musicaIntentada = false;  
-let musicaQuiereSonar = null; 
-const VOLUMEN_MUSICA = 0.5;    
-let audioCtx = null; 
-
-let gato = { x: 300, y: 200, w: 35, h: 35 };
-// Ratón más grande para que se vea mejor y sea fácil de cazar
-let raton = { x: 100, y: 100, w: 38, h: 38, targetX: null, targetY: null };
-
-let animacionId = null;       
-let ultimoTimestamp = null;   
-let ultimoSegundoMostrado = null;
-const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
-let pausado = false;                        
-const toque = { activo: false, x: 0, y: 0 }; 
-
-function prepararAudio() {
-    if (audioCtx) {
-        if (audioCtx.state === "suspended") audioCtx.resume();
-        return;
-    }
-    const Contexto = window.AudioContext || window.webkitAudioContext;
-    if (!Contexto) return;
-    try {
-        audioCtx = new Contexto();
-    } catch (e) {
-        audioCtx = null;
-    }
-    cargarMusica();
-}
-
-function cargarMusica() {
-    if (!audioCtx || musicaIntentada) return;
-    musicaIntentada = true;
-    try {
-        fetch("musica.mp3")
-            .then((respuesta) => {
-                if (!respuesta.ok) throw new Error("musica.mp3 no encontrado");
-                return respuesta.arrayBuffer();
-            })
-            .then((datos) => new Promise((resolver, fallar) => audioCtx.decodeAudioData(datos, resolver, fallar)))
-            .then((buffer) => {
-                musicaBuffer = buffer;
-                iniciarMusica();
-            })
-            .catch(planBMusica);
-    } catch (e) {
-        planBMusica();
-    }
-}
-
-function iniciarMusica() {
-    if (!audioCtx || !musicaBuffer) return;
-    musicaGanancia = audioCtx.createGain();
-    musicaGanancia.gain.value = 0;
-    musicaGanancia.connect(audioCtx.destination);
-    const fuente = audioCtx.createBufferSource();
-    fuente.buffer = musicaBuffer;
-    fuente.loop = true;
-    fuente.connect(musicaGanancia);
-    fuente.start(0);
-    musicaQuiereSonar = null;
-    sincronizarMusica();
-}
-
-function planBMusica() {
-    if (musicaElemento || musicaBuffer) return;
-    try {
-        musicaElemento = new Audio("musica.mp3");
-        musicaElemento.loop = true;
-        musicaElemento.volume = 0;
-        const promesa = musicaElemento.play();
-        if (promesa && promesa.catch) promesa.catch(() => {});
-    } catch (e) {
-        musicaElemento = null;
-    }
-    musicaQuiereSonar = null;
-    sincronizarMusica();
-}
-
-function ponerVolumenMusica(volumen) {
-    if (musicaGanancia && audioCtx) {
-        musicaGanancia.gain.setTargetAtTime(volumen, audioCtx.currentTime, 0.1); 
-    } else if (musicaElemento) {
-        musicaElemento.volume = volumen;
-    }
-}
-
-function sincronizarMusica() {
-    const quiereSonar = musicaActiva && juegoIniciado && !pausado;
-    if (quiereSonar === musicaQuiereSonar) return;
-    musicaQuiereSonar = quiereSonar;
-    if (quiereSonar) {
-        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-        if (musicaElemento && musicaElemento.paused) {
-            const promesa = musicaElemento.play();
-            if (promesa && promesa.catch) promesa.catch(() => {});
-        }
-    }
-    ponerVolumenMusica(quiereSonar ? VOLUMEN_MUSICA : 0);
-}
-
-function tono(frecuencia, frecuenciaFinal, duracion, tipo, volumen, retraso) {
-    if (!sonidoActivo || !audioCtx) return;
-    const inicio = audioCtx.currentTime + (retraso || 0);
-    const oscilador = audioCtx.createOscillator();
-    const ganancia = audioCtx.createGain();
-    oscilador.type = tipo || "square";
-    oscilador.frequency.setValueAtTime(frecuencia, inicio);
-    oscilador.frequency.exponentialRampToValueAtTime(Math.max(1, frecuenciaFinal), inicio + duracion);
-    ganancia.gain.setValueAtTime(volumen || 0.1, inicio);
-    ganancia.gain.exponentialRampToValueAtTime(0.0001, inicio + duracion);
-    oscilador.connect(ganancia);
-    ganancia.connect(audioCtx.destination);
-    oscilador.start(inicio);
-    oscilador.stop(inicio + duracion + 0.02);
-}
-
-function melodia(notas, duracionNota, tipo, volumen) {
-    notas.forEach((nota, i) => tono(nota, nota, duracionNota, tipo, volumen, i * duracionNota * 0.9));
-}
-
-const SONIDOS = {
-    captura: () => tono(600, 1200, 0.12, "square", 0.1),
-    nivel: () => melodia([523, 659, 784, 1047], 0.12, "square", 0.1),
-    compra: () => melodia([880, 1320], 0.1, "square", 0.1),
-    equipar: () => tono(700, 900, 0.08, "triangle", 0.12),
-    error: () => tono(200, 120, 0.25, "sawtooth", 0.1),
-    pausa: () => tono(500, 400, 0.1, "triangle", 0.1),
-    fin: () => melodia([523, 392, 330, 262], 0.2, "triangle", 0.12),
-    record: () => melodia([659, 784, 988, 1319, 1568], 0.12, "square", 0.1)
-};
-
-function sonar(nombre) {
-    if (SONIDOS[nombre]) SONIDOS[nombre]();
-}
-
-let temporizadorLogro = null;
-function mostrarLogro(texto) {
-    const elemento = document.getElementById("logro");
-    if (!elemento) return;
-    elemento.textContent = texto;
-    elemento.style.right = "20px";
-    clearTimeout(temporizadorLogro);
-    temporizadorLogro = setTimeout(() => {
-        elemento.style.right = "-400px";
-    }, 2200);
-}
-
-function actualizarNivelVisualIA() {
-    let nivelIA = Math.floor(experienciaRaton / CAPTURAS_POR_NIVEL_IA) + 1;
-    const elemento = document.getElementById("ia-nivel");
-    if (elemento) {
-        elemento.innerText = experienciaRaton >= TOPE_APRENDIZAJE ? nivelIA + " (MAX)" : nivelIA;
-    }
-    const elementoRecord = document.getElementById("record-valor");
-    if (elementoRecord) elementoRecord.innerText = record;
-}
-
-function actualizarMarcador() {
-    document.getElementById("puntos-valor").innerText = puntos;
-    document.getElementById("monedas-valor").innerText = monedas;
-    document.getElementById("nivel-valor").innerText = nivel;
-    document.getElementById("tiempo-valor").innerText = Math.max(0, Math.ceil(tiempo));
-}
-
-const PANTALLAS = ["menu-inicio", "menu-login", "menu-ajustes", "menu-tienda", "menu-quiz", "fin-juego", "juego", "marcador"];
-let pantallaActual = "menu-inicio"; 
-
-function cambiarPantalla(pantallaObjetivo) {
-    pantallaActual = pantallaObjetivo;
-    PANTALLAS.forEach((id) => {
-        const elemento = document.getElementById(id);
-        if (elemento) elemento.style.display = "none";
-    });
-
-    if (pantallaObjetivo === "juego") {
-        document.getElementById("juego").style.display = "block";
-        document.getElementById("marcador").style.display = "flex";
-    } else {
-        const pantalla = document.getElementById(pantallaObjetivo);
-        if (pantalla) pantalla.style.display = "block";
-    }
-}
-
-function reaparecerRaton() {
-    const centroGatoX = gato.x + gato.w / 2;
-    const centroGatoY = gato.y + gato.h / 2;
-
-    for (let intento = 0; intento < 30; intento++) {
-        const x = Math.random() * (canvas.width - raton.w);
-        const y = Math.random() * (canvas.height - raton.h);
-        const distancia = Math.hypot(x + raton.w / 2 - centroGatoX, y + raton.h / 2 - centroGatoY);
-        if (distancia >= DISTANCIA_MIN_APARICION) {
-            raton.x = x;
-            raton.y = y;
-            raton.targetX = null;
-            raton.targetY = null;
-            return;
-        }
-    }
-
-    raton.x = centroGatoX < canvas.width / 2 ? canvas.width - raton.w : 0;
-    raton.y = centroGatoY < canvas.height / 2 ? canvas.height - raton.h : 0;
-    raton.targetX = null;
-    raton.targetY = null;
-}
-
-function empezarJuego() {
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-
-    juegoIniciado = true;
-    pausado = false;
-    toque.activo = false;
-    tiempo = DURACION_PARTIDA;
-    puntos = 0;
-    nivel = 1;
-    monedasPartida = 0;
-    ultimoTimestamp = null;
-    ultimoSegundoMostrado = null;
-
-    gato.x = canvas.width / 2 - gato.w / 2;
-    gato.y = canvas.height / 2 - gato.h / 2;
-    teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
-    reaparecerRaton();
-
-    actualizarMarcador();
-    cambiarPantalla("juego");
-    sincronizarMusica();
-    animacionId = requestAnimationFrame(gameLoop);
-}
-
-function terminarJuego() {
-    juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-
-    const esRecord = puntos > record;
-    if (esRecord) {
-        record = puntos;
-        guardar("record", record);
-    }
-
-    sincronizarMusica();
-    subirProgreso(); 
-    sonar(esRecord ? "record" : "fin");
-    cambiarPantalla("fin-juego");
-    document.getElementById("puntos-finales").innerText = puntos;
-    document.getElementById("monedas-partida").innerText = monedasPartida;
-    document.getElementById("record-final").innerText = record;
-    document.getElementById("mensaje-record").style.display = esRecord ? "block" : "none";
-    actualizarNivelVisualIA();
-}
-
-function reiniciarJuego() {
-    empezarJuego();
-}
-
-function abrirAjustes() {
-    cambiarPantalla("menu-ajustes");
-}
-
-function abrirTienda() {
-    construirTienda(); 
-    cambiarPantalla("menu-tienda");
-    document.getElementById("monedas-tienda").innerText = monedas;
-    actualizarBotonesTienda();
-}
-
-function volverMenu() {
-    cambiarPantalla("menu-inicio");
-    actualizarNivelVisualIA();
-}
-
-function actualizarTextoDificultad() {
-    document.getElementById("btn-dificultad").innerText = `Dificultad: ${DIFICULTADES[dificultad - 1].nombre}`;
-}
-
-function cambiarDificultad() {
-    dificultad = (dificultad % 3) + 1;
-    velocidadGato = DIFICULTADES[dificultad - 1].velGato;
-    guardar("dificultad", dificultad);
-    actualizarTextoDificultad();
-}
-
-function actualizarTextoSonido() {
-    document.getElementById("btn-sonido").textContent = `Sonido: ${sonidoActivo ? "Sí" : "No"}`;
-}
-
-function cambiarSonido() {
-    sonidoActivo = !sonidoActivo;
-    guardar("sonido", sonidoActivo ? "1" : "0");
-    actualizarTextoSonido();
-    prepararAudio();
-    sonar("equipar"); 
-}
-
-function actualizarTextoMusica() {
-    document.getElementById("btn-musica").textContent = `Música: ${musicaActiva ? "Sí" : "No"}`;
-}
-
-function cambiarMusica() {
-    musicaActiva = !musicaActiva;
-    guardar("musica", musicaActiva ? "1" : "0");
-    actualizarTextoMusica();
-    prepararAudio();
-    sincronizarMusica();
-}
-
-function borrarProgreso() {
-    if (!confirm("¿Seguro? Se borrarán monedas, skins, récord y lo que ha aprendido el ratón.")) return;
-
-    try {
-        ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad"].forEach((clave) => {
-            localStorage.removeItem(claveAlmacen(clave));
-        });
-    } catch (e) {}
-
-    record = 0;
-    monedas = 0;
-    skinsCompradas = ["🐱"];
-    skinActual = "🐱";
-    experienciaRaton = 0;
-    dificultad = 1;
-    velocidadGato = DIFICULTADES[0].velGato;
-
-    actualizarTextoDificultad();
-    actualizarNivelVisualIA();
-    if (sesion) {
-        guardarLocal("actualizado", Date.now());
-        subirProgreso(); 
-    }
-    mostrarLogro("Progreso borrado");
-}
-
-function actualizarBotonesTienda() {
-    SKINS.forEach((skin) => {
-        const boton = skin.elemento;
-        if (!boton) return;
-        const extra = skin.velocidad > 1 ? ` +${Math.round((skin.velocidad - 1) * 100)}%` : "";
-        const simbolo = skin.icono || skin.emoji;
-        const poseido = skinsCompradas.includes(skin.emoji);
-
-        boton.style.display = skin.secreta && !poseido ? "none" : "";
-
-        if (skin.emoji === skinActual) {
-            boton.textContent = `${simbolo} Equipado: ${skin.nombre}`;
-        } else if (poseido) {
-            boton.textContent = `${simbolo} Equipar ${skin.nombre}${extra}`;
-        } else {
-            boton.textContent = `${simbolo} ${skin.nombre} (${skin.precio} 💰)${extra}`;
-        }
-    });
-}
-
-function construirTienda() {
-    const lista = document.getElementById("lista-tienda");
-    if (!lista) return;
-    SKINS.forEach((skin) => {
-        if (skin.elemento) return; 
-        if (skin.secreta && !skinsCompradas.includes(skin.emoji)) return; 
-        const boton = document.createElement("button");
-        boton.onclick = () => comprarOEquipar(skin.emoji, skin.precio);
-        skin.elemento = boton;
-        lista.appendChild(boton);
-    });
-    actualizarBotonesTienda();
-}
-
-function bonusSkin() {
-    const skin = SKINS.find((s) => s.emoji === skinActual);
-    return skin ? skin.velocidad : 1;
-}
-
-function comprarOEquipar(emoji, precio) {
-    if (skinsCompradas.includes(emoji)) {
-        sonar("equipar");
-        equiparSkin(emoji);
-    } else if (monedas >= precio) {
-        monedas -= precio;
-        skinsCompradas.push(emoji);
-        guardar("monedas", monedas);
-        guardar("skinsCompradas", JSON.stringify(skinsCompradas));
-        sonar("compra");
-        equiparSkin(emoji, "¡Compra exitosa! Skin equipada: " + emoji);
-    } else {
-        sonar("error");
-        mostrarLogro(`Te faltan ${precio - monedas} monedas`);
-    }
-    document.getElementById("monedas-tienda").innerText = monedas;
-    actualizarBotonesTienda();
-}
-
-function equiparSkin(emoji, mensaje) {
-    skinActual = emoji;
-    guardar("skin", skinActual);
-    const extra = bonusSkin() > 1 ? ` (+${Math.round((bonusSkin() - 1) * 100)}% velocidad)` : "";
-    const info = SKINS.find((s) => s.emoji === emoji);
-    const simbolo = info && info.icono ? info.icono : emoji;
-    mostrarLogro((mensaje || "Skin equipada: " + simbolo) + extra);
-}
-
-function actualizarGato(f) {
-    let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
-    let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
-
-    if (dx !== 0 && dy !== 0) {
-        dx *= Math.SQRT1_2;
-        dy *= Math.SQRT1_2;
-    }
-
-    if (toque.activo) {
-        const ox = toque.x - (gato.x + gato.w / 2);
-        const oy = toque.y - (gato.y + gato.h / 2);
-        const distanciaToque = Math.hypot(ox, oy);
-        if (distanciaToque > 8) { 
-            dx = ox / distanciaToque;
-            dy = oy / distanciaToque;
-        } else {
-            dx = 0;
-            dy = 0;
-        }
-    }
-
-    const velocidadActual = velocidadGato * bonusSkin();
-    gato.x += dx * velocidadActual * f;
-    gato.y += dy * velocidadActual * f;
-
-    gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
-    gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
-}
-
-function actualizarRaton(f) {
-    const dif = DIFICULTADES[dificultad - 1];
-    const dx = (raton.x + raton.w / 2) - (gato.x + gato.w / 2);
-    const dy = (raton.y + raton.h / 2) - (gato.y + gato.h / 2);
-    const dist = Math.hypot(dx, dy);
-
-    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-    const radioVision = (180 + nivelAprendizaje * 1.5) * dif.factorVision;
-
-    let vel = (2.2 + nivel * 0.3 + nivelAprendizaje * 0.012) * dif.factorRaton;
-    vel = Math.min(vel, velocidadGato * 1.05);
-
-    if (dist < radioVision) {
-        let vx = dist > 0 ? dx / dist : 1;
-        let vy = dist > 0 ? dy / dist : 0;
-
-        const margen = 2;
-        const bloqueadoX = (raton.x <= margen && vx < 0) || (raton.x >= canvas.width - raton.w - margen && vx > 0);
-        const bloqueadoY = (raton.y <= margen && vy < 0) || (raton.y >= canvas.height - raton.h - margen && vy > 0);
-
-        if (bloqueadoX && bloqueadoY) {
-            vx = 0;
-            vy = 0;
-        } else if (bloqueadoX) {
-            vy = vy >= 0 ? 1 : -1;
-            vx = 0;
-        } else if (bloqueadoY) {
-            vx = vx >= 0 ? 1 : -1;
-            vy = 0;
-        }
-
-        raton.x += vx * vel * f;
-        raton.y += vy * vel * f;
-        raton.targetX = null;
-        raton.targetY = null;
-    } else {
-        if (raton.targetX === null || Math.random() < 0.02 * f) {
-            raton.targetX = Math.random() * (canvas.width - 50);
-            raton.targetY = Math.random() * (canvas.height - 50);
-        }
-        raton.x += (raton.targetX - raton.x) * 0.05 * f;
-        raton.y += (raton.targetY - raton.y) * 0.05 * f;
-    }
-
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
-}
-
-function revisarColision() {
-    const distancia = Math.hypot(
-        (gato.x + gato.w / 2) - (raton.x + raton.w / 2),
-        (gato.y + gato.h / 2) - (raton.y + raton.h / 2)
-    );
-    if (distancia >= RADIO_CAPTURA) return;
-
-    const dif = DIFICULTADES[dificultad - 1];
-
-    puntos++;
-    monedas += dif.monedasPorCaptura;
-    monedasPartida += dif.monedasPorCaptura;
-    experienciaRaton++;
-
-    guardar("monedas", monedas);
-    guardar("experienciaRaton", experienciaRaton);
-
-    const nivelNuevo = Math.floor(puntos / CAPTURAS_POR_NIVEL) + 1;
-    if (nivelNuevo > nivel) {
-        nivel = nivelNuevo;
-        tiempo += BONUS_TIEMPO_NIVEL;
-        mostrarLogro(`¡Nivel ${nivel}! +${BONUS_TIEMPO_NIVEL}s`);
-        sonar("nivel");
-    } else {
-        sonar("captura");
-    }
-
-    actualizarMarcador();
-    actualizarNivelVisualIA();
-    reaparecerRaton();
-}
-
-function actualizarTiempo(dt) {
-    tiempo -= dt;
-    const segundos = Math.max(0, Math.ceil(tiempo));
-    if (segundos !== ultimoSegundoMostrado) {
-        ultimoSegundoMostrado = segundos;
-        document.getElementById("tiempo-valor").innerText = segundos;
-    }
-    if (tiempo <= 0) terminarJuego();
-}
-
-function gameLoop(timestamp) {
-    if (!juegoIniciado) return;
-    sincronizarMusica();
-
-    if (pausado) {
-        ultimoTimestamp = null;
-        dibujar();
-        animacionId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
-    if (ultimoTimestamp === null) ultimoTimestamp = timestamp;
-    const dt = Math.min((timestamp - ultimoTimestamp) / 1000, 0.1);
-    ultimoTimestamp = timestamp;
-    const f = dt * 60;
-
-    actualizarGato(f);
-    actualizarRaton(f);
-    revisarColision();
-    dibujar();
-    actualizarTiempo(dt);
-
-    if (juegoIniciado) {
-        animacionId = requestAnimationFrame(gameLoop);
-    }
-}
-
-function dibujar() {
-    ctx.fillStyle = FONDOS[(nivel - 1) % FONDOS.length];
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const progreso = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
-    ctx.fillStyle = "#333333";
-    ctx.fillRect(0, 0, canvas.width, 8);
-    ctx.fillStyle = "gold";
-    ctx.fillRect(0, 0, canvas.width * progreso, 8);
-
-    const skinInfo = SKINS.find((s) => s.emoji === skinActual);
-    if (skinInfo && skinInfo.imagen && tateCargada) {
-        ctx.drawImage(tateImg, gato.x, gato.y, gato.w, gato.h);
-    } else if (skinInfo && skinInfo.imagen) {
-        ctx.font = "30px Arial";
-        ctx.fillText("⭐", gato.x, gato.y + 30);
-    } else {
-        ctx.font = "40px Arial";
-        ctx.fillText(skinActual, gato.x, gato.y + 35);
-    }
-
-    // Dibujar el ratón con un tamaño mayor para que se vea claro
-    const emojiRaton = RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
-    ctx.font = "38px Arial";
-    ctx.fillText(emojiRaton, raton.x, raton.y + 34);
-
-    if (pausado) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.font = "24px 'Press Start 2P', Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("PAUSA", canvas.width / 2, canvas.height / 2);
-        ctx.textAlign = "left";
-    }
-}
-
-const MAPA_TECLAS = {
-    arrowup: "arriba",
-    w: "arriba",
-    arrowdown: "abajo",
-    s: "abajo",
-    arrowleft: "izquierda",
-    a: "izquierda",
-    arrowright: "derecha",
-    d: "derecha"
-};
-
-window.addEventListener("keydown", (e) => {
-    if (juegoIniciado && (e.key === "p" || e.key === "P" || e.key === "Escape")) {
-        pausado = !pausado;
-        sonar("pausa");
-        return;
-    }
-    const direccion = MAPA_TECLAS[e.key.toLowerCase()];
-    if (!direccion || !juegoIniciado) return;
-    e.preventDefault(); 
-    teclas[direccion] = true;
-});
-
-window.addEventListener("keyup", (e) => {
-    const direccion = MAPA_TECLAS[e.key.toLowerCase()];
-    if (direccion) teclas[direccion] = false;
-});
-
-window.addEventListener("blur", () => {
-    if (juegoIniciado) pausado = true; 
-    teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
-});
-
-function posicionEnCanvas(e) {
-    const caja = canvas.getBoundingClientRect();
-    toque.x = (e.clientX - caja.left) * (canvas.width / caja.width);
-    toque.y = (e.clientY - caja.top) * (canvas.height / caja.height);
-}
-
-canvas.addEventListener("pointerdown", (e) => {
-    if (!juegoIniciado) return;
-    if (pausado) { pausado = false; return; } 
-    e.preventDefault();
-    toque.activo = true;
-    posicionEnCanvas(e);
-});
-canvas.addEventListener("pointermove", (e) => {
-    if (toque.activo) posicionEnCanvas(e);
-});
-["pointerup", "pointercancel", "pointerleave"].forEach((tipo) => {
-    canvas.addEventListener(tipo, () => { toque.activo = false; });
-});
-
-// --- FIREBASE / CUENTAS ---
-const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyAYuJPYqMiRqKDj3FsjIOcPDU3CtPTbn3s",
-    authDomain: "gato-cazador.firebaseapp.com",
-    projectId: "gato-cazador",
-    appId: "1:1056097287521:web:838a566997f1a8623c9920"
-};
-const FIREBASE_VERSION = "12.19.0";
-const DOMINIO_CUENTAS = "gatocazador.example.com"; 
-const RETRASO_SUBIDA_NUBE = 2000;                   
-const FIREBASE_ACTIVO = FIREBASE_CONFIG.apiKey !== "" && !FIREBASE_CONFIG.apiKey.startsWith("PEGA");
-
-let temporizadorNube = null;
-let accionEnCurso = false;        
-let nubeConectada = false;
-let avisoPermisoMostrado = false;
-
-const nube = {
-    listo: false,
-    auth: null,
-    db: null,
-    f: null,
-    async iniciar() {
-        if (this.listo) return;
-        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
-        const [mApp, mAuth, mDb] = await Promise.all([
-            import(base + "firebase-app.js"),
-            import(base + "firebase-auth.js"),
-            import(base + "firebase-firestore.js")
-        ]);
-        const app = mApp.initializeApp(FIREBASE_CONFIG);
-        this.auth = mAuth.getAuth(app);
-        this.db = mDb.getFirestore(app);
-        this.f = { ...mAuth, ...mDb };
-        this.listo = true;
-    },
-    alCambiarSesion(funcion) { return this.f.onAuthStateChanged(this.auth, funcion); },
-    async registrar(email, clave) { return (await this.f.createUserWithEmailAndPassword(this.auth, email, clave)).user; },
-    async entrar(email, clave) { return (await this.f.signInWithEmailAndPassword(this.auth, email, clave)).user; },
-    async salir() { await this.f.signOut(this.auth); },
-    async leer(uid) {
-        const doc = await this.f.getDoc(this.f.doc(this.db, "jugadores", uid));
-        return doc.exists() ? doc.data() : null;
-    },
-    async escribir(uid, datos) {
-        await this.f.setDoc(this.f.doc(this.db, "jugadores", uid), datos, { merge: true });
-    }
-};
-
-function datosDeProgreso() {
-    return {
-        nombre: sesion.nombre,
-        monedas: monedas,
-        record: record,
-        skinsCompradas: skinsCompradas.slice(),
-        skin: skinActual,
-        experienciaRaton: experienciaRaton,
-        dificultad: dificultad,
-        actualizado: leerNumero("actualizado") || Date.now()
+<!-- SALA DE ESPERA -->
+<div id="menu-espera" class="menu" style="display:none;">
+    <h2>SALA DE ESPERA</h2>
+    <p style="font-size: 10px;">Código de Sala:</p>
+    <h3 id="codigo-sala-texto" style="color: #b30009; font-size: 20px; margin: 10px 0;">------</h3>
+    <p id="rol-asignado" style="font-size: 11px; margin: 15px 0;"></p>
+    <p id="estado-espera" style="font-size: 10px; color: #555;">Esperando al otro jugador...</p>
+    <button id="btn-comenzar-1v1" onclick="iniciarPartida1v1()" style="display:none;">¡Comenzar Partida!</button>
+    <button onclick="salirSala()">Salir</button>
+</div>
+
+<div id="menu-ajustes" class="menu" style="display:none;">
+    <h2>AJUSTES</h2>
+    <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button>
+    <button onclick="volverMenu()">Volver</button>
+</div>
+
+<canvas id="juego" width="600" height="400"></canvas>
+
+<div id="marcador">
+    <span id="info-rol">Rol: --</span>
+    <span>Capturas: <span id="puntos-valor">0</span></span>
+    <span>Tiempo: <span id="tiempo-valor">60</span></span>
+</div>
+
+<div id="fin-juego" class="menu" style="display:none;">
+    <h1 id="titulo-fin">¡FIN DE PARTIDA!</h1>
+    <p id="texto-resultado-fin"></p>
+    <button onclick="volverMenu()">Ir al Menú</button>
+</div>
+
+<div id="logro"></div>
+
+<script type="module">
+    // Importar Firebase SDKs desde CDN oficial
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyAYuJPYqMiRqKDj3FsjIOcPDU3CtPTbn3s",
+        authDomain: "gato-cazador.firebaseapp.com",
+        projectId: "gato-cazador",
+        appId: "1:1056097287521:web:838a566997f1a8623c9920"
     };
-}
 
-function programarSubidaNube() {
-    if (!sesion || !nube.listo) return;
-    clearTimeout(temporizadorNube);
-    temporizadorNube = setTimeout(subirProgreso, RETRASO_SUBIDA_NUBE);
-}
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-async function subirProgreso() {
-    clearTimeout(temporizadorNube);
-    if (!sesion || !nube.listo) return false;
-    try {
-        await nube.escribir(sesion.uid, datosDeProgreso());
-        return true;
-    } catch (e) {
-        if (e && e.code === "permission-denied" && !avisoPermisoMostrado) {
-            avisoPermisoMostrado = true;
-            mostrarLogro("La nube rechazó guardar: revisa las reglas de Firestore");
-        }
-        return false;
-    }
-}
-
-function recargarProgreso() {
-    record = leerNumero("record");
-    monedas = leerNumero("monedas");
-    experienciaRaton = leerNumero("experienciaRaton");
-    dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
-    velocidadGato = DIFICULTADES[dificultad - 1].velGato;
-    skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
-    if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
-    skinActual = leerTexto("skin", "🐱");
-    if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
-    actualizarTextoDificultad();
-    actualizarNivelVisualIA();
-    actualizarBotonesTienda();
-}
-
-async function bajarProgreso() {
-    recargarProgreso(); 
-    let datos = null;
-    try {
-        datos = await nube.leer(sesion.uid);
-    } catch (e) {
-        mostrarLogro("Sin conexión: se usa el progreso de este dispositivo");
-        return false;
-    }
-    if (!datos || leerNumero("actualizado") > Number(datos.actualizado || 0)) {
-        await subirProgreso();
-        return true;
-    }
-    guardarLocal("monedas", Math.max(0, Number(datos.monedas) || 0));
-    guardarLocal("record", Math.max(0, Number(datos.record) || 0));
-    guardarLocal("experienciaRaton", Math.max(0, Number(datos.experienciaRaton) || 0));
-    guardarLocal("dificultad", Math.min(3, Math.max(1, Number(datos.dificultad) || 1)));
-    guardarLocal("skin", typeof datos.skin === "string" ? datos.skin : "🐱");
-    const lista = Array.isArray(datos.skinsCompradas) ? datos.skinsCompradas.filter((s) => typeof s === "string") : ["🐱"];
-    guardarLocal("skinsCompradas", JSON.stringify(lista));
-    guardarLocal("actualizado", Number(datos.actualizado) || 0);
-    recargarProgreso();
-    return true;
-}
-
-function mensajeLogin(texto, esError) {
-    const elemento = document.getElementById("login-mensaje");
-    if (!elemento) return;
-    elemento.textContent = texto;
-    elemento.style.color = esError ? "#b30009" : "#333333";
-}
-
-function bloquearLogin(bloqueado) {
-    ["btn-entrar", "btn-crear"].forEach((id) => {
-        const boton = document.getElementById(id);
-        if (boton) boton.disabled = bloqueado;
+    let usuarioId = null;
+    signInAnonymously(auth).then((res) => {
+        usuarioId = res.user.uid;
+    }).catch(() => {
+        mostrarLogro("Error conectando al servidor multijugador");
     });
-}
 
-function nombreDesdeEmail(email) {
-    return String(email || "").split("@")[0];
-}
+    const canvas = document.getElementById("juego");
+    const ctx = canvas.getContext("2d");
 
-function leerFormularioLogin() {
-    const nombre = document.getElementById("login-nombre").value.trim().toLowerCase();
-    const clave = document.getElementById("login-clave").value;
-    if (!/^[a-z0-9_.-]{3,20}$/.test(nombre)) {
-        mensajeLogin("Nombre: de 3 a 20 letras o números (sin espacios ni tildes)", true);
-        return null;
+    let modoJuego = "solo"; // "solo" o "1v1"
+    let miRol = ""; // "gato" o "raton"
+    let codigoSalaActual = null;
+    let unsubscribesala = null;
+
+    let juegoIniciado = false;
+    let pausado = false;
+    let tiempo = 60;
+    let puntos = 0;
+    let ultimoTimestamp = null;
+    let ultimoSegundoMostrado = null;
+    const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
+
+    let gato = { x: 300, y: 200, w: 35, h: 35, velocidad: 5 };
+    let raton = { x: 100, y: 100, w: 38, h: 38, velocidad: 4.5 };
+
+    const tateImg = new Image();
+    tateImg.src = "tate.png";
+    let tateCargada = false;
+    tateImg.onload = () => { tateCargada = true; };
+
+    window.mostrarLogro = function(texto) {
+        const elemento = document.getElementById("logro");
+        if (!elemento) return;
+        elemento.textContent = texto;
+        elemento.style.right = "20px";
+        setTimeout(() => { elemento.style.right = "-400px"; }, 2500);
     }
-    if (clave.length < 6) {
-        mensajeLogin("La contraseña necesita al menos 6 caracteres", true);
-        return null;
+
+    window.cambiarPantalla = function(id) {
+        ["menu-inicio", "menu-multijugador", "menu-espera", "menu-ajustes", "fin-juego", "juego", "marcador"].forEach(pantalla => {
+            const el = document.getElementById(pantalla);
+            if(el) el.style.display = "none";
+        });
+        if(id === "juego") {
+            document.getElementById("juego").style.display = "block";
+            document.getElementById("marcador").style.display = "flex";
+        } else {
+            const el = document.getElementById(id);
+            if(el) el.style.display = "block";
+        }
     }
-    return { nombre: nombre, clave: clave, email: `${nombre}@${DOMINIO_CUENTAS}` };
-}
 
-function textoError(e) {
-    const codigo = (e && e.code) || "";
-    if (codigo === "auth/email-already-in-use") return "Ese nombre ya existe. Prueba otro, o pulsa Entrar si es tuyo";
-    if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(codigo)) return "Nombre o contraseña incorrectos";
-    if (codigo === "auth/weak-password") return "La contraseña necesita al menos 6 caracteres";
-    if (codigo === "auth/network-request-failed") return "Sin conexión a internet";
-    if (codigo === "auth/too-many-requests") return "Demasiados intentos. Espera un momento";
-    if (codigo === "auth/operation-not-allowed") return "En Firebase falta activar el acceso con correo y contraseña";
-    return "No se pudo completar" + (codigo ? " (" + codigo + ")" : "");
-}
-
-function actualizarSesionUI() {
-    const boton = document.getElementById("btn-sesion");
-    const estado = document.getElementById("sesion-estado");
-    if (!boton || !estado) return;
-    if (!FIREBASE_ACTIVO) {
-        boton.style.display = "none";
-        estado.style.display = "none";
-        return;
+    window.volverMenu = function() {
+        juegoIniciado = false;
+        if(unsubscribesala) { unsubscribesala(); unsubscribesala = null; }
+        codigoSalaActual = null;
+        cambiarPantalla("menu-inicio");
     }
-    boton.style.display = "inline-block";
-    estado.style.display = "block";
-    if (sesion) {
-        estado.textContent = `Jugador: ${sesion.nombre}`;
-        boton.textContent = "Cerrar sesión";
-    } else {
-        estado.textContent = "Jugando sin cuenta";
-        boton.textContent = "Iniciar sesión";
+
+    window.abrirAjustes = function() { cambiarPantalla("menu-ajustes"); }
+
+    // --- FUNCIONES MULTIJUGADOR 1V1 ---
+    window.crearSala = async function() {
+        if(!usuarioId) return mostrarLogro("Conectando con el servidor...");
+        codigoSalaActual = Math.random().toString(36).substring(2, 8).toUpperCase();
+        miRol = "gato"; // El creador es el gato
+
+        const salaRef = doc(db, "salas1v1", codigoSalaActual);
+        await setDoc(salaRef, {
+            creador: usuarioId,
+            estado: "esperando",
+            gatoX: 300, gatoY: 200,
+            ratonX: 100, ratonY: 100,
+            puntos: 0,
+            tiempo: 60,
+            ultimaActualizacion: Date.now()
+        });
+
+        document.getElementById("codigo-sala-texto").innerText = codigoSalaActual;
+        document.getElementById("rol-asignado").innerText = "Tu rol: 🐱 GATO (Cazador)";
+        document.getElementById("estado-espera").innerText = "Esperando a que entre el ratón...";
+        document.getElementById("btn-comenzar-1v1").style.display = "none";
+        cambiarPantalla("menu-espera");
+
+        escucharSala(salaRef, true);
     }
-}
 
-function entrarAlMenu() {
-    const clave = document.getElementById("login-clave");
-    if (clave) clave.value = "";
-    cambiarPantalla("menu-inicio");
-    actualizarSesionUI();
-    actualizarNivelVisualIA();
-}
+    window.unirseSala = async function() {
+        const codigo = document.getElementById("input-sala").value.trim().toUpperCase();
+        if(codigo.length !== 6) return mostrarLogro("Escribe un código de 6 dígitos válido");
+        if(!usuarioId) return mostrarLogro("Conectando con el servidor...");
 
-function mostrarLogin(mensaje) {
-    cambiarPantalla("menu-login");
-    mensajeLogin(mensaje || "", false);
-    bloquearLogin(false);
-}
+        const salaRef = doc(db, "salas1v1", codigo);
+        const snap = await getDoc(salaRef);
+        if(!snap.exists()) return mostrarLogro("La sala no existe");
 
-async function conectarNube() {
-    if (nubeConectada) return true;
-    try {
-        await nube.iniciar();
-        nube.alCambiarSesion(alCambiarSesion);
-        nubeConectada = true;
-        return true;
-    } catch (e) {
-        return false;
+        codigoSalaActual = codigo;
+        miRol = "raton"; // El que se une es el ratón
+
+        await updateDoc(salaRef, { estado: "listo" });
+
+        document.getElementById("codigo-sala-texto").innerText = codigoSalaActual;
+        document.getElementById("rol-asignado").innerText = "Tu rol: 🐭 RATÓN (Escapa!)";
+        document.getElementById("estado-espera").innerText = "¡Conectado con el Gato!";
+        document.getElementById("btn-comenzar-1v1").style.display = "inline-block";
+        cambiarPantalla("menu-espera");
+
+        escucharSala(salaRef, false);
     }
-}
 
-async function activarSesion(usuario) {
-    sesion = { uid: usuario.uid, nombre: nombreDesdeEmail(usuario.email) };
-    return await bajarProgreso();
-}
+    function escucharSala(salaRef, esCreador) {
+        unsubscribesala = onSnapshot(salaRef, (docSnap) => {
+            if(!docSnap.exists()) return;
+            const data = docSnap.data();
+            if(esCreador && data.estado === "listo") {
+                document.getElementById("estado-espera").innerText = "¡Jugador conectado!";
+                document.getElementById("btn-comenzar-1v1").style.display = "inline-block";
+            }
+            if(data.estado === "jugando" && !juegoIniciado) {
+                arrancarPartidaOnline(salaRef);
+            }
+            if(data.estado === "terminado") {
+                terminarPartidaOnline(data.puntos);
+            }
+            // Sincronizar posiciones y datos remotos
+            if(juegoIniciado) {
+                if(miRol === "gato") {
+                    raton.x = data.ratonX;
+                    raton.y = data.ratonY;
+                } else {
+                    gato.x = data.gatoX;
+                    gato.y = data.gatoY;
+                }
+                puntos = data.puntos;
+                tiempo = data.tiempo;
+                document.getElementById("puntos-valor").innerText = puntos;
+                document.getElementById("tiempo-valor").innerText = Math.max(0, Math.ceil(tiempo));
+            }
+        });
+    }
 
-async function crearCuenta() {
-    const formulario = leerFormularioLogin();
-    if (!formulario) return;
-    accionEnCurso = true;
-    bloquearLogin(true);
-    mensajeLogin("Creando cuenta...", false);
-    try {
-        if (!(await conectarNube())) {
-            mensajeLogin("Sin conexión con el servidor. Puedes jugar sin cuenta.", true);
+    window.iniciarPartida1v1 = async function() {
+        const salaRef = doc(db, "salas1v1", codigoSalaActual);
+        await updateDoc(salaRef, { estado: "jugando", ultimaActualizacion: Date.now() });
+    }
+
+    function arrancarPartidaOnline(salaRef) {
+        modoJuego = "1v1";
+        juegoIniciado = true;
+        tiempo = 60;
+        puntos = 0;
+        ultimoTimestamp = null;
+        document.getElementById("info-rol").innerText = `Rol: ${miRol === 'gato' ? '🐱 Gato' : '🐭 Ratón'}`;
+        cambiarPantalla("juego");
+        animacionId = requestAnimationFrame(gameLoopOnline);
+    }
+
+    window.salirSala = async function() {
+        if(codigoSalaActual && miRol === "gato") {
+            try { await deleteDoc(doc(db, "salas1v1", codigoSalaActual)); } catch(e){}
+        }
+        volverMenu();
+    }
+
+    // --- BUCLE DE JUEGO MODO 1V1 ---
+    let animacionId = null;
+    function gameLoopOnline(timestamp) {
+        if(!juegoIniciado) return;
+        if(ultimoTimestamp === null) ultimoTimestamp = timestamp;
+        const dt = Math.min((timestamp - ultimoTimestamp) / 1000, 0.1);
+        ultimoTimestamp = timestamp;
+        const f = dt * 60;
+
+        // Movimiento local según el rol asignado
+        let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
+        let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
+
+        if(miRol === "gato") {
+            gato.x += dx * gato.velocidad * f;
+            gato.y += dy * gato.velocidad * f;
+            gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
+            gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
+
+            // Revisar colisión localmente si eres el gato
+            const dist = Math.hypot((gato.x + gato.w/2) - (raton.x + raton.w/2), (gato.y + gato.h/2) - (raton.y + raton.h/2));
+            if(dist < 40) {
+                puntos++;
+                raton.x = Math.random() * (canvas.width - 50);
+                raton.y = Math.random() * (canvas.height - 50);
+            }
+        } else {
+            raton.x += dx * raton.velocidad * f;
+            raton.y += dy * raton.velocidad * f;
+            raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
+            raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
+        }
+
+        // Subir mis coordenadas a Firestore
+        if(codigoSalaActual) {
+            const salaRef = doc(db, "salas1v1", codigoSalaActual);
+            tiempo -= dt;
+            updateDoc(salaRef, miRol === "gato" ? {
+                gatoX: gato.x, gatoY: gato.y, ratonX: raton.x, ratonY: raton.y, puntos: puntos, tiempo: tiempo
+            } : {
+                ratonX: raton.x, ratonY: raton.y
+            }).catch(()=>{});
+
+            if(tiempo <= 0) {
+                updateDoc(salaRef, { estado: "terminado" }).catch(()=>{});
+            }
+        }
+
+        dibujarEscena();
+        if(juegoIniciado) animacionId = requestAnimationFrame(gameLoopOnline);
+    }
+
+    function terminarPartidaOnline(puntosFinales) {
+        juegoIniciado = false;
+        if(animacionId) cancelAnimationFrame(animacionId);
+        cambiarPantalla("fin-juego");
+        document.getElementById("texto-resultado-fin").innerText = `El gato atrapó al ratón ${puntosFinales} veces.`;
+    }
+
+    // --- MODO SOLO LOCAL (El juego anterior) ---
+    window.empezarJuegoSolo = function() {
+        modoJuego = "solo";
+        juegoIniciado = true;
+        tiempo = 60;
+        puntos = 0;
+        miRol = "gato";
+        document.getElementById("info-rol").innerText = "Modo Solo";
+        gato.x = 250; gato.y = 150;
+        raton.x = 100; raton.y = 100;
+        cambiarPantalla("juego");
+        animacionId = requestAnimationFrame(gameLoopSolo);
+    }
+
+    function gameLoopSolo(timestamp) {
+        if(!juegoIniciado || modoJuego !== "solo") return;
+        if(ultimoTimestamp === null) ultimoTimestamp = timestamp;
+        const dt = Math.min((timestamp - ultimoTimestamp) / 1000, 0.1);
+        ultimoTimestamp = timestamp;
+        const f = dt * 60;
+
+        let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
+        let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
+        gato.x += dx * gato.velocidad * f;
+        gato.y += dy * gato.velocidad * f;
+        gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
+        gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
+
+        // IA simple del ratón huyendo
+        const rdx = (raton.x) - (gato.x);
+        const rdy = (raton.y) - (gato.y);
+        raton.x += (rdx > 0 ? 1 : -1) * 1.5 * f;
+        raton.y += (rdy > 0 ? 1 : -1) * 1.5 * f;
+        raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
+        raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
+
+        const dist = Math.hypot((gato.x + gato.w/2) - (raton.x + raton.w/2), (gato.y + gato.h/2) - (raton.y + raton.h/2));
+        if(dist < 40) {
+            puntos++;
+            raton.x = Math.random() * (canvas.width - 50);
+            raton.y = Math.random() * (canvas.height - 50);
+        }
+
+        tiempo -= dt;
+        document.getElementById("puntos-valor").innerText = puntos;
+        document.getElementById("tiempo-valor").innerText = Math.max(0, Math.ceil(tiempo));
+
+        if(tiempo <= 0) {
+            juegoIniciado = false;
+            cambiarPantalla("fin-juego");
+            document.getElementById("texto-resultado-fin").innerText = `Puntuación total: ${puntos}`;
             return;
         }
-        const usuario = await nube.registrar(formulario.email, formulario.clave);
-        sesion = { uid: usuario.uid, nombre: formulario.nombre };
-        guardarLocal("monedas", monedas);
-        guardarLocal("record", record);
-        guardarLocal("skin", skinActual);
-        guardarLocal("skinsCompradas", JSON.stringify(skinsCompradas));
-        guardarLocal("experienciaRaton", experienciaRaton);
-        guardarLocal("dificultad", dificultad);
-        guardarLocal("actualizado", Date.now());
-        await subirProgreso();
-        entrarAlMenu();
-        mostrarLogro("¡Cuenta creada! Bienvenido, " + formulario.nombre);
-    } catch (e) {
-        mensajeLogin(textoError(e), true);
-    } finally {
-        accionEnCurso = false;
-        bloquearLogin(false);
-    }
-}
 
-async function iniciarSesion() {
-    const formulario = leerFormularioLogin();
-    if (!formulario) return;
-    accionEnCurso = true;
-    bloquearLogin(true);
-    mensajeLogin("Entrando...", false);
-    try {
-        if (!(await conectarNube())) {
-            mensajeLogin("Sin conexión con el servidor. Puedes jugar sin cuenta.", true);
-            return;
+        dibujarEscena();
+        animacionId = requestAnimationFrame(gameLoopSolo);
+    }
+
+    function dibujarEscena() {
+        ctx.fillStyle = "#0b1b3a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar Gato (Tate)
+        if(tateCargada) {
+            ctx.drawImage(tateImg, gato.x, gato.y, gato.w, gato.h);
+        } else {
+            ctx.font = "35px Arial";
+            ctx.fillText("🐱", gato.x, gato.y + 30);
         }
-        const usuario = await nube.entrar(formulario.email, formulario.clave);
-        const enLinea = await activarSesion(usuario);
-        entrarAlMenu();
-        if (enLinea) mostrarLogro("Bienvenido de nuevo, " + sesion.nombre); 
-    } catch (e) {
-        mensajeLogin(textoError(e), true);
-    } finally {
-        accionEnCurso = false;
-        bloquearLogin(false);
+
+        // Dibujar Ratón
+        ctx.font = "38px Arial";
+        ctx.fillText("🐭", raton.x, raton.y + 34);
     }
-}
 
-async function cerrarSesion() {
-    accionEnCurso = true;
-    try {
-        await subirProgreso();
-        await nube.salir();
-    } catch (e) {}
-    sesion = null;
-    accionEnCurso = false;
-    guardar("invitado", "0");
-    recargarProgreso(); 
-    actualizarSesionUI();
-    mostrarLogin("Sesión cerrada");
-}
+    // Controles de teclado
+    const MAPA_TECLAS = { arrowup: "arriba", w: "arriba", arrowdown: "abajo", s: "abajo", arrowleft: "izquierda", a: "izquierda", arrowright: "derecha", d: "derecha" };
+    window.addEventListener("keydown", (e) => {
+        const dir = MAPA_TECLAS[e.key.toLowerCase()];
+        if(dir) { e.preventDefault(); teclas[dir] = true; }
+    });
+    window.addEventListener("keyup", (e) => {
+        const dir = MAPA_TECLAS[e.key.toLowerCase()];
+        if(dir) teclas[dir] = false;
+    });
 
-function botonSesion() {
-    if (sesion) cerrarSesion();
-    else mostrarLogin("");
-}
-
-function jugarSinCuenta() {
-    guardar("invitado", "1"); 
-    entrarAlMenu();
-}
-
-function alCambiarSesion(usuario) {
-    if (accionEnCurso || juegoIniciado) return;
-    if (usuario) {
-        if (sesion && sesion.uid === usuario.uid) return;
-        activarSesion(usuario).then(entrarAlMenu);
-    } else {
-        if (sesion) {
-            sesion = null; 
-            recargarProgreso();
-        }
-        if (leerTexto("invitado", "0") === "1") entrarAlMenu();
-        else mostrarLogin("");
-    }
-}
-
-async function prepararNube() {
-    if (!FIREBASE_ACTIVO) return;
-    cambiarPantalla("menu-login");
-    mensajeLogin("Conectando...", false);
-    bloquearLogin(true);
-    if (!(await conectarNube())) {
-        mensajeLogin("Sin conexión con el servidor. Puedes jugar sin cuenta.", true);
-        bloquearLogin(false);
-    }
-}
-
-["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, prepararAudio));
-
-construirTienda();
-actualizarTextoSonido();
-actualizarTextoMusica();
-actualizarTextoDificultad();
-actualizarNivelVisualIA();
-actualizarSesionUI();
-prepararNube();
-    </script>
+    window.cambiarSonido = function() { mostrarLogro("Sonido activado"); }
+</script>
 </body>
 </html>
