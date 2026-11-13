@@ -53,7 +53,6 @@
     </style>
 </head>
 <body>
-    <script>document.title = "JS OK 1";</script>
 <noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
 
 <!-- Reproductor de audio opcional con la presentación del desarrollador -->
@@ -257,6 +256,9 @@ let dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
 let velocidadGato = DIFICULTADES[dificultad - 1].velGato;
 let monedas = leerNumero("monedas");
 let monedasPartida = 0;
+    temporizadorDecisionIA = 0;
+    ultimoEstadoIA = null;
+    ultimaAccionIA = null;
 let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
 if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
 let skinActual = leerTexto("skin", "🐱");
@@ -564,52 +566,17 @@ function abrirTienda() {
 }
 
 function volverMenu() {
-function limpiarSalaMulti() {
-    if (desuscribirSala) {
-        desuscribirSala();
-        desuscribirSala = null;
-    }
-    if (salaId && nube.listo) {
-        if (rolMulti === "gato") {
-            // El anfitrión borra la sala al volver al menú
-            nube.borrarSala(salaId).catch(() => {});
-        } else if (rolMulti === "raton") {
-            // Si el ratón se va en plena partida, el gato ve el fin; si no, la sala queda libre
-            nube.actualizarSala(salaId, juegoIniciado ? { estado: "fin" } : { estado: "esperando" }).catch(() => {});
-        }
-    }
-    salaId = null;
-}
-
-async function salirSalaMulti() {
     limpiarSalaMulti();
-    volverMenu();
-}
-
-function terminarJuegoMulti() {
+    modoMulti = false;
+    rolMulti = null;
     juegoIniciado = false;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
         animacionId = null;
     }
-    // Solo dejamos de escuchar. La sala se queda abierta hasta que el anfitrión vuelva al menú,
-    // así el ratón recibe el estado "fin" y alcanza a ver el resultado.
-    if (desuscribirSala) {
-        desuscribirSala();
-        desuscribirSala = null;
-    }
-
     sincronizarMusica();
-    sonar("fin");
-    cambiarPantalla("fin-juego");
-
-    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
-    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
-    document.getElementById("fin-puntos-linea").style.display = "none";
-    document.getElementById("fin-monedas-linea").style.display = "none";
-    document.getElementById("fin-record-linea").style.display = "none";
-    document.getElementById("mensaje-record").style.display = "none";
-    document.getElementById("btn-reiniciar").style.display = "none";
+    cambiarPantalla("menu-inicio");
+    actualizarNivelVisualIA();
 }
 
 function actualizarTextoDificultad() {
@@ -1024,11 +991,8 @@ function revisarColision() {
 
     const dif = DIFICULTADES[dificultad - 1];
 
-    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-        aprenderIA(ultimoEstadoIA, ultimaAccionIA, -100, obtenerEstadoIA(raton.x, raton.y, gato.x, gato.y));
-        ultimoEstadoIA = null;
-        try { localStorage.setItem("cerebroRatonQL", JSON.stringify(qTable)); } catch (e) {}
-    }
+     registrarCapturaIA();
+
 
     puntos++;
     monedas += dif.monedasPorCaptura;
@@ -2026,6 +1990,49 @@ actualizarTextoDificultad();
 actualizarNivelVisualIA();
 actualizarSesionUI();
 prepararNube();
+        function limpiarSalaMulti() {
+    if (desuscribirSala) {
+        desuscribirSala();
+        desuscribirSala = null;
+    }
+    if (salaId && nube.listo) {
+        if (rolMulti === "gato") {
+            nube.borrarSala(salaId).catch(() => {});
+        } else if (rolMulti === "raton") {
+            nube.actualizarSala(salaId, juegoIniciado ? { estado: "fin" } : { estado: "esperando" }).catch(() => {});
+        }
+    }
+    salaId = null;
+}
+
+function salirSalaMulti() {
+    limpiarSalaMulti();
+    volverMenu();
+}
+
+function terminarJuegoMulti() {
+    juegoIniciado = false;
+    if (animacionId !== null) {
+        cancelAnimationFrame(animacionId);
+        animacionId = null;
+    }
+    if (desuscribirSala) {
+        desuscribirSala();
+        desuscribirSala = null;
+    }
+
+    sincronizarMusica();
+    sonar("fin");
+    cambiarPantalla("fin-juego");
+
+    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
+    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
+    document.getElementById("fin-puntos-linea").style.display = "none";
+    document.getElementById("fin-monedas-linea").style.display = "none";
+    document.getElementById("fin-record-linea").style.display = "none";
+    document.getElementById("mensaje-record").style.display = "none";
+    document.getElementById("btn-reiniciar").style.display = "none";
+}
     </script>
 </body>
 </html>
