@@ -79,7 +79,7 @@
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v16 · Completo</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v17 · IA Q-Learning</p>
 </div>
 
     <!-- MENÚ MULTIJUGADOR 1v1 -->
@@ -128,6 +128,7 @@
     <div id="menu-ajustes" class="menu" style="display:none;">
         <h2>AJUSTES</h2>
         <button onclick="cambiarDificultad()" id="btn-dificultad">Dificultad: Fácil</button>
+        <button onclick="entrenarIAAcelerado()" id="btn-entrenar-ia">Entrenar IA (15,000 pasos)</button>
         <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button>
         <button onclick="cambiarMusica()" id="btn-musica">Música: Sí</button>
         <button onclick="abrirTienda()">Tienda de Skins</button>
@@ -168,7 +169,7 @@
     <script src="firebase-config.js"></script>
     <script>
 // ============================================================
-//  GATO CAZADOR - juego.js + Secreto Tate + Multijugador 1v1
+//  GATO CAZADOR - Motor Q-Learning + Secreto Tate + Multijugador
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
@@ -748,49 +749,158 @@ function actualizarRatonJugador(f) {
     raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
 }
 
-function actualizarRaton(f) {
-    const dif = DIFICULTADES[dificultad - 1];
-    const dx = (raton.x + raton.w / 2) - (gato.x + gato.w / 2);
-    const dy = (raton.y + raton.h / 2) - (gato.y + gato.h / 2);
+// ============================================================
+//  CEREBRO Q-LEARNING + ENTRENAMIENTO ACELERADO
+// ============================================================
+const ACCIONES_IA = [
+    { dx: 0, dy: -1 },  // Arriba
+    { dx: 0, dy: 1 },   // Abajo
+    { dx: -1, dy: 0 },  // Izquierda
+    { dx: 1, dy: 0 },   // Derecha
+    { dx: -0.707, dy: -0.707 }, // Arriba-Izq
+    { dx: 0.707, dy: -0.707 },  // Arriba-Der
+    { dx: -0.707, dy: 0.707 },  // Abajo-Izq
+    { dx: 0.707, dy: 0.707 }    // Abajo-Der
+];
+
+let qTable = (() => {
+    try { return JSON.parse(localStorage.getItem("cerebroRatonQL")) || {}; }
+    catch (e) { return {}; }
+})();
+let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasQL")) || 0;
+let ultimoEstadoIA = null;
+let ultimaAccionIA = null;
+
+function obtenerEstadoIA(rx, ry, gx, gy) {
+    const dx = gx - rx;
+    const dy = gy - ry;
     const dist = Math.hypot(dx, dy);
 
-    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-    const radioVision = (180 + nivelAprendizaje * 1.5) * dif.factorVision;
+    const rangoDist = dist < 110 ? 0 : (dist < 230 ? 1 : 2);
+    const sectorAngulo = Math.floor(((Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI)) * 8) % 8;
 
-    let vel = (2.2 + nivel * 0.3 + nivelAprendizaje * 0.012) * dif.factorRaton;
-    vel = Math.min(vel, velocidadGato * 1.05);
+    const pIzq = rx < 35 ? 1 : 0;
+    const pDer = rx > canvas.width - raton.w - 35 ? 1 : 0;
+    const pArr = ry < 35 ? 1 : 0;
+    const pAba = ry > canvas.height - raton.h - 35 ? 1 : 0;
 
-    if (dist < radioVision) {
-        let vx = dist > 0 ? dx / dist : 1;
-        let vy = dist > 0 ? dy / dist : 0;
+    return `${rangoDist}_${sectorAngulo}_${pIzq}${pDer}${pArr}${pAba}`;
+}
 
-        const margen = 2;
-        const bloqueadoX = (raton.x <= margen && vx < 0) || (raton.x >= canvas.width - raton.w - margen && vx > 0);
-        const bloqueadoY = (raton.y <= margen && vy < 0) || (raton.y >= canvas.height - raton.h - margen && vy > 0);
-
-        if (bloqueadoX && bloqueadoY) {
-            vx = 0; vy = 0;
-        } else if (bloqueadoX) {
-            vy = vy >= 0 ? 1 : -1; vx = 0;
-        } else if (bloqueadoY) {
-            vx = vx >= 0 ? 1 : -1; vy = 0;
+function elegirAccionIA(estado, exploracion) {
+    if (!qTable[estado]) qTable[estado] = new Array(ACCIONES_IA.length).fill(0);
+    if (Math.random() < exploracion) {
+        return Math.floor(Math.random() * ACCIONES_IA.length);
+    }
+    let mejorAccion = 0;
+    let mejorValor = qTable[estado][0];
+    for (let i = 1; i < ACCIONES_IA.length; i++) {
+        if (qTable[estado][i] > mejorValor) {
+            mejorValor = qTable[estado][i];
+            mejorAccion = i;
         }
+    }
+    return mejorAccion;
+}
 
-        raton.x += vx * vel * f;
-        raton.y += vy * vel * f;
-        raton.targetX = null;
-        raton.targetY = null;
-    } else {
-        if (raton.targetX === null || Math.random() < 0.02 * f) {
-            raton.targetX = Math.random() * (canvas.width - 50);
-            raton.targetY = Math.random() * (canvas.height - 50);
-        }
-        raton.x += (raton.targetX - raton.x) * 0.05 * f;
-        raton.y += (raton.targetY - raton.y) * 0.05 * f;
+function aprenderIA(estadoAnt, accion, recompensa, estadoNuevo) {
+    if (!estadoAnt || accion === null) return;
+    if (!qTable[estadoAnt]) qTable[estadoAnt] = new Array(ACCIONES_IA.length).fill(0);
+    if (!qTable[estadoNuevo]) qTable[estadoNuevo] = new Array(ACCIONES_IA.length).fill(0);
+
+    const alpha = 0.25;
+    const gamma = 0.9;
+    const maxFuturo = Math.max(...qTable[estadoNuevo]);
+    qTable[estadoAnt][accion] += alpha * (recompensa + gamma * maxFuturo - qTable[estadoAnt][accion]);
+}
+
+function actualizarRaton(f) {
+    const dif = DIFICULTADES[dificultad - 1];
+    const distAntes = Math.hypot(
+        (raton.x + raton.w / 2) - (gato.x + gato.w / 2),
+        (raton.y + raton.h / 2) - (gato.y + gato.h / 2)
+    );
+
+    const estadoActual = obtenerEstadoIA(raton.x, raton.y, gato.x, gato.y);
+
+    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+        const diffDist = distAntes - (raton.ultimaDist || distAntes);
+        const enBorde = raton.x <= 5 || raton.x >= canvas.width - raton.w - 5 ||
+                        raton.y <= 5 || raton.y >= canvas.height - raton.h - 5;
+        let recompensa = diffDist * 1.5;
+        if (enBorde && distAntes < 140) recompensa -= 4;
+        if (distAntes > 180) recompensa += 1;
+        aprenderIA(ultimoEstadoIA, ultimaAccionIA, recompensa, estadoActual);
     }
 
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
+    const exploracion = Math.max(0.02, 0.15 - partidasEntrenadas * 0.0005);
+    const accionIdx = elegirAccionIA(estadoActual, exploracion);
+    const mov = ACCIONES_IA[accionIdx];
+
+    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
+    let vel = (2.5 + nivel * 0.25 + nivelAprendizaje * 0.012) * dif.factorRaton;
+    vel = Math.min(vel, velocidadGato * 1.05);
+
+    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * vel * f));
+    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * vel * f));
+
+    ultimoEstadoIA = estadoActual;
+    ultimaAccionIA = accionIdx;
+    raton.ultimaDist = distAntes;
+}
+
+function entrenarIAAcelerado() {
+    const pasos = 15000;
+    let simGato = { x: 300, y: 200 };
+    let simRaton = { x: 100, y: 100 };
+    let capturasSim = 0;
+
+    for (let i = 0; i < pasos; i++) {
+        const estado = obtenerEstadoIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
+        const accion = elegirAccionIA(estado, 0.35);
+        const mov = ACCIONES_IA[accion];
+
+        const distAntes = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
+
+        simRaton.x = Math.max(0, Math.min(canvas.width - raton.w, simRaton.x + mov.dx * 4.5));
+        simRaton.y = Math.max(0, Math.min(canvas.height - raton.h, simRaton.y + mov.dy * 4.5));
+
+        const dx = simRaton.x - simGato.x;
+        const dy = simRaton.y - simGato.y;
+        const d = Math.hypot(dx, dy) || 1;
+        simGato.x = Math.max(0, Math.min(canvas.width - gato.w, simGato.x + (dx / d) * 4.8));
+        simGato.y = Math.max(0, Math.min(canvas.height - gato.h, simGato.y + (dy / d) * 4.8));
+
+        const distDespues = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
+        const nuevoEstado = obtenerEstadoIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
+
+        let recompensa = (distDespues - distAntes) * 2;
+        if (simRaton.x <= 5 || simRaton.x >= canvas.width - raton.w - 5 ||
+            simRaton.y <= 5 || simRaton.y >= canvas.height - raton.h - 5) {
+            recompensa -= 5;
+        }
+
+        if (distDespues < RADIO_CAPTURA) {
+            recompensa = -100;
+            capturasSim++;
+            simRaton.x = Math.random() * (canvas.width - raton.w);
+            simRaton.y = Math.random() * (canvas.height - raton.h);
+        }
+
+        aprenderIA(estado, accion, recompensa, nuevoEstado);
+    }
+
+    partidasEntrenadas += capturasSim;
+    experienciaRaton += Math.floor(capturasSim / 5);
+    try {
+        localStorage.setItem("cerebroRatonQL", JSON.stringify(qTable));
+        localStorage.setItem("partidasEntrenadasQL", partidasEntrenadas);
+    } catch (e) {}
+
+    guardar("experienciaRaton", experienciaRaton);
+    actualizarNivelVisualIA();
+    sonar("nivel");
+    mostrarLogro(`🧠 IA entrenada (${Object.keys(qTable).length} situaciones aprendidas)`);
 }
 
 function revisarColision() {
@@ -812,6 +922,12 @@ function revisarColision() {
     }
 
     const dif = DIFICULTADES[dificultad - 1];
+
+    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+        aprenderIA(ultimoEstadoIA, ultimaAccionIA, -100, obtenerEstadoIA(raton.x, raton.y, gato.x, gato.y));
+        ultimoEstadoIA = null;
+        try { localStorage.setItem("cerebroRatonQL", JSON.stringify(qTable)); } catch (e) {}
+    }
 
     puntos++;
     monedas += dif.monedasPorCaptura;
