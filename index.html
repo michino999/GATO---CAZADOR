@@ -563,17 +563,52 @@ function abrirTienda() {
 }
 
 function volverMenu() {
+function limpiarSalaMulti() {
+    if (desuscribirSala) {
+        desuscribirSala();
+        desuscribirSala = null;
+    }
+    if (salaId && nube.listo) {
+        if (rolMulti === "gato") {
+            // El anfitrión borra la sala al volver al menú
+            nube.borrarSala(salaId).catch(() => {});
+        } else if (rolMulti === "raton") {
+            // Si el ratón se va en plena partida, el gato ve el fin; si no, la sala queda libre
+            nube.actualizarSala(salaId, juegoIniciado ? { estado: "fin" } : { estado: "esperando" }).catch(() => {});
+        }
+    }
+    salaId = null;
+}
+
+async function salirSalaMulti() {
     limpiarSalaMulti();
-    modoMulti = false;
-    rolMulti = null;
+    volverMenu();
+}
+
+function terminarJuegoMulti() {
     juegoIniciado = false;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
         animacionId = null;
     }
+    // Solo dejamos de escuchar. La sala se queda abierta hasta que el anfitrión vuelva al menú,
+    // así el ratón recibe el estado "fin" y alcanza a ver el resultado.
+    if (desuscribirSala) {
+        desuscribirSala();
+        desuscribirSala = null;
+    }
+
     sincronizarMusica();
-    cambiarPantalla("menu-inicio");
-    actualizarNivelVisualIA();
+    sonar("fin");
+    cambiarPantalla("fin-juego");
+
+    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
+    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
+    document.getElementById("fin-puntos-linea").style.display = "none";
+    document.getElementById("fin-monedas-linea").style.display = "none";
+    document.getElementById("fin-record-linea").style.display = "none";
+    document.getElementById("mensaje-record").style.display = "none";
+    document.getElementById("btn-reiniciar").style.display = "none";
 }
 
 function actualizarTextoDificultad() {
@@ -752,155 +787,220 @@ function actualizarRatonJugador(f) {
 // ============================================================
 //  CEREBRO Q-LEARNING + ENTRENAMIENTO ACELERADO
 // ============================================================
+// ============================================================
+//  IA DEL RATÓN: RED NEURONAL + APRENDIZAJE POR REFUERZO (DQN)
+//  - Entrada: posición del ratón, posición del gato y su diferencia (6 números).
+//  - Red: 6 entradas -> 24 neuronas ocultas (tanh) -> 8 salidas (una por dirección).
+//  - Cada salida estima qué tan buena es esa dirección.
+//  - Aprende de sus experiencias: +0,1 por sobrevivir, -10 si el gato la atrapa.
+// ============================================================
+const ENTRADAS_RED = 6;
+const OCULTAS_RED = 24;
+const SALIDAS_RED = 8;
+const CLAVE_RED = "redRatonV1";
+const TASA_APRENDIZAJE = 0.01;
+const DESCUENTO = 0.9;
+const TAMANO_LOTE = 32;
+const MEMORIA_MAX = 4000;
+const PREMIO_VIVO = 0.1;
+const CASTIGO_CAPTURA_RED = -10;
+const SEGUNDOS_ENTRE_DECISIONES = 0.2;
+
 const ACCIONES_IA = [
-    { dx: 0, dy: -1 },  // Arriba
-    { dx: 0, dy: 1 },   // Abajo
-    { dx: -1, dy: 0 },  // Izquierda
-    { dx: 1, dy: 0 },   // Derecha
-    { dx: -0.707, dy: -0.707 }, // Arriba-Izq
-    { dx: 0.707, dy: -0.707 },  // Arriba-Der
-    { dx: -0.707, dy: 0.707 },  // Abajo-Izq
-    { dx: 0.707, dy: 0.707 }    // Abajo-Der
+    { dx: 0, dy: -1 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+    { dx: -0.707, dy: -0.707 }, { dx: 0.707, dy: -0.707 },
+    { dx: -0.707, dy: 0.707 }, { dx: 0.707, dy: 0.707 }
 ];
 
-let qTable = (() => {
-    try { return JSON.parse(localStorage.getItem("cerebroRatonQL")) || {}; }
-    catch (e) { return {}; }
-})();
-let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasQL")) || 0;
+let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasRed")) || 0;
+let temporizadorDecisionIA = 0;
 let ultimoEstadoIA = null;
 let ultimaAccionIA = null;
+let memoria = [];
 
-function obtenerEstadoIA(rx, ry, gx, gy) {
-    const dx = gx - rx;
-    const dy = gy - ry;
-    const dist = Math.hypot(dx, dy);
-
-    const rangoDist = dist < 110 ? 0 : (dist < 230 ? 1 : 2);
-    const sectorAngulo = Math.floor(((Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI)) * 8) % 8;
-
-    const pIzq = rx < 35 ? 1 : 0;
-    const pDer = rx > canvas.width - raton.w - 35 ? 1 : 0;
-    const pArr = ry < 35 ? 1 : 0;
-    const pAba = ry > canvas.height - raton.h - 35 ? 1 : 0;
-
-    return `${rangoDist}_${sectorAngulo}_${pIzq}${pDer}${pArr}${pAba}`;
+function crearRed() {
+    const aleatorio = () => Math.random() * 2 - 1;
+    return {
+        w1: Array.from({ length: OCULTAS_RED * (ENTRADAS_RED + 1) }, () => aleatorio() / Math.sqrt(ENTRADAS_RED)),
+        w2: Array.from({ length: SALIDAS_RED * (OCULTAS_RED + 1) }, () => aleatorio() / Math.sqrt(OCULTAS_RED))
+    };
 }
 
-function elegirAccionIA(estado, exploracion) {
-    if (!qTable[estado]) qTable[estado] = new Array(ACCIONES_IA.length).fill(0);
-    if (Math.random() < exploracion) {
-        return Math.floor(Math.random() * ACCIONES_IA.length);
+function cargarRed() {
+    try {
+        const guardada = JSON.parse(localStorage.getItem(CLAVE_RED));
+        if (guardada && guardada.w1.length === OCULTAS_RED * (ENTRADAS_RED + 1) &&
+            guardada.w2.length === SALIDAS_RED * (OCULTAS_RED + 1)) return guardada;
+    } catch (e) {}
+    return crearRed();
+}
+
+let red = cargarRed();
+
+function guardarRed() {
+    try {
+        localStorage.setItem(CLAVE_RED, JSON.stringify(red));
+        localStorage.setItem("partidasEntrenadasRed", partidasEntrenadas);
+    } catch (e) {}
+}
+
+// Lo que "ve" la IA: posiciones normalizadas y la diferencia hacia el gato
+function sentirIA(rx, ry, gx, gy) {
+    const ancho = canvas.width;
+    const alto = canvas.height;
+    return [
+        rx / (ancho - raton.w),
+        ry / (alto - raton.h),
+        gx / (ancho - gato.w),
+        gy / (alto - gato.h),
+        (gx - rx) / ancho,
+        (gy - ry) / alto
+    ];
+}
+
+// Pasada hacia adelante: de la entrada a un valor por cada dirección
+function propagarRed(entrada) {
+    const oculta = new Array(OCULTAS_RED);
+    for (let h = 0; h < OCULTAS_RED; h++) {
+        const base = h * (ENTRADAS_RED + 1);
+        let suma = red.w1[base + ENTRADAS_RED];
+        for (let i = 0; i < ENTRADAS_RED; i++) suma += red.w1[base + i] * entrada[i];
+        oculta[h] = Math.tanh(suma);
     }
-    let mejorAccion = 0;
-    let mejorValor = qTable[estado][0];
-    for (let i = 1; i < ACCIONES_IA.length; i++) {
-        if (qTable[estado][i] > mejorValor) {
-            mejorValor = qTable[estado][i];
-            mejorAccion = i;
+    const salida = new Array(SALIDAS_RED);
+    for (let a = 0; a < SALIDAS_RED; a++) {
+        const base = a * (OCULTAS_RED + 1);
+        let suma = red.w2[base + OCULTAS_RED];
+        for (let h = 0; h < OCULTAS_RED; h++) suma += red.w2[base + h] * oculta[h];
+        salida[a] = suma;
+    }
+    return { oculta, salida };
+}
+
+function mejorAccionRed(entrada) {
+    const { salida } = propagarRed(entrada);
+    let mejor = 0;
+    for (let a = 1; a < SALIDAS_RED; a++) {
+        if (salida[a] > salida[mejor]) mejor = a;
+    }
+    return mejor;
+}
+
+// Explora con una dirección al azar a veces; si no, usa la que la red considera mejor
+function elegirAccionRed(entrada, exploracion) {
+    if (Math.random() < exploracion) return Math.floor(Math.random() * SALIDAS_RED);
+    return mejorAccionRed(entrada);
+}
+
+function recordarExperiencia(estado, accion, premio, estadoNuevo, fin) {
+    memoria.push({ s: estado, a: accion, r: premio, s2: estadoNuevo, fin: fin });
+    if (memoria.length > MEMORIA_MAX) memoria.shift();
+}
+
+// Un lote de experiencias al azar (DQN): acerca Q(s,a) a premio + descuento * mejor valor siguiente
+function entrenarLote() {
+    if (memoria.length < TAMANO_LOTE) return;
+    for (let k = 0; k < TAMANO_LOTE; k++) {
+        const e = memoria[Math.floor(Math.random() * memoria.length)];
+        const { oculta, salida } = propagarRed(e.s);
+        let objetivo = e.r;
+        if (!e.fin) objetivo += DESCUENTO * Math.max(...propagarRed(e.s2).salida);
+
+        // Error recortado a [-1, 1] para que un castigo grande no desestabilice la red
+        const error = Math.max(-1, Math.min(1, salida[e.a] - objetivo));
+        const baseSalida = e.a * (OCULTAS_RED + 1);
+
+        // Gradiente de la capa oculta, calculado antes de cambiar los pesos de salida
+        const gradOculta = new Array(OCULTAS_RED);
+        for (let h = 0; h < OCULTAS_RED; h++) {
+            gradOculta[h] = error * red.w2[baseSalida + h] * (1 - oculta[h] * oculta[h]);
+        }
+        for (let h = 0; h < OCULTAS_RED; h++) {
+            red.w2[baseSalida + h] -= TASA_APRENDIZAJE * error * oculta[h];
+        }
+        red.w2[baseSalida + OCULTAS_RED] -= TASA_APRENDIZAJE * error;
+
+        for (let h = 0; h < OCULTAS_RED; h++) {
+            const baseOculta = h * (ENTRADAS_RED + 1);
+            for (let i = 0; i < ENTRADAS_RED; i++) {
+                red.w1[baseOculta + i] -= TASA_APRENDIZAJE * gradOculta[h] * e.s[i];
+            }
+            red.w1[baseOculta + ENTRADAS_RED] -= TASA_APRENDIZAJE * gradOculta[h];
         }
     }
-    return mejorAccion;
-}
-
-function aprenderIA(estadoAnt, accion, recompensa, estadoNuevo) {
-    if (!estadoAnt || accion === null) return;
-    if (!qTable[estadoAnt]) qTable[estadoAnt] = new Array(ACCIONES_IA.length).fill(0);
-    if (!qTable[estadoNuevo]) qTable[estadoNuevo] = new Array(ACCIONES_IA.length).fill(0);
-
-    const alpha = 0.25;
-    const gamma = 0.9;
-    const maxFuturo = Math.max(...qTable[estadoNuevo]);
-    qTable[estadoAnt][accion] += alpha * (recompensa + gamma * maxFuturo - qTable[estadoAnt][accion]);
 }
 
 function actualizarRaton(f) {
     const dif = DIFICULTADES[dificultad - 1];
-    const distAntes = Math.hypot(
-        (raton.x + raton.w / 2) - (gato.x + gato.w / 2),
-        (raton.y + raton.h / 2) - (gato.y + gato.h / 2)
-    );
 
-    const estadoActual = obtenerEstadoIA(raton.x, raton.y, gato.x, gato.y);
-
-    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-        const diffDist = distAntes - (raton.ultimaDist || distAntes);
-        const enBorde = raton.x <= 5 || raton.x >= canvas.width - raton.w - 5 ||
-                        raton.y <= 5 || raton.y >= canvas.height - raton.h - 5;
-        let recompensa = diffDist * 1.5;
-        if (enBorde && distAntes < 140) recompensa -= 4;
-        if (distAntes > 180) recompensa += 1;
-        aprenderIA(ultimoEstadoIA, ultimaAccionIA, recompensa, estadoActual);
+    // Decide cada cierto tiempo, no en cada fotograma
+    temporizadorDecisionIA -= f / 60;
+    if (temporizadorDecisionIA <= 0) {
+        temporizadorDecisionIA = SEGUNDOS_ENTRE_DECISIONES;
+        const estado = sentirIA(raton.x, raton.y, gato.x, gato.y);
+        if (ultimoEstadoIA !== null) {
+            recordarExperiencia(ultimoEstadoIA, ultimaAccionIA, PREMIO_VIVO, estado, false);
+            entrenarLote();
+        }
+        const exploracion = Math.max(0.02, 0.1 - partidasEntrenadas * 0.0003);
+        ultimaAccionIA = elegirAccionRed(estado, exploracion);
+        ultimoEstadoIA = estado;
     }
 
-    const exploracion = Math.max(0.02, 0.15 - partidasEntrenadas * 0.0005);
-    const accionIdx = elegirAccionIA(estadoActual, exploracion);
-    const mov = ACCIONES_IA[accionIdx];
-
-    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-    let vel = (2.5 + nivel * 0.25 + nivelAprendizaje * 0.012) * dif.factorRaton;
-    vel = Math.min(vel, velocidadGato * 1.05);
-
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * vel * f));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * vel * f));
-
-    ultimoEstadoIA = estadoActual;
-    ultimaAccionIA = accionIdx;
-    raton.ultimaDist = distAntes;
+    const mov = ACCIONES_IA[ultimaAccionIA];
+    const velocidad = Math.min(4.5 * dif.factorRaton, velocidadGato * 1.05);
+    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * velocidad * f));
+    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * velocidad * f));
 }
 
+// Llamar cuando el gato atrapa al ratón en modo solo
+function registrarCapturaIA() {
+    if (ultimoEstadoIA === null) return;
+    recordarExperiencia(ultimoEstadoIA, ultimaAccionIA, CASTIGO_CAPTURA_RED,
+        sentirIA(raton.x, raton.y, gato.x, gato.y), true);
+    ultimoEstadoIA = null;
+    entrenarLote();
+    guardarRed();
+}
+
+// Entrena contra un gato simulado que persigue al ratón a velocidad fija
 function entrenarIAAcelerado() {
     const pasos = 15000;
-    let simGato = { x: 300, y: 200 };
-    let simRaton = { x: 100, y: 100 };
-    let capturasSim = 0;
+    const simGato = { x: 300, y: 200 };
+    const simRaton = { x: 100, y: 100 };
+    let capturas = 0;
 
     for (let i = 0; i < pasos; i++) {
-        const estado = obtenerEstadoIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
-        const accion = elegirAccionIA(estado, 0.35);
+        const estado = sentirIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
+        const accion = elegirAccionRed(estado, 0.3);
         const mov = ACCIONES_IA[accion];
-
-        const distAntes = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
 
         simRaton.x = Math.max(0, Math.min(canvas.width - raton.w, simRaton.x + mov.dx * 4.5));
         simRaton.y = Math.max(0, Math.min(canvas.height - raton.h, simRaton.y + mov.dy * 4.5));
+        simGato.x = Math.max(0, Math.min(canvas.width - gato.w, simGato.x + Math.sign(simRaton.x - simGato.x) * 4.8));
+        simGato.y = Math.max(0, Math.min(canvas.height - gato.h, simGato.y + Math.sign(simRaton.y - simGato.y) * 4.8));
 
-        const dx = simRaton.x - simGato.x;
-        const dy = simRaton.y - simGato.y;
-        const d = Math.hypot(dx, dy) || 1;
-        simGato.x = Math.max(0, Math.min(canvas.width - gato.w, simGato.x + (dx / d) * 4.8));
-        simGato.y = Math.max(0, Math.min(canvas.height - gato.h, simGato.y + (dy / d) * 4.8));
+        const atrapado = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y) < RADIO_CAPTURA;
+        const siguiente = sentirIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
 
-        const distDespues = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
-        const nuevoEstado = obtenerEstadoIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
-
-        let recompensa = (distDespues - distAntes) * 2;
-        if (simRaton.x <= 5 || simRaton.x >= canvas.width - raton.w - 5 ||
-            simRaton.y <= 5 || simRaton.y >= canvas.height - raton.h - 5) {
-            recompensa -= 5;
-        }
-
-        if (distDespues < RADIO_CAPTURA) {
-            recompensa = -100;
-            capturasSim++;
+        if (atrapado) {
+            capturas++;
+            recordarExperiencia(estado, accion, CASTIGO_CAPTURA_RED, siguiente, true);
             simRaton.x = Math.random() * (canvas.width - raton.w);
             simRaton.y = Math.random() * (canvas.height - raton.h);
+        } else {
+            recordarExperiencia(estado, accion, PREMIO_VIVO, siguiente, false);
         }
-
-        aprenderIA(estado, accion, recompensa, nuevoEstado);
+        entrenarLote();
     }
 
-    partidasEntrenadas += capturasSim;
-    experienciaRaton += Math.floor(capturasSim / 5);
-    try {
-        localStorage.setItem("cerebroRatonQL", JSON.stringify(qTable));
-        localStorage.setItem("partidasEntrenadasQL", partidasEntrenadas);
-    } catch (e) {}
-
+    partidasEntrenadas += capturas;
+    experienciaRaton += Math.floor(capturas / 5);
     guardar("experienciaRaton", experienciaRaton);
+    guardarRed();
     actualizarNivelVisualIA();
     sonar("nivel");
-    mostrarLogro(`🧠 IA entrenada (${Object.keys(qTable).length} situaciones aprendidas)`);
+    mostrarLogro(`🧠 Red entrenada: ${capturas} capturas en simulación`);
 }
 
 function revisarColision() {
@@ -1878,7 +1978,15 @@ function jugarSinCuenta() {
 
 function alCambiarSesion(usuario) {
     if (accionEnCurso || juegoIniciado) return;
-    if (usuario && !usuario.isAnonymous) {
+    // La sesión anónima de las salas 1v1 no es una cuenta: no debe cambiar de pantalla
+    if (usuario && usuario.isAnonymous) {
+        if (pantallaActual === "menu-login") {
+            if (leerTexto("invitado", "0") === "1") entrarAlMenu();
+            else mostrarLogin("");
+        }
+        return;
+    }
+    if (usuario) {
         if (sesion && sesion.uid === usuario.uid) return;
         activarSesion(usuario).then(entrarAlMenu);
     } else {
