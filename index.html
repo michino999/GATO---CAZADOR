@@ -795,7 +795,7 @@ function dTanh(y) { return 1 - y * y; }
 function propagarRed(entrada, red) {
     const ocultas = new Float64Array(OCULTAS_RED);
     for (let i = 0; i < OCULTAS_RED; i++) {
-        let suma = red.w1[i * (ENTRADAS_RED + 1)]; // sesgo
+        let suma = red.w1[i * (ENTRADAS_RED + 1)];
         for (let j = 0; j < ENTRADAS_RED; j++) {
             suma += entrada[j] * red.w1[i * (ENTRADAS_RED + 1) + j + 1];
         }
@@ -804,7 +804,7 @@ function propagarRed(entrada, red) {
 
     const salidas = new Float64Array(SALIDAS_RED);
     for (let i = 0; i < SALIDAS_RED; i++) {
-        let suma = red.w2[i * (OCULTAS_RED + 1)]; // sesgo
+        let suma = red.w2[i * (OCULTAS_RED + 1)];
         for (let j = 0; j < OCULTAS_RED; j++) {
             suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
         }
@@ -1167,7 +1167,7 @@ function dibujar() {
     }
 }
 
-// --- CONTROLES (Corregido para evitar errores con undefined en e.key) ---
+// --- CONTROLES ---
 const MAPA_TECLAS = {
     arrowup: "arriba", w: "arriba",
     arrowdown: "abajo", s: "abajo",
@@ -1199,9 +1199,7 @@ window.addEventListener("blur", () => {
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
 });
 
-// ============================================================
-//  SECRETO DE TATE: Patrón ↑↑↓↓←→←→ (o 5 toques en su foto) -> Quiz
-// ============================================================
+// --- SECRETO DE TATE ---
 const PATRON_SECRETO = ["arriba", "arriba", "abajo", "abajo", "izquierda", "derecha", "izquierda", "derecha"];
 const PAUSA_MAX_PATRON = 3000;
 const PREGUNTAS_POR_INTENTO = 5;
@@ -1364,7 +1362,6 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-// Control táctil / mouse
 function posicionEnCanvas(e) {
     const caja = canvas.getBoundingClientRect();
     toque.x = (e.clientX - caja.left) * (canvas.width / caja.width);
@@ -1386,7 +1383,7 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 // ============================================================
-//  CUENTAS + MULTIJUGADOR FIRESTORE
+//  CUENTAS + MULTIJUGADOR FIRESTORE (salas1v1)
 // ============================================================
 const FIREBASE_CONFIG = window.FIREBASE_CONFIG_USUARIO || {
     apiKey: "PEGA_AQUI",
@@ -1522,7 +1519,7 @@ async function crearSalaMulti() {
     } catch (e) {
         console.error(e);
         msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
             : "Error: " + (e.message || "no se pudo crear");
     }
 }
@@ -1567,7 +1564,7 @@ async function unirseSalaMulti() {
     } catch (e) {
         console.error(e);
         msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
             : "Error al entrar en la sala.";
     }
 }
@@ -1891,7 +1888,6 @@ function mostrarLogin(mensaje) {
     bloquearLogin(false);
 }
 
-// --- Acciones ---
 async function conectarNube() {
     if (nubeConectada) return true;
     try {
