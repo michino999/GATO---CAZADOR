@@ -79,7 +79,7 @@
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v17 · IA Q-Learning</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v18 · IA Red Neuronal DQN</p>
 </div>
 
     <!-- MENÚ MULTIJUGADOR 1v1 -->
@@ -128,7 +128,7 @@
     <div id="menu-ajustes" class="menu" style="display:none;">
         <h2>AJUSTES</h2>
         <button onclick="cambiarDificultad()" id="btn-dificultad">Dificultad: Fácil</button>
-        <button onclick="entrenarIAAcelerado()" id="btn-entrenar-ia">Entrenar IA (15,000 pasos)</button>
+        <button onclick="entrenarIAAcelerado()" id="btn-entrenar-ia">Entrenar IA (50 Partidas Turbo)</button>
         <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button>
         <button onclick="cambiarMusica()" id="btn-musica">Música: Sí</button>
         <button onclick="abrirTienda()">Tienda de Skins</button>
@@ -169,7 +169,7 @@
     <script src="firebase-config.js"></script>
     <script>
 // ============================================================
-//  GATO CAZADOR - Motor Q-Learning + Secreto Tate + Multijugador
+//  GATO CAZADOR - Red Neuronal DQN + Secreto Tate + Multijugador
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
@@ -499,6 +499,9 @@ function empezarJuego() {
     monedasPartida = 0;
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
+    temporizadorDecisionIA = 0;
+    ultimoEstadoIA = null;
+    ultimaAccionIA = null;
 
     gato.x = canvas.width / 2 - gato.w / 2;
     gato.y = canvas.height / 2 - gato.h / 2;
@@ -612,10 +615,10 @@ function cambiarMusica() {
 }
 
 function borrarProgreso() {
-    if (!confirm("¿Seguro? Se borrarán monedas, skins, récord y lo que ha aprendido el ratón.")) return;
+    if (!confirm("¿Seguro? Se borrarán monedas, skins, récord y el cerebro neuronal de la IA.")) return;
 
     try {
-        ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad"].forEach((clave) => {
+        ["record", "monedas", "skin", "skinsCompradas", "experienciaRaton", "dificultad", CLAVE_RED, "partidasEntrenadasRed"].forEach((clave) => {
             localStorage.removeItem(claveAlmacen(clave));
         });
     } catch (e) {}
@@ -627,6 +630,8 @@ function borrarProgreso() {
     experienciaRaton = 0;
     dificultad = 1;
     velocidadGato = DIFICULTADES[0].velGato;
+    redRaton = crearRed();
+    partidasEntrenadas = 0;
 
     actualizarTextoDificultad();
     actualizarNivelVisualIA();
@@ -634,7 +639,7 @@ function borrarProgreso() {
         guardarLocal("actualizado", Date.now());
         subirProgreso();
     }
-    mostrarLogro("Progreso borrado");
+    mostrarLogro("Progreso y red neuronal borrados");
 }
 
 // --- TIENDA Y SKINS ---
@@ -750,14 +755,7 @@ function actualizarRatonJugador(f) {
 }
 
 // ============================================================
-//  CEREBRO Q-LEARNING + ENTRENAMIENTO ACELERADO
-// ============================================================
-// ============================================================
 //  IA DEL RATÓN: RED NEURONAL + APRENDIZAJE POR REFUERZO (DQN)
-//  - Entrada: posición del ratón, posición del gato y su diferencia (6 números).
-//  - Red: 6 entradas -> 24 neuronas ocultas (tanh) -> 8 salidas (una por dirección).
-//  - Cada salida estima qué tan buena es esa dirección.
-//  - Aprende de sus experiencias: +0,1 por sobrevivir, -10 si el gato la atrapa.
 // ============================================================
 const ENTRADAS_RED = 6;
 const OCULTAS_RED = 24;
@@ -771,201 +769,226 @@ const PREMIO_VIVO = 0.1;
 const CASTIGO_CAPTURA_RED = -10;
 const SEGUNDOS_ENTRE_DECISIONES = 0.2;
 
-const ACCIONES_IA = [
-    { dx: 0, dy: -1 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-    { dx: -0.707, dy: -0.707 }, { dx: 0.707, dy: -0.707 },
-    { dx: -0.707, dy: 0.707 }, { dx: 0.707, dy: 0.707 }
-];
-
-let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasRed")) || 0;
-let temporizadorDecisionIA = 0;
-let ultimoEstadoIA = null;
-let ultimaAccionIA = null;
-let memoria = [];
-
-function crearRed() {
+let redRaton = (() => {
+    try {
+        const guardada = JSON.parse(localStorage.getItem(CLAVE_RED));
+        if (guardada && guardada.w1 && guardada.w2) return guardada;
+    } catch (e) {}
     const aleatorio = () => Math.random() * 2 - 1;
     return {
         w1: Array.from({ length: OCULTAS_RED * (ENTRADAS_RED + 1) }, () => aleatorio() / Math.sqrt(ENTRADAS_RED)),
         w2: Array.from({ length: SALIDAS_RED * (OCULTAS_RED + 1) }, () => aleatorio() / Math.sqrt(OCULTAS_RED))
     };
-}
-
-function cargarRed() {
-    try {
-        const guardada = JSON.parse(localStorage.getItem(CLAVE_RED));
-        if (guardada && guardada.w1.length === OCULTAS_RED * (ENTRADAS_RED + 1) &&
-            guardada.w2.length === SALIDAS_RED * (OCULTAS_RED + 1)) return guardada;
-    } catch (e) {}
-    return crearRed();
-}
-
-let red = cargarRed();
+})();
 
 function guardarRed() {
     try {
-        localStorage.setItem(CLAVE_RED, JSON.stringify(red));
+        localStorage.setItem(CLAVE_RED, JSON.stringify(redRaton));
         localStorage.setItem("partidasEntrenadasRed", partidasEntrenadas);
     } catch (e) {}
 }
 
-// Lo que "ve" la IA: posiciones normalizadas y la diferencia hacia el gato
-function sentirIA(rx, ry, gx, gy) {
-    const ancho = canvas.width;
-    const alto = canvas.height;
+function tanh(x) { return Math.tanh(x); }
+function dTanh(y) { return 1 - y * y; }
+
+function propagarRed(entrada, red) {
+    const ocultas = new Float64Array(OCULTAS_RED);
+    for (let i = 0; i < OCULTAS_RED; i++) {
+        let suma = red.w1[i * (ENTRADAS_RED + 1)]; // sesgo
+        for (let j = 0; j < ENTRADAS_RED; j++) {
+            suma += entrada[j] * red.w1[i * (ENTRADAS_RED + 1) + j + 1];
+        }
+        ocultas[i] = tanh(suma);
+    }
+
+    const salidas = new Float64Array(SALIDAS_RED);
+    for (let i = 0; i < SALIDAS_RED; i++) {
+        let suma = red.w2[i * (OCULTAS_RED + 1)]; // sesgo
+        for (let j = 0; j < OCULTAS_RED; j++) {
+            suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
+        }
+        salidas[i] = suma; // Salida lineal para Q-values
+    }
+    return { ocultas, salidas };
+}
+
+function entrenarLote(lote, red) {
+    if (lote.length === 0) return;
+    for (const exp of lote) {
+        const resAnt = propagarRed(exp.estado, red);
+        const resNuevo = propagarRed(exp.estadoNuevo, red);
+        let maxQuesNuevo = resNuevo.salidas[0];
+        for (let i = 1; i < SALIDAS_RED; i++) {
+            if (resNuevo.salidas[i] > maxQuesNuevo) maxQuesNuevo = resNuevo.salidas[i];
+        }
+
+        const objetivoQ = new Float64Array(resAnt.salidas);
+        objetivoQ[exp.accion] = exp.recompensa + DESCUENTO * maxQuesNuevo;
+
+        // Gradientes y retropropagación
+        const gradSalidas = new Float64Array(SALIDAS_RED);
+        for (let i = 0; i < SALIDAS_RED; i++) {
+            gradSalidas[i] = objetivoQ[i] - resAnt.salidas[i]; // MSE derivada
+        }
+
+        const gradOcultas = new Float64Array(OCULTAS_RED);
+        for (let i = 0; i < OCULTAS_RED; i++) {
+            let error = 0;
+            for (let j = 0; j < SALIDAS_RED; j++) {
+                error += gradSalidas[j] * red.w2[j * (OCULTAS_RED + 1) + i + 1];
+            }
+            gradOcultas[i] = error * dTanh(resAnt.ocultas[i]);
+        }
+
+        // Actualizar w2
+        for (let i = 0; i < SALIDAS_RED; i++) {
+            red.w2[i * (OCULTAS_RED + 1)] += TASA_APRENDIZAJE * gradSalidas[i];
+            for (let j = 0; j < OCULTAS_RED; j++) {
+                red.w2[i * (OCULTAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradSalidas[i] * resAnt.ocultas[j];
+            }
+        }
+
+        // Actualizar w1
+        for (let i = 0; i < OCULTAS_RED; i++) {
+            red.w1[i * (ENTRADAS_RED + 1)] += TASA_APRENDIZAJE * gradOcultas[i];
+            for (let j = 0; j < ENTRADAS_RED; j++) {
+                red.w1[i * (ENTRADAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradOcultas[i] * exp.estado[j];
+            }
+        }
+    }
+}
+
+function obtenerEstadoRed(rx, ry, gx, gy) {
     return [
-        rx / (ancho - raton.w),
-        ry / (alto - raton.h),
-        gx / (ancho - gato.w),
-        gy / (alto - gato.h),
-        (gx - rx) / ancho,
-        (gy - ry) / alto
+        rx / canvas.width,
+        ry / canvas.height,
+        gx / canvas.width,
+        gy / canvas.height,
+        (gx - rx) / canvas.width,
+        (gy - ry) / canvas.height
     ];
 }
 
-// Pasada hacia adelante: de la entrada a un valor por cada dirección
-function propagarRed(entrada) {
-    const oculta = new Array(OCULTAS_RED);
-    for (let h = 0; h < OCULTAS_RED; h++) {
-        const base = h * (ENTRADAS_RED + 1);
-        let suma = red.w1[base + ENTRADAS_RED];
-        for (let i = 0; i < ENTRADAS_RED; i++) suma += red.w1[base + i] * entrada[i];
-        oculta[h] = Math.tanh(suma);
-    }
-    const salida = new Array(SALIDAS_RED);
-    for (let a = 0; a < SALIDAS_RED; a++) {
-        const base = a * (OCULTAS_RED + 1);
-        let suma = red.w2[base + OCULTAS_RED];
-        for (let h = 0; h < OCULTAS_RED; h++) suma += red.w2[base + h] * oculta[h];
-        salida[a] = suma;
-    }
-    return { oculta, salida };
-}
-
-function mejorAccionRed(entrada) {
-    const { salida } = propagarRed(entrada);
-    let mejor = 0;
-    for (let a = 1; a < SALIDAS_RED; a++) {
-        if (salida[a] > salida[mejor]) mejor = a;
-    }
-    return mejor;
-}
-
-// Explora con una dirección al azar a veces; si no, usa la que la red considera mejor
-function elegirAccionRed(entrada, exploracion) {
-    if (Math.random() < exploracion) return Math.floor(Math.random() * SALIDAS_RED);
-    return mejorAccionRed(entrada);
-}
-
-function recordarExperiencia(estado, accion, premio, estadoNuevo, fin) {
-    memoria.push({ s: estado, a: accion, r: premio, s2: estadoNuevo, fin: fin });
-    if (memoria.length > MEMORIA_MAX) memoria.shift();
-}
-
-// Un lote de experiencias al azar (DQN): acerca Q(s,a) a premio + descuento * mejor valor siguiente
-function entrenarLote() {
-    if (memoria.length < TAMANO_LOTE) return;
-    for (let k = 0; k < TAMANO_LOTE; k++) {
-        const e = memoria[Math.floor(Math.random() * memoria.length)];
-        const { oculta, salida } = propagarRed(e.s);
-        let objetivo = e.r;
-        if (!e.fin) objetivo += DESCUENTO * Math.max(...propagarRed(e.s2).salida);
-
-        // Error recortado a [-1, 1] para que un castigo grande no desestabilice la red
-        const error = Math.max(-1, Math.min(1, salida[e.a] - objetivo));
-        const baseSalida = e.a * (OCULTAS_RED + 1);
-
-        // Gradiente de la capa oculta, calculado antes de cambiar los pesos de salida
-        const gradOculta = new Array(OCULTAS_RED);
-        for (let h = 0; h < OCULTAS_RED; h++) {
-            gradOculta[h] = error * red.w2[baseSalida + h] * (1 - oculta[h] * oculta[h]);
-        }
-        for (let h = 0; h < OCULTAS_RED; h++) {
-            red.w2[baseSalida + h] -= TASA_APRENDIZAJE * error * oculta[h];
-        }
-        red.w2[baseSalida + OCULTAS_RED] -= TASA_APRENDIZAJE * error;
-
-        for (let h = 0; h < OCULTAS_RED; h++) {
-            const baseOculta = h * (ENTRADAS_RED + 1);
-            for (let i = 0; i < ENTRADAS_RED; i++) {
-                red.w1[baseOculta + i] -= TASA_APRENDIZAJE * gradOculta[h] * e.s[i];
-            }
-            red.w1[baseOculta + ENTRADAS_RED] -= TASA_APRENDIZAJE * gradOculta[h];
-        }
-    }
-}
-
-function actualizarRaton(f) {
+function actualizarRaton(dt, f) {
     const dif = DIFICULTADES[dificultad - 1];
+    temporizadorDecisionIA += dt;
 
-    // Decide cada cierto tiempo, no en cada fotograma
-    temporizadorDecisionIA -= f / 60;
-    if (temporizadorDecisionIA <= 0) {
-        temporizadorDecisionIA = SEGUNDOS_ENTRE_DECISIONES;
-        const estado = sentirIA(raton.x, raton.y, gato.x, gato.y);
-        if (ultimoEstadoIA !== null) {
-            recordarExperiencia(ultimoEstadoIA, ultimaAccionIA, PREMIO_VIVO, estado, false);
-            entrenarLote();
+    if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
+        temporizadorDecisionIA = 0;
+        const estadoActual = obtenerEstadoRed(raton.x, raton.y, gato.x, gato.y);
+
+        if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+            const recompensa = PREMIO_VIVO;
+            memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa, estadoNuevo: estadoActual });
+            if (memoria.length > MEMORIA_MAX) memoria.shift();
+
+            if (memoria.length >= TAMANO_LOTE) {
+                const lote = [];
+                for (let i = 0; i < TAMANO_LOTE; i++) {
+                    lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
+                }
+                entrenarLote(lote, redRaton);
+            }
         }
-        const exploracion = Math.max(0.02, 0.1 - partidasEntrenadas * 0.0003);
-        ultimaAccionIA = elegirAccionRed(estado, exploracion);
-        ultimoEstadoIA = estado;
-    }
 
-    const mov = ACCIONES_IA[ultimaAccionIA];
-    const velocidad = Math.min(4.5 * dif.factorRaton, velocidadGato * 1.05);
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * velocidad * f));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * velocidad * f));
-}
+        const epsilon = Math.max(0.05, 0.3 - partidasEntrenadas * 0.001);
+        let accionElegida = 0;
+        const res = propagarRed(estadoActual, redRaton);
 
-// Llamar cuando el gato atrapa al ratón en modo solo
-function registrarCapturaIA() {
-    if (ultimoEstadoIA === null) return;
-    recordarExperiencia(ultimoEstadoIA, ultimaAccionIA, CASTIGO_CAPTURA_RED,
-        sentirIA(raton.x, raton.y, gato.x, gato.y), true);
-    ultimoEstadoIA = null;
-    entrenarLote();
-    guardarRed();
-}
-
-// Entrena contra un gato simulado que persigue al ratón a velocidad fija
-function entrenarIAAcelerado() {
-    const pasos = 15000;
-    const simGato = { x: 300, y: 200 };
-    const simRaton = { x: 100, y: 100 };
-    let capturas = 0;
-
-    for (let i = 0; i < pasos; i++) {
-        const estado = sentirIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
-        const accion = elegirAccionRed(estado, 0.3);
-        const mov = ACCIONES_IA[accion];
-
-        simRaton.x = Math.max(0, Math.min(canvas.width - raton.w, simRaton.x + mov.dx * 4.5));
-        simRaton.y = Math.max(0, Math.min(canvas.height - raton.h, simRaton.y + mov.dy * 4.5));
-        simGato.x = Math.max(0, Math.min(canvas.width - gato.w, simGato.x + Math.sign(simRaton.x - simGato.x) * 4.8));
-        simGato.y = Math.max(0, Math.min(canvas.height - gato.h, simGato.y + Math.sign(simRaton.y - simGato.y) * 4.8));
-
-        const atrapado = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y) < RADIO_CAPTURA;
-        const siguiente = sentirIA(simRaton.x, simRaton.y, simGato.x, simGato.y);
-
-        if (atrapado) {
-            capturas++;
-            recordarExperiencia(estado, accion, CASTIGO_CAPTURA_RED, siguiente, true);
-            simRaton.x = Math.random() * (canvas.width - raton.w);
-            simRaton.y = Math.random() * (canvas.height - raton.h);
+        if (Math.random() < epsilon) {
+            accionElegida = Math.floor(Math.random() * SALIDAS_RED);
         } else {
-            recordarExperiencia(estado, accion, PREMIO_VIVO, siguiente, false);
+            let mejorQ = res.salidas[0];
+            for (let i = 1; i < SALIDAS_RED; i++) {
+                if (res.salidas[i] > mejorQ) {
+                    mejorQ = res.salidas[i];
+                    accionElegida = i;
+                }
+            }
         }
-        entrenarLote();
+
+        raton.accionActual = ACCIONES_IA[accionElegida];
+        ultimoEstadoIA = estadoActual;
+        ultimaAccionIA = accionElegida;
     }
 
-    partidasEntrenadas += capturas;
-    experienciaRaton += Math.floor(capturas / 5);
-    guardar("experienciaRaton", experienciaRaton);
+    if (!raton.accionActual) raton.accionActual = ACCIONES_IA[0];
+    const mov = raton.accionActual;
+    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
+    let vel = (2.6 + nivel * 0.25 + nivelAprendizaje * 0.012) * dif.factorRaton;
+    vel = Math.min(vel, velocidadGato * 1.05);
+
+    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * vel * f));
+    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * vel * f));
+}
+
+function entrenarIAAcelerado() {
+    const numPartidas = 50;
+    let capturasSim = 0;
+
+    for (let p = 0; p < numPartidas; p++) {
+        let simGato = { x: Math.random() * (canvas.width - 35), y: Math.random() * (canvas.height - 35) };
+        let simRaton = { x: Math.random() * (canvas.width - 28), y: Math.random() * (canvas.height - 28) };
+        let pasosPartida = 150;
+
+        for (let s = 0; s < pasosPartida; s++) {
+            const estado = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
+            const res = propagarRed(estado, redRaton);
+            
+            // Elegir mejor acción con algo de exploración
+            let accion = 0;
+            if (Math.random() < 0.2) {
+                accion = Math.floor(Math.random() * SALIDAS_RED);
+            } else {
+                let maxQ = res.salidas[0];
+                for (let i = 1; i < SALIDAS_RED; i++) {
+                    if (res.salidas[i] > maxQ) { maxQ = res.salidas[i]; accion = i; }
+                }
+            }
+
+            const mov = ACCIONES_IA[accion];
+            simRaton.x = Math.max(0, Math.min(canvas.width - 28, simRaton.x + mov.dx * 4.5));
+            simRaton.y = Math.max(0, Math.min(canvas.height - 28, simRaton.y + mov.dy * 4.5));
+
+            // Gato persigue al ratón
+            const dx = simRaton.x - simGato.x;
+            const dy = simRaton.y - simGato.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            simGato.x = Math.max(0, Math.min(canvas.width - 35, simGato.x + (dx / dist) * 4.8));
+            simGato.y = Math.max(0, Math.min(canvas.height - 35, simGato.y + (dy / dist) * 4.8));
+
+            const distDespues = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
+            const estadoNuevo = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
+
+            let recompensa = PREMIO_VIVO;
+            if (distDespues < RADIO_CAPTURA) {
+                recompensa = CASTIGO_CAPTURA_RED;
+                capturasSim++;
+                memoria.push({ estado, accion, recompensa, estadoNuevo });
+                break;
+            }
+
+            memoria.push({ estado, accion, recompensa, estadoNuevo });
+            if (memoria.length > MEMORIA_MAX) memoria.shift();
+        }
+
+        // Entrenar un lote con lo recolectado en esta partida simulada
+        if (memoria.length >= TAMANO_LOTE) {
+            const lote = [];
+            for (let i = 0; i < TAMANO_LOTE; i++) {
+                lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
+            }
+            entrenarLote(lote, redRaton);
+        }
+    }
+
+    partidasEntrenadas += numPartidas;
+    experienciaRaton += Math.floor(capturasSim / 2) + 5;
     guardarRed();
+    guardar("experienciaRaton", experienciaRaton);
     actualizarNivelVisualIA();
     sonar("nivel");
-    mostrarLogro(`🧠 Red entrenada: ${capturas} capturas en simulación`);
+    mostrarLogro(`🧠 ¡Red Neuronal entrenada (${partidasEntrenadas} partidas simuladas)!`);
 }
 
 function revisarColision() {
@@ -988,8 +1011,23 @@ function revisarColision() {
 
     const dif = DIFICULTADES[dificultad - 1];
 
-     registrarCapturaIA();
-
+    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+        const estadoActual = obtenerEstadoRed(raton.x, raton.y, gato.x, gato.y);
+        memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: CASTIGO_CAPTURA_RED, estadoNuevo: estadoActual });
+        if (memoria.length > MEMORIA_MAX) memoria.shift();
+        
+        // Entrenar inmediatamente ante el castigo por captura
+        if (memoria.length >= TAMANO_LOTE) {
+            const lote = [];
+            for (let i = 0; i < TAMANO_LOTE; i++) {
+                lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
+            }
+            entrenarLote(lote, redRaton);
+            guardarRed();
+        }
+        ultimoEstadoIA = null;
+        ultimaAccionIA = null;
+    }
 
     puntos++;
     monedas += dif.monedasPorCaptura;
@@ -1065,7 +1103,7 @@ function gameLoop(timestamp) {
         enviarEstadoMulti(false);
     } else {
         actualizarGato(f);
-        actualizarRaton(f);
+        actualizarRaton(dt, f);
         revisarColision();
     }
 
@@ -1940,15 +1978,7 @@ function jugarSinCuenta() {
 
 function alCambiarSesion(usuario) {
     if (accionEnCurso || juegoIniciado) return;
-    // La sesión anónima de las salas 1v1 no es una cuenta: no debe cambiar de pantalla
-    if (usuario && usuario.isAnonymous) {
-        if (pantallaActual === "menu-login") {
-            if (leerTexto("invitado", "0") === "1") entrarAlMenu();
-            else mostrarLogin("");
-        }
-        return;
-    }
-    if (usuario) {
+    if (usuario && !usuario.isAnonymous) {
         if (sesion && sesion.uid === usuario.uid) return;
         activarSesion(usuario).then(entrarAlMenu);
     } else {
@@ -1987,49 +2017,6 @@ actualizarTextoDificultad();
 actualizarNivelVisualIA();
 actualizarSesionUI();
 prepararNube();
-        function limpiarSalaMulti() {
-    if (desuscribirSala) {
-        desuscribirSala();
-        desuscribirSala = null;
-    }
-    if (salaId && nube.listo) {
-        if (rolMulti === "gato") {
-            nube.borrarSala(salaId).catch(() => {});
-        } else if (rolMulti === "raton") {
-            nube.actualizarSala(salaId, juegoIniciado ? { estado: "fin" } : { estado: "esperando" }).catch(() => {});
-        }
-    }
-    salaId = null;
-}
-
-function salirSalaMulti() {
-    limpiarSalaMulti();
-    volverMenu();
-}
-
-function terminarJuegoMulti() {
-    juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-    if (desuscribirSala) {
-        desuscribirSala();
-        desuscribirSala = null;
-    }
-
-    sincronizarMusica();
-    sonar("fin");
-    cambiarPantalla("fin-juego");
-
-    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
-    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
-    document.getElementById("fin-puntos-linea").style.display = "none";
-    document.getElementById("fin-monedas-linea").style.display = "none";
-    document.getElementById("fin-record-linea").style.display = "none";
-    document.getElementById("mensaje-record").style.display = "none";
-    document.getElementById("btn-reiniciar").style.display = "none";
-}
     </script>
 </body>
 </html>
