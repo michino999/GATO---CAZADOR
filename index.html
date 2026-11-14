@@ -1440,8 +1440,8 @@ const nube = {
         await this.f.setDoc(this.f.doc(this.db, "jugadores", uid), datos, { merge: true });
     },
     async crearSala(codigo, datos) {
-        await this.f.setDoc(this.f.doc(this.db, "salas", codigo), datos);
-    },
+    await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
+}
     async leerSala(codigo) {
         const snap = await this.f.getDoc(this.f.doc(this.db, "salas", codigo));
         return snap.exists() ? snap.data() : null;
