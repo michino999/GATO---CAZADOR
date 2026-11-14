@@ -55,9 +55,6 @@
 <body>
 <noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
 
-<!-- Reproductor de audio opcional con la presentación del desarrollador -->
-<audio id="audio-presentacion" src="presentacion.mp3" preload="auto"></audio>
-
 <div id="menu-inicio" class="menu">
     <div class="titulo-menu">
         <img id="foto-tate-menu" src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72" onclick="toqueSecretoFoto()">
@@ -79,7 +76,7 @@
     <button onclick="abrirAjustes()">Ajustes</button>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v18 · IA Red Neuronal DQN</p>
+    <p style="font-size: 8px; margin: 15px 0 0;">v19 · IA Red Neuronal DQN</p>
 </div>
 
     <!-- MENÚ MULTIJUGADOR 1v1 -->
@@ -769,16 +766,20 @@ const PREMIO_VIVO = 0.1;
 const CASTIGO_CAPTURA_RED = -10;
 const SEGUNDOS_ENTRE_DECISIONES = 0.2;
 
-let redRaton = (() => {
-    try {
-        const guardada = JSON.parse(localStorage.getItem(CLAVE_RED));
-        if (guardada && guardada.w1 && guardada.w2) return guardada;
-    } catch (e) {}
+function crearRed() {
     const aleatorio = () => Math.random() * 2 - 1;
     return {
         w1: Array.from({ length: OCULTAS_RED * (ENTRADAS_RED + 1) }, () => aleatorio() / Math.sqrt(ENTRADAS_RED)),
         w2: Array.from({ length: SALIDAS_RED * (OCULTAS_RED + 1) }, () => aleatorio() / Math.sqrt(OCULTAS_RED))
     };
+}
+
+let redRaton = (() => {
+    try {
+        const guardada = JSON.parse(localStorage.getItem(CLAVE_RED));
+        if (guardada && guardada.w1 && guardada.w2) return guardada;
+    } catch (e) {}
+    return crearRed();
 })();
 
 function guardarRed() {
@@ -807,7 +808,7 @@ function propagarRed(entrada, red) {
         for (let j = 0; j < OCULTAS_RED; j++) {
             suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
         }
-        salidas[i] = suma; // Salida lineal para Q-values
+        salidas[i] = suma;
     }
     return { ocultas, salidas };
 }
@@ -825,10 +826,9 @@ function entrenarLote(lote, red) {
         const objetivoQ = new Float64Array(resAnt.salidas);
         objetivoQ[exp.accion] = exp.recompensa + DESCUENTO * maxQuesNuevo;
 
-        // Gradientes y retropropagación
         const gradSalidas = new Float64Array(SALIDAS_RED);
         for (let i = 0; i < SALIDAS_RED; i++) {
-            gradSalidas[i] = objetivoQ[i] - resAnt.salidas[i]; // MSE derivada
+            gradSalidas[i] = objetivoQ[i] - resAnt.salidas[i];
         }
 
         const gradOcultas = new Float64Array(OCULTAS_RED);
@@ -840,7 +840,6 @@ function entrenarLote(lote, red) {
             gradOcultas[i] = error * dTanh(resAnt.ocultas[i]);
         }
 
-        // Actualizar w2
         for (let i = 0; i < SALIDAS_RED; i++) {
             red.w2[i * (OCULTAS_RED + 1)] += TASA_APRENDIZAJE * gradSalidas[i];
             for (let j = 0; j < OCULTAS_RED; j++) {
@@ -848,7 +847,6 @@ function entrenarLote(lote, red) {
             }
         }
 
-        // Actualizar w1
         for (let i = 0; i < OCULTAS_RED; i++) {
             red.w1[i * (ENTRADAS_RED + 1)] += TASA_APRENDIZAJE * gradOcultas[i];
             for (let j = 0; j < ENTRADAS_RED; j++) {
@@ -857,6 +855,18 @@ function entrenarLote(lote, red) {
         }
     }
 }
+
+const ACCIONES_IA = [
+    { dx: 0, dy: -1 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+    { dx: -0.707, dy: -0.707 }, { dx: 0.707, dy: -0.707 },
+    { dx: -0.707, dy: 0.707 }, { dx: 0.707, dy: 0.707 }
+];
+
+let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasRed")) || 0;
+let temporizadorDecisionIA = 0;
+let ultimoEstadoIA = null;
+let ultimaAccionIA = null;
+let memoria = [];
 
 function obtenerEstadoRed(rx, ry, gx, gy) {
     return [
@@ -935,7 +945,6 @@ function entrenarIAAcelerado() {
             const estado = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
             const res = propagarRed(estado, redRaton);
             
-            // Elegir mejor acción con algo de exploración
             let accion = 0;
             if (Math.random() < 0.2) {
                 accion = Math.floor(Math.random() * SALIDAS_RED);
@@ -950,7 +959,6 @@ function entrenarIAAcelerado() {
             simRaton.x = Math.max(0, Math.min(canvas.width - 28, simRaton.x + mov.dx * 4.5));
             simRaton.y = Math.max(0, Math.min(canvas.height - 28, simRaton.y + mov.dy * 4.5));
 
-            // Gato persigue al ratón
             const dx = simRaton.x - simGato.x;
             const dy = simRaton.y - simGato.y;
             const dist = Math.hypot(dx, dy) || 1;
@@ -972,7 +980,6 @@ function entrenarIAAcelerado() {
             if (memoria.length > MEMORIA_MAX) memoria.shift();
         }
 
-        // Entrenar un lote con lo recolectado en esta partida simulada
         if (memoria.length >= TAMANO_LOTE) {
             const lote = [];
             for (let i = 0; i < TAMANO_LOTE; i++) {
@@ -1016,7 +1023,6 @@ function revisarColision() {
         memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: CASTIGO_CAPTURA_RED, estadoNuevo: estadoActual });
         if (memoria.length > MEMORIA_MAX) memoria.shift();
         
-        // Entrenar inmediatamente ante el castigo por captura
         if (memoria.length >= TAMANO_LOTE) {
             const lote = [];
             for (let i = 0; i < TAMANO_LOTE; i++) {
@@ -1161,7 +1167,7 @@ function dibujar() {
     }
 }
 
-// --- CONTROLES ---
+// --- CONTROLES (Corregido para evitar errores con undefined en e.key) ---
 const MAPA_TECLAS = {
     arrowup: "arriba", w: "arriba",
     arrowdown: "abajo", s: "abajo",
@@ -1170,6 +1176,7 @@ const MAPA_TECLAS = {
 };
 
 window.addEventListener("keydown", (e) => {
+    if (!e || !e.key) return;
     if (juegoIniciado && !modoMulti && (e.key === "p" || e.key === "P" || e.key === "Escape")) {
         pausado = !pausado;
         sonar("pausa");
@@ -1182,6 +1189,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("keyup", (e) => {
+    if (!e || !e.key) return;
     const direccion = MAPA_TECLAS[e.key.toLowerCase()];
     if (direccion) teclas[direccion] = false;
 });
@@ -1346,6 +1354,7 @@ function desbloquearTate() {
 }
 
 window.addEventListener("keydown", (e) => {
+    if (!e || !e.key) return;
     if (juegoIniciado || pantallaActual !== "menu-inicio") return;
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
     const direccion = MAPA_TECLAS[String(e.key || "").toLowerCase()];
