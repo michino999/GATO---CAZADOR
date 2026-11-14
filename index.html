@@ -1443,19 +1443,19 @@ const nube = {
     await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
 }
     async leerSala(codigo) {
-        const snap = await this.f.getDoc(this.f.doc(this.db, "salas", codigo));
+        const snap = await this.f.getDoc(this.f.doc(this.db, "salas1v1", codigo));
         return snap.exists() ? snap.data() : null;
     },
     async actualizarSala(codigo, datos) {
         if (!codigo) return;
-        await this.f.updateDoc(this.f.doc(this.db, "salas", codigo), datos);
+        await this.f.updateDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
     },
     async borrarSala(codigo) {
         if (!codigo) return;
-        await this.f.deleteDoc(this.f.doc(this.db, "salas", codigo));
+        await this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo));
     },
     escucharSala(codigo, callback) {
-        return this.f.onSnapshot(this.f.doc(this.db, "salas", codigo), (snap) => {
+        return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo), (snap) => {
             callback(snap.exists() ? snap.data() : null);
         }, (err) => {
             console.error("Error escuchando sala:", err);
