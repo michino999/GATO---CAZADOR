@@ -1510,9 +1510,12 @@ const nube = {
         });
     }
 };
+// --- LÓGICA DE SALAS 1v1 (SINCRONIZACIÓN BIDIRECCIONAL CORREGIDA) ---
+let enFlujoMulti = false;
+let ultimaPosEnviada = { x: -1, y: -1 };
 
-// --- LÓGICA DE SALAS 1v1 ---
 function abrirMultijugador() {
+    enFlujoMulti = true;
     document.getElementById("multi-mensaje").textContent = "";
     document.getElementById("multi-codigo-input").value = "";
     cambiarPantalla("menu-multi");
@@ -1531,6 +1534,7 @@ function limpiarSalaMulti() {
         desuscribirSala = null;
     }
     salaId = null;
+    enFlujoMulti = false;
 }
 
 async function crearSalaMulti() {
@@ -1540,19 +1544,19 @@ async function crearSalaMulti() {
         return;
     }
     msg.textContent = "Creando sala...";
+    enFlujoMulti = true;
     await nube.asegurarAuthParaSala();
 
     const codigo = generarCodigoSala();
     const datosIniciales = {
         estado: "esperando",
-        rolHost: "gato", // Se sortea al iniciar la partida
+        rolHost: "gato",
         skinHost: skinActual,
         skinGuest: "🐱",
-        gato: { x: 480, y: 200 },
-        raton: { x: 100, y: 200 },
+        gato: { x: 480, y: 200, t: Date.now() },
+        raton: { x: 100, y: 200, t: Date.now() },
         tiempo: DURACION_PARTIDA,
-        ganador: null,
-        actualizado: Date.now()
+        ganador: null
     };
 
     try {
@@ -1588,6 +1592,7 @@ async function unirseSalaMulti() {
         return;
     }
     msg.textContent = "Buscando sala...";
+    enFlujoMulti = true;
     await nube.asegurarAuthParaSala();
 
     try {
@@ -1645,23 +1650,21 @@ function suscribirSala(codigo) {
             return;
         }
 
-        // En partida activa
+        // En partida activa: leer SIEMPRE las coordenadas del rival
         if (juegoIniciado && modoMulti) {
             if (datos.estado === "fin") {
                 terminarJuegoMulti(datos.ganador || "raton");
                 return;
             }
 
-            // Sincronizar posición del rival en pantalla
             if (rolMulti === "gato" && datos.raton) {
-                destinoRemoto.x = datos.raton.x;
-                destinoRemoto.y = datos.raton.y;
+                destinoRemoto.x = Number(datos.raton.x);
+                destinoRemoto.y = Number(datos.raton.y);
             } else if (rolMulti === "raton" && datos.gato) {
-                destinoRemoto.x = datos.gato.x;
-                destinoRemoto.y = datos.gato.y;
+                destinoRemoto.x = Number(datos.gato.x);
+                destinoRemoto.y = Number(datos.gato.y);
             }
 
-            // El invitado recibe el reloj oficial del anfitrión
             if (!esAnfitrionMulti && typeof datos.tiempo === "number") {
                 tiempo = datos.tiempo;
             }
@@ -1669,7 +1672,6 @@ function suscribirSala(codigo) {
     });
 }
 
-// --- REGLA 1 MULTIJUGADOR: Sorteo aleatorio de quién es el gato ---
 async function lanzarPartidaMulti() {
     if (!salaId || !esAnfitrionMulti) return;
     const hostEsGato = Math.random() < 0.5;
@@ -1682,8 +1684,8 @@ async function lanzarPartidaMulti() {
         estado: "jugando",
         rolHost: rolHost,
         skinGato: skinGatoElegida,
-        gato: { x: 480, y: 200 },
-        raton: { x: 100, y: 200 },
+        gato: { x: 480, y: 200, t: Date.now() },
+        raton: { x: 100, y: 200, t: Date.now() },
         tiempo: DURACION_PARTIDA,
         ganador: null
     });
@@ -1695,7 +1697,6 @@ function iniciarJuegoMultiLocal(datos) {
         animacionId = null;
     }
 
-    // Asignar rol según el sorteo aleatorio
     const rolHost = datos.rolHost || "gato";
     if (esAnfitrionMulti) {
         rolMulti = rolHost;
@@ -1713,11 +1714,13 @@ function iniciarJuegoMultiLocal(datos) {
     puntos = 0;
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
+    ultimaPosEnviada = { x: -1, y: -1 };
 
-    gato.x = (datos.gato && datos.gato.x) || 480;
-    gato.y = (datos.gato && datos.gato.y) || 200;
-    raton.x = (datos.raton && datos.raton.x) || 100;
-    raton.y = (datos.raton && datos.raton.y) || 200;
+    gato.x = (datos.gato && typeof datos.gato.x === "number") ? datos.gato.x : 480;
+    gato.y = (datos.gato && typeof datos.gato.y === "number") ? datos.gato.y : 200;
+    raton.x = (datos.raton && typeof datos.raton.x === "number") ? datos.raton.x : 100;
+    raton.y = (datos.raton && typeof datos.raton.y === "number") ? datos.raton.y : 200;
+    
     destinoRemoto = rolMulti === "gato" ? { x: raton.x, y: raton.y } : { x: gato.x, y: gato.y };
 
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
@@ -1734,68 +1737,53 @@ function iniciarJuegoMultiLocal(datos) {
     cambiarPantalla("juego");
     sincronizarMusica();
     sonar("nivel");
-    mostrarLogro(rolMulti === "gato" ? "🎲 ¡Te tocó ser el GATO! Atrapa al ratón." : "🎲 ¡Te tocó ser el RATÓN! Sobrevive 1 minuto.");
+    mostrarLogro(rolMulti === "gato" ? "🎲 ¡Eres el GATO! Atrapa al ratón." : "🎲 ¡Eres el RATÓN! Sobrevive 1 minuto.");
     animacionId = requestAnimationFrame(gameLoop);
 }
+
+let errorSyncMostrado = false;
 
 function enviarEstadoMulti() {
     if (!salaId || !nube.listo || !juegoIniciado) return;
     const ahora = Date.now();
-    if (ahora - ultimaSyncRed < INTERVALO_SYNC_RED) return;
-    ultimaSyncRed = ahora;
+    if (ahora - ultimaSyncRed < 50) return;
 
     const paquete = {};
+    let huboCambio = false;
+
     if (rolMulti === "gato") {
-        paquete.gato = { x: Math.round(gato.x), y: Math.round(gato.y) };
+        const gx = Math.round(gato.x);
+        const gy = Math.round(gato.y);
+        if (gx !== ultimaPosEnviada.x || gy !== ultimaPosEnviada.y) {
+            paquete.gato = { x: gx, y: gy, t: ahora };
+            ultimaPosEnviada = { x: gx, y: gy };
+            huboCambio = true;
+        }
     } else if (rolMulti === "raton") {
-        paquete.raton = { x: Math.round(raton.x), y: Math.round(raton.y) };
+        const rx = Math.round(raton.x);
+        const ry = Math.round(raton.y);
+        if (rx !== ultimaPosEnviada.x || ry !== ultimaPosEnviada.y) {
+            paquete.raton = { x: rx, y: ry, t: ahora };
+            ultimaPosEnviada = { x: rx, y: ry };
+            huboCambio = true;
+        }
     }
 
     if (esAnfitrionMulti) {
         paquete.tiempo = Math.max(0, Number(tiempo.toFixed(1)));
+        huboCambio = true;
     }
 
-    nube.actualizarSala(salaId, paquete).catch(() => {});
-}
+    if (!huboCambio) return;
+    ultimaSyncRed = ahora;
 
-async function salirSalaMulti() {
-    const codigo = salaId;
-    limpiarSalaMulti();
-    if (codigo && nube.listo) {
-        nube.borrarSala(codigo).catch(() => {});
-    }
-    volverMenu();
-}
-
-function terminarJuegoMulti(ganador) {
-    if (!juegoIniciado && ganadoraMulti === ganador) return;
-    ganadoraMulti = ganador;
-    juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-    const codigo = salaId;
-    limpiarSalaMulti();
-    if (codigo && esAnfitrionMulti && nube.listo) {
-        setTimeout(() => nube.borrarSala(codigo).catch(() => {}), 1500);
-    }
-
-    sincronizarMusica();
-    const yoGane = (ganador === rolMulti);
-    sonar(yoGane ? "record" : "fin");
-    cambiarPantalla("fin-juego");
-
-    document.getElementById("fin-titulo").innerText = yoGane ? "🏆 ¡GANASTE!" : "💀 ¡PERDISTE!";
-    document.getElementById("fin-subtitulo").innerText = ganador === "gato"
-        ? "🐱 El Gato atrapó al Ratón."
-        : "🐭 El Ratón sobrevivió 1 minuto completo.";
-
-    document.getElementById("fin-puntos-linea").style.display = "none";
-    document.getElementById("fin-monedas-linea").style.display = "none";
-    document.getElementById("fin-record-linea").style.display = "none";
-    document.getElementById("mensaje-record").style.display = "none";
-    document.getElementById("btn-reiniciar").style.display = "none";
+    nube.actualizarSala(salaId, paquete).catch((err) => {
+        if (!errorSyncMostrado) {
+            errorSyncMostrado = true;
+            console.error("Fallo enviando posición:", err);
+            mostrarLogro("Error enviando movimiento a la sala");
+        }
+    });
 }
 
 // --- Progreso <-> nube ---
