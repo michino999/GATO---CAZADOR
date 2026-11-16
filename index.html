@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -71,7 +72,7 @@
     <button onclick="abrirAjustes()">Ajustes</button><br>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 12px 0 0; color: #444;">v20 · IA DQN + 1v1 Aleatorio</p>
+    <p style="font-size: 8px; margin: 12px 0 0; color: #444;">v22 · 1v1 Subcolección</p>
 </div>
 
 <!-- MENÚ MULTIJUGADOR 1v1 -->
@@ -172,7 +173,7 @@
 <script src="firebase-config.js"></script>
 <script>
 // ============================================================
-//  GATO CAZADOR - Red Neuronal DQN + Secreto Tate + 1v1 Aleatorio
+//  GATO CAZADOR - Red Neuronal DQN + Secreto Tate + 1v1 RealTime
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
@@ -286,15 +287,19 @@ const toque = { activo: false, x: 0, y: 0 };
 
 // --- VARIABLES MULTIJUGADOR 1v1 ---
 let modoMulti = false;
-let esAnfitrionMulti = false; // El creador de la sala sincroniza el tiempo y las colisiones
-let rolMulti = null;          // "gato" o "raton" (asignado aleatoriamente)
+let esAnfitrionMulti = false;
+let rolMulti = null;
 let salaId = null;
 let desuscribirSala = null;
+let desuscribirRival = null;
 let skinGatoSala = "🐱";
 let destinoRemoto = { x: 100, y: 100 };
 let ultimaSyncRed = 0;
-let ganadoraMulti = null;     // "gato" o "raton"
-const INTERVALO_SYNC_RED = 60;
+let ganadoraMulti = null;
+let enFlujoMulti = false;
+let ultimaPosEnviada = { x: -1, y: -1 };
+let ultimoSegundoEnviado = -1;
+let errorSyncMostrado = false;
 const VELOCIDAD_GATO_1V1 = 5.1;
 const VELOCIDAD_RATON_1V1 = 4.9;
 
@@ -1016,7 +1021,6 @@ function revisarColision() {
     );
     if (distancia >= RADIO_CAPTURA) return;
 
-    // --- REGLA 2 MULTIJUGADOR: Si el gato atrapa al ratón, gana el gato de inmediato ---
     if (modoMulti) {
         if (esAnfitrionMulti && juegoIniciado) {
             ganadoraMulti = "gato";
@@ -1070,7 +1074,6 @@ function revisarColision() {
 
 function actualizarTiempo(dt) {
     if (modoMulti) {
-        // El anfitrión lleva el reloj oficial de los 60s
         if (esAnfitrionMulti) {
             tiempo -= dt;
             const segundos = Math.max(0, Math.ceil(tiempo));
@@ -1078,7 +1081,6 @@ function actualizarTiempo(dt) {
                 ultimoSegundoMostrado = segundos;
                 document.getElementById("tiempo-valor").innerText = segundos;
             }
-            // REGLA 3 MULTIJUGADOR: Si el ratón aguanta 1 minuto (60s), gana el ratón
             if (tiempo <= 0 && juegoIniciado) {
                 ganadoraMulti = "raton";
                 nube.actualizarSala(salaId, { estado: "fin", ganador: "raton", tiempo: 0 }).catch(() => {});
@@ -1123,15 +1125,14 @@ function gameLoop(timestamp) {
     const f = dt * 60;
 
     if (modoMulti) {
-        // --- REGLA 4 MULTIJUGADOR: Movimiento conectado en tiempo real ---
         if (rolMulti === "gato") {
             actualizarGato(f);
-            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.4 * f);
-            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.4 * f);
+            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.45 * f);
+            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.45 * f);
         } else {
             actualizarRatonJugador(f);
-            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.4 * f);
-            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.4 * f);
+            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.45 * f);
+            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.45 * f);
         }
         if (esAnfitrionMulti) {
             revisarColision();
@@ -1173,7 +1174,6 @@ function dibujar() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (modoMulti) {
-        // Barra de tiempo restante de 60s para el ratón
         const progresoTiempo = Math.max(0, tiempo / DURACION_PARTIDA);
         ctx.fillStyle = "#333333";
         ctx.fillRect(0, 0, canvas.width, 8);
@@ -1193,7 +1193,6 @@ function dibujar() {
     const emojiRaton = modoMulti ? "🐭" : RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
     ctx.fillText(emojiRaton, raton.x, raton.y + 30);
 
-    // Indicador sutil sobre el personaje que controlas en 1v1
     if (modoMulti) {
         ctx.font = "10px 'Press Start 2P', Arial";
         ctx.fillStyle = "gold";
@@ -1433,7 +1432,7 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 // ============================================================
-//  CUENTAS + MULTIJUGADOR FIRESTORE (salas1v1)
+//  CUENTAS + MULTIJUGADOR FIRESTORE (salas1v1 + subcolección pos)
 // ============================================================
 const FIREBASE_CONFIG = window.FIREBASE_CONFIG_USUARIO || {
     apiKey: "PEGA_AQUI",
@@ -1472,7 +1471,12 @@ const nube = {
     },
     async asegurarAuthParaSala() {
         if (!this.auth.currentUser && this.f.signInAnonymously) {
-            try { await this.f.signInAnonymously(this.auth); } catch (e) {}
+            try {
+                await this.f.signInAnonymously(this.auth);
+            } catch (e) {
+                console.error("Error auth anónima:", e);
+                mostrarLogro("Error auth Firebase: " + (e.code || e.message));
+            }
         }
     },
     alCambiarSesion(funcion) { return this.f.onAuthStateChanged(this.auth, funcion); },
@@ -1488,6 +1492,10 @@ const nube = {
     },
     async crearSala(codigo, datos) {
         await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
+        await Promise.all([
+            this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", "gato"), { x: 480, y: 200 }),
+            this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", "raton"), { x: 100, y: 200 })
+        ]);
     },
     async leerSala(codigo) {
         const snap = await this.f.getDoc(this.f.doc(this.db, "salas1v1", codigo));
@@ -1495,11 +1503,26 @@ const nube = {
     },
     async actualizarSala(codigo, datos) {
         if (!codigo) return;
-        await this.f.updateDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
+        await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos, { merge: true });
+    },
+    async escribirPosicion(codigo, rol, x, y) {
+        if (!codigo || !rol) return;
+        await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", rol), { x: x, y: y });
+    },
+    escucharPosicion(codigo, rolRival, callback) {
+        return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo, "pos", rolRival), (snap) => {
+            if (snap.exists()) callback(snap.data());
+        }, (err) => {
+            console.error("Error leyendo posición rival:", err);
+        });
     },
     async borrarSala(codigo) {
         if (!codigo) return;
-        await this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo));
+        await Promise.all([
+            this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", "gato")).catch(() => {}),
+            this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", "raton")).catch(() => {}),
+            this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo)).catch(() => {})
+        ]);
     },
     escucharSala(codigo, callback) {
         return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo), (snap) => {
@@ -1511,10 +1534,7 @@ const nube = {
     }
 };
 
-// --- LÓGICA DE SALAS 1v1 (SINCRONIZACIÓN BIDIRECCIONAL CORREGIDA) ---
-let enFlujoMulti = false;
-let ultimaPosEnviada = { x: -1, y: -1 };
-
+// --- LÓGICA DE SALAS 1v1 (DOCUMENTOS INDEPENDIENTES SIN COLISIÓN) ---
 function abrirMultijugador() {
     enFlujoMulti = true;
     document.getElementById("multi-mensaje").textContent = "";
@@ -1533,6 +1553,10 @@ function limpiarSalaMulti() {
     if (desuscribirSala) {
         desuscribirSala();
         desuscribirSala = null;
+    }
+    if (desuscribirRival) {
+        desuscribirRival();
+        desuscribirRival = null;
     }
     salaId = null;
     enFlujoMulti = false;
@@ -1554,8 +1578,6 @@ async function crearSalaMulti() {
         rolHost: "gato",
         skinHost: skinActual,
         skinGuest: "🐱",
-        gato: { x: 480, y: 200, t: Date.now() },
-        raton: { x: 100, y: 200, t: Date.now() },
         tiempo: DURACION_PARTIDA,
         ganador: null
     };
@@ -1638,7 +1660,6 @@ function suscribirSala(codigo) {
             return;
         }
 
-        // En sala de espera
         if (pantallaActual === "menu-sala") {
             if (datos.estado === "listo" && esAnfitrionMulti) {
                 document.getElementById("sala-estado-texto").textContent = "¡Rival conectado y listo!";
@@ -1651,21 +1672,11 @@ function suscribirSala(codigo) {
             return;
         }
 
-        // En partida activa: leer SIEMPRE las coordenadas del rival
         if (juegoIniciado && modoMulti) {
             if (datos.estado === "fin") {
                 terminarJuegoMulti(datos.ganador || "raton");
                 return;
             }
-
-            if (rolMulti === "gato" && datos.raton) {
-                destinoRemoto.x = Number(datos.raton.x);
-                destinoRemoto.y = Number(datos.raton.y);
-            } else if (rolMulti === "raton" && datos.gato) {
-                destinoRemoto.x = Number(datos.gato.x);
-                destinoRemoto.y = Number(datos.gato.y);
-            }
-
             if (!esAnfitrionMulti && typeof datos.tiempo === "number") {
                 tiempo = datos.tiempo;
             }
@@ -1681,21 +1692,27 @@ async function lanzarPartidaMulti() {
     const datosActuales = await nube.leerSala(salaId);
     const skinGatoElegida = hostEsGato ? (datosActuales.skinHost || "🐱") : (datosActuales.skinGuest || "🐱");
 
-    await nube.actualizarSala(salaId, {
-        estado: "jugando",
-        rolHost: rolHost,
-        skinGato: skinGatoElegida,
-        gato: { x: 480, y: 200, t: Date.now() },
-        raton: { x: 100, y: 200, t: Date.now() },
-        tiempo: DURACION_PARTIDA,
-        ganador: null
-    });
+    await Promise.all([
+        nube.escribirPosicion(salaId, "gato", 480, 200),
+        nube.escribirPosicion(salaId, "raton", 100, 200),
+        nube.actualizarSala(salaId, {
+            estado: "jugando",
+            rolHost: rolHost,
+            skinGato: skinGatoElegida,
+            tiempo: DURACION_PARTIDA,
+            ganador: null
+        })
+    ]);
 }
 
 function iniciarJuegoMultiLocal(datos) {
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
         animacionId = null;
+    }
+    if (desuscribirRival) {
+        desuscribirRival();
+        desuscribirRival = null;
     }
 
     const rolHost = datos.rolHost || "gato";
@@ -1704,6 +1721,8 @@ function iniciarJuegoMultiLocal(datos) {
     } else {
         rolMulti = rolHost === "gato" ? "raton" : "gato";
     }
+
+    const rolRival = rolMulti === "gato" ? "raton" : "gato";
 
     skinGatoSala = datos.skinGato || "🐱";
     ganadoraMulti = null;
@@ -1716,13 +1735,22 @@ function iniciarJuegoMultiLocal(datos) {
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
     ultimaPosEnviada = { x: -1, y: -1 };
+    ultimoSegundoEnviado = -1;
+    errorSyncMostrado = false;
 
-    gato.x = (datos.gato && typeof datos.gato.x === "number") ? datos.gato.x : 480;
-    gato.y = (datos.gato && typeof datos.gato.y === "number") ? datos.gato.y : 200;
-    raton.x = (datos.raton && typeof datos.raton.x === "number") ? datos.raton.x : 100;
-    raton.y = (datos.raton && typeof datos.raton.y === "number") ? datos.raton.y : 200;
-    
-    destinoRemoto = rolMulti === "gato" ? { x: raton.x, y: raton.y } : { x: gato.x, y: gato.y };
+    gato.x = 480;
+    gato.y = 200;
+    raton.x = 100;
+    raton.y = 200;
+    destinoRemoto = rolMulti === "gato" ? { x: 100, y: 200 } : { x: 480, y: 200 };
+
+    // Escuchar el documento exclusivo del rival
+    desuscribirRival = nube.escucharPosicion(salaId, rolRival, (pos) => {
+        if (pos && typeof pos.x === "number" && typeof pos.y === "number") {
+            destinoRemoto.x = pos.x;
+            destinoRemoto.y = pos.y;
+        }
+    });
 
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
 
@@ -1742,49 +1770,91 @@ function iniciarJuegoMultiLocal(datos) {
     animacionId = requestAnimationFrame(gameLoop);
 }
 
-let errorSyncMostrado = false;
-
 function enviarEstadoMulti() {
     if (!salaId || !nube.listo || !juegoIniciado) return;
     const ahora = Date.now();
-    if (ahora - ultimaSyncRed < 50) return;
+    if (ahora - ultimaSyncRed < 55) return;
 
-    const paquete = {};
-    let huboCambio = false;
+    let envioAlgo = false;
 
     if (rolMulti === "gato") {
         const gx = Math.round(gato.x);
         const gy = Math.round(gato.y);
         if (gx !== ultimaPosEnviada.x || gy !== ultimaPosEnviada.y) {
-            paquete.gato = { x: gx, y: gy, t: ahora };
             ultimaPosEnviada = { x: gx, y: gy };
-            huboCambio = true;
+            envioAlgo = true;
+            nube.escribirPosicion(salaId, "gato", gx, gy).catch((err) => {
+                if (!errorSyncMostrado) {
+                    errorSyncMostrado = true;
+                    mostrarLogro("Error sync gato: " + (err.code || err.message));
+                }
+            });
         }
     } else if (rolMulti === "raton") {
         const rx = Math.round(raton.x);
         const ry = Math.round(raton.y);
         if (rx !== ultimaPosEnviada.x || ry !== ultimaPosEnviada.y) {
-            paquete.raton = { x: rx, y: ry, t: ahora };
             ultimaPosEnviada = { x: rx, y: ry };
-            huboCambio = true;
+            envioAlgo = true;
+            nube.escribirPosicion(salaId, "raton", rx, ry).catch((err) => {
+                if (!errorSyncMostrado) {
+                    errorSyncMostrado = true;
+                    mostrarLogro("Error sync raton: " + (err.code || err.message));
+                }
+            });
         }
     }
 
     if (esAnfitrionMulti) {
-        paquete.tiempo = Math.max(0, Number(tiempo.toFixed(1)));
-        huboCambio = true;
+        const segActual = Math.max(0, Math.ceil(tiempo));
+        if (segActual !== ultimoSegundoEnviado) {
+            ultimoSegundoEnviado = segActual;
+            envioAlgo = true;
+            nube.actualizarSala(salaId, { tiempo: segActual }).catch(() => {});
+        }
     }
 
-    if (!huboCambio) return;
-    ultimaSyncRed = ahora;
+    if (envioAlgo) ultimaSyncRed = ahora;
+}
 
-    nube.actualizarSala(salaId, paquete).catch((err) => {
-        if (!errorSyncMostrado) {
-            errorSyncMostrado = true;
-            console.error("Fallo enviando posición:", err);
-            mostrarLogro("Error enviando movimiento a la sala");
-        }
-    });
+async function salirSalaMulti() {
+    const codigo = salaId;
+    limpiarSalaMulti();
+    if (codigo && nube.listo) {
+        nube.borrarSala(codigo).catch(() => {});
+    }
+    volverMenu();
+}
+
+function terminarJuegoMulti(ganador) {
+    if (!juegoIniciado && ganadoraMulti === ganador) return;
+    ganadoraMulti = ganador;
+    juegoIniciado = false;
+    if (animacionId !== null) {
+        cancelAnimationFrame(animacionId);
+        animacionId = null;
+    }
+    const codigo = salaId;
+    limpiarSalaMulti();
+    if (codigo && esAnfitrionMulti && nube.listo) {
+        setTimeout(() => nube.borrarSala(codigo).catch(() => {}), 1500);
+    }
+
+    sincronizarMusica();
+    const yoGane = (ganador === rolMulti);
+    sonar(yoGane ? "record" : "fin");
+    cambiarPantalla("fin-juego");
+
+    document.getElementById("fin-titulo").innerText = yoGane ? "🏆 ¡GANASTE!" : "💀 ¡PERDISTE!";
+    document.getElementById("fin-subtitulo").innerText = ganador === "gato"
+        ? "🐱 El Gato atrapó al Ratón."
+        : "🐭 El Ratón sobrevivió 1 minuto completo.";
+
+    document.getElementById("fin-puntos-linea").style.display = "none";
+    document.getElementById("fin-monedas-linea").style.display = "none";
+    document.getElementById("fin-record-linea").style.display = "none";
+    document.getElementById("mensaje-record").style.display = "none";
+    document.getElementById("btn-reiniciar").style.display = "none";
 }
 
 // --- Progreso <-> nube ---
@@ -2039,7 +2109,7 @@ function jugarSinCuenta() {
 }
 
 function alCambiarSesion(usuario) {
-    if (accionEnCurso || juegoIniciado) return;
+    if (accionEnCurso || juegoIniciado || enFlujoMulti) return;
     if (usuario && !usuario.isAnonymous) {
         if (sesion && sesion.uid === usuario.uid) return;
         activarSesion(usuario).then(entrarAlMenu);
@@ -2078,3 +2148,4 @@ prepararNube();
 </script>
 </body>
 </html>
+Analizando
