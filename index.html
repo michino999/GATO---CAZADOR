@@ -1470,17 +1470,9 @@ const nube = {
         this.f = { ...mAuth, ...mDb };
         this.listo = true;
     },
-// 1. Dentro del objeto nube, reemplaza asegurarAuthParaSala por esta:
     async asegurarAuthParaSala() {
         if (!this.auth.currentUser && this.f.signInAnonymously) {
-            try {
-                await this.f.signInAnonymously(this.auth);
-            } catch (e) {
-                console.error("Error auth anónima:", e);
-                mostrarLogro("Error de acceso en Firebase: " + (e.code || e.message));
-            }
-        }
-    },
+            try { await this.f.signInAnonymously(this.auth); } catch (e) {}
         }
     },
     alCambiarSesion(funcion) { return this.f.onAuthStateChanged(this.auth, funcion); },
@@ -1518,6 +1510,7 @@ const nube = {
         });
     }
 };
+
 // --- LÓGICA DE SALAS 1v1 (SINCRONIZACIÓN BIDIRECCIONAL CORREGIDA) ---
 let enFlujoMulti = false;
 let ultimaPosEnviada = { x: -1, y: -1 };
@@ -1634,9 +1627,6 @@ async function unirseSalaMulti() {
     }
 }
 
-// 2. Reemplaza suscribirSala y enviarEstadoMulti por estas versiones sin colisión de paquetes:
-let ultimoSegundoEnviado = -1;
-
 function suscribirSala(codigo) {
     if (desuscribirSala) desuscribirSala();
     desuscribirSala = nube.escucharSala(codigo, (datos) => {
@@ -1648,87 +1638,6 @@ function suscribirSala(codigo) {
             return;
         }
 
-        if (pantallaActual === "menu-sala") {
-            if (datos.estado === "listo" && esAnfitrionMulti) {
-                document.getElementById("sala-estado-texto").textContent = "¡Rival conectado y listo!";
-                document.getElementById("btn-iniciar-multi").style.display = "inline-block";
-                sonar("equipar");
-            }
-            if (datos.estado === "jugando") {
-                iniciarJuegoMultiLocal(datos);
-            }
-            return;
-        }
-
-        if (juegoIniciado && modoMulti) {
-            if (datos.estado === "fin") {
-                terminarJuegoMulti(datos.ganador || "raton");
-                return;
-            }
-
-            // Leer siempre las coordenadas del rival desde Firestore
-            if (rolMulti === "gato" && datos.raton) {
-                destinoRemoto.x = Number(datos.raton.x);
-                destinoRemoto.y = Number(datos.raton.y);
-            } else if (rolMulti === "raton" && datos.gato) {
-                destinoRemoto.x = Number(datos.gato.x);
-                destinoRemoto.y = Number(datos.gato.y);
-            }
-
-            if (!esAnfitrionMulti && typeof datos.tiempo === "number") {
-                tiempo = datos.tiempo;
-            }
-        }
-    });
-}
-
-function enviarEstadoMulti() {
-    if (!salaId || !nube.listo || !juegoIniciado) return;
-    const ahora = Date.now();
-    if (ahora - ultimaSyncRed < 65) return;
-
-    const paquete = {};
-    let huboCambio = false;
-
-    if (rolMulti === "gato") {
-        const gx = Math.round(gato.x);
-        const gy = Math.round(gato.y);
-        if (gx !== ultimaPosEnviada.x || gy !== ultimaPosEnviada.y) {
-            paquete.gato = { x: gx, y: gy };
-            ultimaPosEnviada = { x: gx, y: gy };
-            huboCambio = true;
-        }
-    } else if (rolMulti === "raton") {
-        const rx = Math.round(raton.x);
-        const ry = Math.round(raton.y);
-        if (rx !== ultimaPosEnviada.x || ry !== ultimaPosEnviada.y) {
-            paquete.raton = { x: rx, y: ry };
-            ultimaPosEnviada = { x: rx, y: ry };
-            huboCambio = true;
-        }
-    }
-
-    // Enviar el reloj solo cuando cambia el segundo entero (no 15 veces por segundo)
-    if (esAnfitrionMulti) {
-        const segActual = Math.max(0, Math.ceil(tiempo));
-        if (segActual !== ultimoSegundoEnviado) {
-            ultimoSegundoEnviado = segActual;
-            paquete.tiempo = segActual;
-            huboCambio = true;
-        }
-    }
-
-    if (!huboCambio) return;
-    ultimaSyncRed = ahora;
-
-    nube.actualizarSala(salaId, paquete).catch((err) => {
-        if (!errorSyncMostrado) {
-            errorSyncMostrado = true;
-            console.error("Fallo enviando posición:", err);
-            mostrarLogro("Firebase bloqueó el movimiento: " + (err.code || "revisa reglas"));
-        }
-    });
-}
         // En sala de espera
         if (pantallaActual === "menu-sala") {
             if (datos.estado === "listo" && esAnfitrionMulti) {
