@@ -4,27 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gato Cazador – juego gratis de gatos y ratones</title>
-    <meta name="description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.">
+    <meta name="description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y juega 1v1 online.">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#256087">
     <link rel="canonical" href="https://michino999.github.io/GATO---CAZADOR/">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Gato Cazador">
-    <meta property="og:title" content="Gato Cazador – juego gratis de gatos y ratones">
-    <meta property="og:description" content="Gato Cazador: juego gratis para el navegador. Caza ratones que aprenden de ti, sube de nivel, desbloquea personajes y guarda tu progreso con una cuenta.">
-    <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
-    <meta property="og:locale" content="es_LA">
-    <meta name="twitter:card" content="summary">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #256087; font-family: 'Press Start 2P', cursive; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: white; }
-        .menu { text-align: center; background: #c6c6c6; padding: 35px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; max-width: 92%; box-sizing: border-box; }
-        button { padding: 14px; font-size: 13px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 280px; max-width: 100%; }
+        body { margin: 0; background: #256087; font-family: 'Press Start 2P', cursive; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: white; user-select: none; }
+        .menu { text-align: center; background: #c6c6c6; padding: 30px; border: 4px solid #fff; box-shadow: 6px 6px 0px #000; color: black; line-height: 1.6; max-width: 92%; box-sizing: border-box; }
+        button { padding: 14px; font-size: 12px; cursor: pointer; background: #c6c6c6; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; font-family: 'Press Start 2P', cursive; margin: 5px; width: 290px; max-width: 100%; }
         button:hover { background: #e0e0e0; }
+        button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
         button:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
-        canvas { border: 4px solid #fff; background: black; display: none; max-width: 100%; height: auto; touch-action: none; }
+        button:disabled { opacity: 0.5; cursor: default; transform: none; }
+        canvas { border: 4px solid #fff; background: black; display: none; max-width: 100%; height: auto; touch-action: none; box-shadow: 6px 6px 0 #000; }
         #marcador {
             display: none;
             width: 600px;
@@ -46,127 +41,138 @@
         #lista-tienda { max-height: 45vh; overflow-y: auto; }
         input { padding: 14px; font-size: 12px; font-family: 'Press Start 2P', cursive; width: 280px; max-width: 100%; box-sizing: border-box; margin: 5px; background: #fff; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; color: black; }
         input:focus-visible { outline: 3px solid #ffd700; outline-offset: 2px; }
-        button:disabled { opacity: 0.5; cursor: default; }
-        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 26px; }
+        .titulo-menu { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 22px; }
         .titulo-menu img { width: 72px; height: 72px; border: 4px solid #fff; box-shadow: 4px 4px 0 #000; background: #256087; cursor: pointer; }
-        #logro { position: fixed; top: 20px; right: -400px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 13px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.5s ease; }
+        #logro { position: fixed; top: 20px; right: -420px; max-width: 340px; line-height: 1.4; background: #222; color: gold; padding: 15px 20px; border: 3px solid gold; border-radius: 12px; font-size: 12px; box-shadow: 4px 4px 0px black; z-index: 999; transition: right 0.4s ease; }
     </style>
 </head>
 <body>
-<noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar. Actívalo en tu navegador.</p></noscript>
+<noscript><p style="font-size: 12px;">Gato Cazador necesita JavaScript para funcionar.</p></noscript>
 
+<!-- MENÚ PRINCIPAL -->
 <div id="menu-inicio" class="menu">
     <div class="titulo-menu">
-        <img id="foto-tate-menu" src="tate.png" alt="Tate, el gato de Gato Cazador" width="72" height="72" onclick="toqueSecretoFoto()">
+        <img id="foto-tate-menu" src="tate.png" alt="Tate" width="72" height="72" onclick="toqueSecretoFoto()" onerror="this.style.display='none'">
         <h1>GATO CAZADOR</h1>
     </div>
 
-    <p style="font-size: 13px; color: #b30009; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; font-weight: bold;">
+    <p style="font-size: 12px; color: #b30009; margin-bottom: 8px; text-shadow: 1px 1px 0px #000; font-weight: bold;">
         AMENAZA I.A.: LVL <span id="ia-nivel">1</span>
     </p>
-    <p style="font-size: 12px; margin-top: 0; margin-bottom: 10px;">
+    <p style="font-size: 11px; margin-top: 0; margin-bottom: 10px;">
         Récord: <span id="record-valor">0</span>
     </p>
-    <p style="font-size: 10px; margin-top: 0; margin-bottom: 20px;">
-        Flechas o WASD para moverte · P pausa<br>En móvil: mantén el dedo en la pantalla
+    <p style="font-size: 9px; margin-top: 0; margin-bottom: 18px; color: #333;">
+        Flechas / WASD para moverte · P pausa<br>Móvil: mantén el dedo en la pantalla
     </p>
 
-    <button onclick="empezarJuego()">Jugar Solo</button>
-    <button id="btn-multi" onclick="abrirMultijugador()" style="display:none;">Multijugador 1v1</button>
-    <button onclick="abrirAjustes()">Ajustes</button>
+    <button onclick="empezarJuego()">Jugar Solo</button><br>
+    <button id="btn-multi" onclick="abrirMultijugador()" style="display:none; background: #ffe082;">Multijugador 1v1</button><br>
+    <button onclick="abrirAjustes()">Ajustes</button><br>
     <button id="btn-sesion" onclick="botonSesion()" style="display:none;">Iniciar sesión</button>
     <p id="sesion-estado" style="font-size: 10px; margin: 10px 0 0; display: none;"></p>
-    <p style="font-size: 8px; margin: 15px 0 0;">v19 · IA Red Neuronal DQN</p>
+    <p style="font-size: 8px; margin: 12px 0 0; color: #444;">v20 · IA DQN + 1v1 Aleatorio</p>
 </div>
 
-    <!-- MENÚ MULTIJUGADOR 1v1 -->
-    <div id="menu-multi" class="menu" style="display:none;">
-        <h2>1v1 ONLINE</h2>
-        <p style="font-size: 10px; max-width: 300px; margin: 0 auto 15px;">Un jugador es el Gato cazador y el otro es el Ratón que escapa.</p>
-        <button id="btn-crear-sala" onclick="crearSalaMulti()">Crear sala (Gato)</button>
-        <p style="font-size: 10px; margin: 15px 0 5px;">— O únete con un código —</p>
-        <input id="multi-codigo-input" type="text" placeholder="CÓDIGO (6 LETRAS)" maxlength="6" autocapitalize="characters" spellcheck="false" style="text-transform: uppercase; text-align: center;" onkeydown="if (event.key === 'Enter') unirseSalaMulti()"><br>
-        <button id="btn-unirse-sala" onclick="unirseSalaMulti()">Unirse (Ratón)</button>
-        <p id="multi-mensaje" style="min-height: 2.2em; font-size: 10px; color: #b30009; margin: 8px 0;"></p>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
+<!-- MENÚ MULTIJUGADOR 1v1 -->
+<div id="menu-multi" class="menu" style="display:none;">
+    <h2>1v1 ONLINE</h2>
+    <p style="font-size: 9px; max-width: 320px; margin: 0 auto 15px; color: #222;">
+        Rol aleatorio al iniciar.<br>
+        🐱 Gato: gana si atrapa al ratón.<br>
+        🐭 Ratón: gana si sobrevive 60s.
+    </p>
+    <button id="btn-crear-sala" onclick="crearSalaMulti()">Crear sala</button>
+    <p style="font-size: 10px; margin: 14px 0 5px;">— O únete con código —</p>
+    <input id="multi-codigo-input" type="text" placeholder="CÓDIGO (6 LETRAS)" maxlength="6" autocapitalize="characters" spellcheck="false" style="text-transform: uppercase; text-align: center;" onkeydown="if (event.key === 'Enter') unirseSalaMulti()"><br>
+    <button id="btn-unirse-sala" onclick="unirseSalaMulti()">Unirse a sala</button>
+    <p id="multi-mensaje" style="min-height: 2.2em; font-size: 10px; color: #b30009; margin: 8px 0;"></p>
+    <button onclick="volverMenu()">Volver</button>
+</div>
 
-    <!-- SALA DE ESPERA 1v1 -->
-    <div id="menu-sala" class="menu" style="display:none;">
-        <h2>SALA 1v1</h2>
-        <p style="font-size: 10px; margin-bottom: 5px;">Comparte este código con tu amigo:</p>
-        <div id="sala-codigo-display" style="font-size: 24px; background: #1f1f1f; color: gold; padding: 12px; border: 3px solid #fff; margin: 10px auto; width: 220px; letter-spacing: 3px;">------</div>
-        <p id="sala-rol-texto" style="font-size: 11px; margin: 10px 0;"></p>
-        <p id="sala-estado-texto" style="font-size: 10px; color: #333; margin: 10px 0;">Esperando rival...</p>
-        <button id="btn-iniciar-multi" onclick="lanzarPartidaMulti()" style="display:none;">¡Empezar partida!</button>
-        <button onclick="salirSalaMulti()">Salir de la sala</button>
-    </div>
+<!-- SALA DE ESPERA 1v1 -->
+<div id="menu-sala" class="menu" style="display:none;">
+    <h2>SALA 1v1</h2>
+    <p style="font-size: 10px; margin-bottom: 5px;">Código de sala:</p>
+    <div id="sala-codigo-display" style="font-size: 24px; background: #1f1f1f; color: gold; padding: 12px; border: 3px solid #fff; margin: 10px auto; width: 220px; letter-spacing: 3px;">------</div>
+    <p id="sala-rol-texto" style="font-size: 10px; margin: 10px 0; color: #1f1f1f;">Rol: 🎲 Aleatorio al empezar</p>
+    <p id="sala-estado-texto" style="font-size: 10px; color: #b30009; margin: 10px 0;">Esperando rival...</p>
+    <button id="btn-iniciar-multi" onclick="lanzarPartidaMulti()" style="display:none; background: #8fd694;">¡Sortear roles y jugar!</button><br>
+    <button onclick="salirSalaMulti()">Salir de la sala</button>
+</div>
 
-    <div id="menu-quiz" class="menu" style="display:none;">
-        <h2>PREGUNTAS SECRETAS</h2>
-        <p id="quiz-progreso" style="font-size: 10px; margin-top: 0;"></p>
-        <p id="quiz-pregunta" style="font-size: 12px; max-width: 340px; margin: 0 auto 15px;"></p>
-        <div id="quiz-opciones"></div>
-        <p id="quiz-mensaje" style="min-height: 2.4em; font-size: 10px; max-width: 340px; margin: 8px auto;"></p>
-        <button onclick="salirQuiz()">Salir</button>
-    </div>
+<!-- QUIZ SECRETO -->
+<div id="menu-quiz" class="menu" style="display:none;">
+    <h2>PREGUNTAS SECRETAS</h2>
+    <p id="quiz-progreso" style="font-size: 10px; margin-top: 0;"></p>
+    <p id="quiz-pregunta" style="font-size: 12px; max-width: 340px; margin: 0 auto 15px;"></p>
+    <div id="quiz-opciones"></div>
+    <p id="quiz-mensaje" style="min-height: 2.4em; font-size: 10px; max-width: 340px; margin: 8px auto;"></p>
+    <button onclick="salirQuiz()">Salir</button>
+</div>
 
-    <div id="menu-login" class="menu" style="display:none;">
-        <h2>TU CUENTA</h2>
-        <p style="font-size: 10px; margin-top: 0;">Guarda tu progreso y juega en cualquier dispositivo</p>
-        <input id="login-nombre" type="text" placeholder="Nombre" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" onkeydown="if (event.key === 'Enter') iniciarSesion()"><br>
-        <input id="login-clave" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if (event.key === 'Enter') iniciarSesion()">
-        <p id="login-mensaje" style="min-height: 2.4em; font-size: 10px; margin: 8px 0;"></p>
-        <button id="btn-entrar" onclick="iniciarSesion()">Entrar</button>
-        <button id="btn-crear" onclick="crearCuenta()">Crear cuenta</button>
-        <button onclick="jugarSinCuenta()">Jugar sin cuenta</button>
-    </div>
+<!-- LOGIN -->
+<div id="menu-login" class="menu" style="display:none;">
+    <h2>TU CUENTA</h2>
+    <p style="font-size: 10px; margin-top: 0;">Guarda tu progreso en la nube</p>
+    <input id="login-nombre" type="text" placeholder="Nombre" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" onkeydown="if (event.key === 'Enter') iniciarSesion()"><br>
+    <input id="login-clave" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if (event.key === 'Enter') iniciarSesion()">
+    <p id="login-mensaje" style="min-height: 2.4em; font-size: 10px; margin: 8px 0;"></p>
+    <button id="btn-entrar" onclick="iniciarSesion()">Entrar</button><br>
+    <button id="btn-crear" onclick="crearCuenta()">Crear cuenta</button><br>
+    <button onclick="jugarSinCuenta()">Jugar sin cuenta</button>
+</div>
 
-    <div id="menu-ajustes" class="menu" style="display:none;">
-        <h2>AJUSTES</h2>
-        <button onclick="cambiarDificultad()" id="btn-dificultad">Dificultad: Fácil</button>
-        <button onclick="entrenarIAAcelerado()" id="btn-entrenar-ia">Entrenar IA (50 Partidas Turbo)</button>
-        <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button>
-        <button onclick="cambiarMusica()" id="btn-musica">Música: Sí</button>
-        <button onclick="abrirTienda()">Tienda de Skins</button>
-        <button onclick="borrarProgreso()">Borrar progreso</button>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
+<!-- AJUSTES -->
+<div id="menu-ajustes" class="menu" style="display:none;">
+    <h2>AJUSTES</h2>
+    <button onclick="cambiarDificultad()" id="btn-dificultad">Dificultad: Fácil</button><br>
+    <button onclick="entrenarIAAcelerado()" id="btn-entrenar-ia">Entrenar IA (50 Partidas)</button><br>
+    <button onclick="cambiarSonido()" id="btn-sonido">Sonido: Sí</button><br>
+    <button onclick="cambiarMusica()" id="btn-musica">Música: Sí</button><br>
+    <button onclick="abrirTienda()">Tienda de Skins</button><br>
+    <button onclick="borrarProgreso()">Borrar progreso</button><br>
+    <button onclick="volverMenu()">Volver</button>
+</div>
 
-    <div id="menu-tienda" class="menu" style="display:none;">
-        <h2>TIENDA</h2>
-        <p>Monedas: <span id="monedas-tienda">0</span></p>
-        <div id="lista-tienda"></div>
-        <button onclick="volverMenu()">Volver</button>
-    </div>
+<!-- TIENDA -->
+<div id="menu-tienda" class="menu" style="display:none;">
+    <h2>TIENDA</h2>
+    <p>Monedas: <span id="monedas-tienda">0</span></p>
+    <div id="lista-tienda"></div>
+    <button onclick="volverMenu()">Volver</button>
+</div>
 
-    <canvas id="juego" width="600" height="400"></canvas>
+<!-- LIENZO DE JUEGO -->
+<canvas id="juego" width="600" height="400"></canvas>
 
-    <div id="marcador">
-        <span id="marcador-rol" style="display:none; color: gold;">Rol: Gato</span>
-        <span>Puntos: <span id="puntos-valor">0</span></span>
-        <span id="marcador-monedas">Monedas: <span id="monedas-valor">0</span></span>
-        <span id="marcador-nivel">Nivel: <span id="nivel-valor">1</span></span>
-        <span>Tiempo: <span id="tiempo-valor">60</span></span>
-    </div>
+<!-- MARCADOR -->
+<div id="marcador">
+    <span id="marcador-rol" style="display:none; color: gold;">Rol: Gato</span>
+    <span id="marcador-puntos">Puntos: <span id="puntos-valor">0</span></span>
+    <span id="marcador-monedas">Monedas: <span id="monedas-valor">0</span></span>
+    <span id="marcador-nivel">Nivel: <span id="nivel-valor">1</span></span>
+    <span>Tiempo: <span id="tiempo-valor">60</span>s</span>
+</div>
 
-    <div id="fin-juego" class="menu" style="display:none;">
-        <h1 id="fin-titulo">¡TIEMPO AGOTADO!</h1>
-        <p id="fin-subtitulo" style="font-size: 11px;"></p>
-        <p id="fin-puntos-linea">Puntuación: <span id="puntos-finales"></span></p>
-        <p id="fin-monedas-linea">Monedas ganadas: <span id="monedas-partida">0</span></p>
-        <p id="fin-record-linea">Récord: <span id="record-final">0</span></p>
-        <p id="mensaje-record" style="display:none; color: #b30009;">¡NUEVO RÉCORD!</p>
-        <button id="btn-reiniciar" onclick="reiniciarJuego()">Volver a jugar</button>
-        <button onclick="volverMenu()">Ir al Menú</button>
-    </div>
+<!-- FIN DE JUEGO -->
+<div id="fin-juego" class="menu" style="display:none;">
+    <h1 id="fin-titulo" style="font-size: 18px;">¡TIEMPO AGOTADO!</h1>
+    <p id="fin-subtitulo" style="font-size: 11px; color: #1f1f1f;"></p>
+    <p id="fin-puntos-linea">Puntuación: <span id="puntos-finales"></span></p>
+    <p id="fin-monedas-linea">Monedas ganadas: <span id="monedas-partida">0</span></p>
+    <p id="fin-record-linea">Récord: <span id="record-final">0</span></p>
+    <p id="mensaje-record" style="display:none; color: #b30009;">¡NUEVO RÉCORD!</p>
+    <button id="btn-reiniciar" onclick="reiniciarJuego()">Volver a jugar</button><br>
+    <button onclick="volverMenu()">Ir al Menú</button>
+</div>
 
-    <div id="logro"></div>
+<div id="logro"></div>
 
-    <script src="firebase-config.js"></script>
-    <script>
+<script src="firebase-config.js"></script>
+<script>
 // ============================================================
-//  GATO CAZADOR - Red Neuronal DQN + Secreto Tate + Multijugador
+//  GATO CAZADOR - Red Neuronal DQN + Secreto Tate + 1v1 Aleatorio
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
@@ -174,7 +180,7 @@ const ctx = canvas.getContext("2d");
 const DURACION_PARTIDA = 60;
 const BONUS_TIEMPO_NIVEL = 5;
 const CAPTURAS_POR_NIVEL = 5;
-const RADIO_CAPTURA = 40;
+const RADIO_CAPTURA = 38;
 const DISTANCIA_MIN_APARICION = 150;
 const TOPE_APRENDIZAJE = 100;
 const CAPTURAS_POR_NIVEL_IA = 5;
@@ -280,15 +286,17 @@ const toque = { activo: false, x: 0, y: 0 };
 
 // --- VARIABLES MULTIJUGADOR 1v1 ---
 let modoMulti = false;
-let rolMulti = null;
+let esAnfitrionMulti = false; // El creador de la sala sincroniza el tiempo y las colisiones
+let rolMulti = null;          // "gato" o "raton" (asignado aleatoriamente)
 let salaId = null;
 let desuscribirSala = null;
 let skinGatoSala = "🐱";
 let destinoRemoto = { x: 100, y: 100 };
 let ultimaSyncRed = 0;
-const INTERVALO_SYNC_RED = 65;
-const VELOCIDAD_GAT0_1V1 = 5;
-const VELOCIDAD_RATON_1V1 = 4.8;
+let ganadoraMulti = null;     // "gato" o "raton"
+const INTERVALO_SYNC_RED = 60;
+const VELOCIDAD_GATO_1V1 = 5.1;
+const VELOCIDAD_RATON_1V1 = 4.9;
 
 // --- SONIDO ---
 function prepararAudio() {
@@ -413,8 +421,8 @@ function mostrarLogro(texto) {
     elemento.style.right = "20px";
     clearTimeout(temporizadorLogro);
     temporizadorLogro = setTimeout(() => {
-        elemento.style.right = "-400px";
-    }, 2200);
+        elemento.style.right = "-420px";
+    }, 2400);
 }
 
 function actualizarNivelVisualIA() {
@@ -482,6 +490,7 @@ function reaparecerRaton() {
 function empezarJuego() {
     modoMulti = false;
     rolMulti = null;
+    esAnfitrionMulti = false;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
         animacionId = null;
@@ -506,6 +515,7 @@ function empezarJuego() {
     reaparecerRaton();
 
     document.getElementById("marcador-rol").style.display = "none";
+    document.getElementById("marcador-puntos").style.display = "";
     document.getElementById("marcador-monedas").style.display = "";
     document.getElementById("marcador-nivel").style.display = "";
 
@@ -566,6 +576,7 @@ function volverMenu() {
     limpiarSalaMulti();
     modoMulti = false;
     rolMulti = null;
+    esAnfitrionMulti = false;
     juegoIniciado = false;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
@@ -734,7 +745,7 @@ function obtenerVectorEntrada(entidad) {
 
 function actualizarGato(f) {
     const { dx, dy } = obtenerVectorEntrada(gato);
-    const velocidadActual = modoMulti ? VELOCIDAD_GAT0_1V1 : (velocidadGato * bonusSkin());
+    const velocidadActual = modoMulti ? VELOCIDAD_GATO_1V1 : (velocidadGato * bonusSkin());
     gato.x += dx * velocidadActual * f;
     gato.y += dy * velocidadActual * f;
 
@@ -795,7 +806,7 @@ function dTanh(y) { return 1 - y * y; }
 function propagarRed(entrada, red) {
     const ocultas = new Float64Array(OCULTAS_RED);
     for (let i = 0; i < OCULTAS_RED; i++) {
-        let suma = red.w1[i * (ENTRADAS_RED + 1)]; // sesgo
+        let suma = red.w1[i * (ENTRADAS_RED + 1)];
         for (let j = 0; j < ENTRADAS_RED; j++) {
             suma += entrada[j] * red.w1[i * (ENTRADAS_RED + 1) + j + 1];
         }
@@ -804,7 +815,7 @@ function propagarRed(entrada, red) {
 
     const salidas = new Float64Array(SALIDAS_RED);
     for (let i = 0; i < SALIDAS_RED; i++) {
-        let suma = red.w2[i * (OCULTAS_RED + 1)]; // sesgo
+        let suma = red.w2[i * (OCULTAS_RED + 1)];
         for (let j = 0; j < OCULTAS_RED; j++) {
             suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
         }
@@ -995,7 +1006,7 @@ function entrenarIAAcelerado() {
     guardar("experienciaRaton", experienciaRaton);
     actualizarNivelVisualIA();
     sonar("nivel");
-    mostrarLogro(`🧠 ¡Red Neuronal entrenada (${partidasEntrenadas} partidas simuladas)!`);
+    mostrarLogro(`🧠 ¡Red Neuronal entrenada (${partidasEntrenadas} partidas)!`);
 }
 
 function revisarColision() {
@@ -1005,13 +1016,12 @@ function revisarColision() {
     );
     if (distancia >= RADIO_CAPTURA) return;
 
+    // --- REGLA 2 MULTIJUGADOR: Si el gato atrapa al ratón, gana el gato de inmediato ---
     if (modoMulti) {
-        if (rolMulti === "gato") {
-            puntos++;
-            sonar("captura");
-            reaparecerRaton();
-            document.getElementById("puntos-valor").innerText = puntos;
-            enviarEstadoMulti(true);
+        if (esAnfitrionMulti && juegoIniciado) {
+            ganadoraMulti = "gato";
+            nube.actualizarSala(salaId, { estado: "fin", ganador: "gato", tiempo: Math.max(0, Math.ceil(tiempo)) }).catch(() => {});
+            terminarJuegoMulti("gato");
         }
         return;
     }
@@ -1059,8 +1069,32 @@ function revisarColision() {
 }
 
 function actualizarTiempo(dt) {
-    tiempo -= dt;
+    if (modoMulti) {
+        // El anfitrión lleva el reloj oficial de los 60s
+        if (esAnfitrionMulti) {
+            tiempo -= dt;
+            const segundos = Math.max(0, Math.ceil(tiempo));
+            if (segundos !== ultimoSegundoMostrado) {
+                ultimoSegundoMostrado = segundos;
+                document.getElementById("tiempo-valor").innerText = segundos;
+            }
+            // REGLA 3 MULTIJUGADOR: Si el ratón aguanta 1 minuto (60s), gana el ratón
+            if (tiempo <= 0 && juegoIniciado) {
+                ganadoraMulti = "raton";
+                nube.actualizarSala(salaId, { estado: "fin", ganador: "raton", tiempo: 0 }).catch(() => {});
+                terminarJuegoMulti("raton");
+            }
+        } else {
+            const segundos = Math.max(0, Math.ceil(tiempo));
+            if (segundos !== ultimoSegundoMostrado) {
+                ultimoSegundoMostrado = segundos;
+                document.getElementById("tiempo-valor").innerText = segundos;
+            }
+        }
+        return;
+    }
 
+    tiempo -= dt;
     const segundos = Math.max(0, Math.ceil(tiempo));
     if (segundos !== ultimoSegundoMostrado) {
         ultimoSegundoMostrado = segundos;
@@ -1068,14 +1102,7 @@ function actualizarTiempo(dt) {
     }
 
     if (tiempo <= 0) {
-        if (modoMulti) {
-            if (rolMulti === "gato") {
-                nube.actualizarSala(salaId, { estado: "fin", puntos: puntos, tiempo: 0 }).catch(() => {});
-            }
-            terminarJuegoMulti();
-        } else {
-            terminarJuego();
-        }
+        terminarJuego();
     }
 }
 
@@ -1096,17 +1123,20 @@ function gameLoop(timestamp) {
     const f = dt * 60;
 
     if (modoMulti) {
+        // --- REGLA 4 MULTIJUGADOR: Movimiento conectado en tiempo real ---
         if (rolMulti === "gato") {
             actualizarGato(f);
-            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.35 * f);
-            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.35 * f);
-            revisarColision();
+            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.4 * f);
+            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.4 * f);
         } else {
             actualizarRatonJugador(f);
-            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.35 * f);
-            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.35 * f);
+            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.4 * f);
+            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.4 * f);
         }
-        enviarEstadoMulti(false);
+        if (esAnfitrionMulti) {
+            revisarColision();
+        }
+        enviarEstadoMulti();
     } else {
         actualizarGato(f);
         actualizarRaton(dt, f);
@@ -1142,7 +1172,14 @@ function dibujar() {
     ctx.fillStyle = modoMulti ? "#0b1b3a" : FONDOS[(nivel - 1) % FONDOS.length];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (!modoMulti) {
+    if (modoMulti) {
+        // Barra de tiempo restante de 60s para el ratón
+        const progresoTiempo = Math.max(0, tiempo / DURACION_PARTIDA);
+        ctx.fillStyle = "#333333";
+        ctx.fillRect(0, 0, canvas.width, 8);
+        ctx.fillStyle = tiempo <= 10 ? "#ff4444" : "#4caf50";
+        ctx.fillRect(0, 0, canvas.width * progresoTiempo, 8);
+    } else {
         const progreso = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
         ctx.fillStyle = "#333333";
         ctx.fillRect(0, 0, canvas.width, 8);
@@ -1156,6 +1193,19 @@ function dibujar() {
     const emojiRaton = modoMulti ? "🐭" : RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
     ctx.fillText(emojiRaton, raton.x, raton.y + 30);
 
+    // Indicador sutil sobre el personaje que controlas en 1v1
+    if (modoMulti) {
+        ctx.font = "10px 'Press Start 2P', Arial";
+        ctx.fillStyle = "gold";
+        ctx.textAlign = "center";
+        if (rolMulti === "gato") {
+            ctx.fillText("TÚ", gato.x + gato.w / 2, Math.max(20, gato.y - 6));
+        } else {
+            ctx.fillText("TÚ", raton.x + raton.w / 2, Math.max(20, raton.y - 6));
+        }
+        ctx.textAlign = "left";
+    }
+
     if (pausado && !modoMulti) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1167,7 +1217,7 @@ function dibujar() {
     }
 }
 
-// --- CONTROLES (Corregido para evitar errores con undefined en e.key) ---
+// --- CONTROLES ---
 const MAPA_TECLAS = {
     arrowup: "arriba", w: "arriba",
     arrowdown: "abajo", s: "abajo",
@@ -1199,9 +1249,7 @@ window.addEventListener("blur", () => {
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
 });
 
-// ============================================================
-//  SECRETO DE TATE: Patrón ↑↑↓↓←→←→ (o 5 toques en su foto) -> Quiz
-// ============================================================
+// --- SECRETO DE TATE ---
 const PATRON_SECRETO = ["arriba", "arriba", "abajo", "abajo", "izquierda", "derecha", "izquierda", "derecha"];
 const PAUSA_MAX_PATRON = 3000;
 const PREGUNTAS_POR_INTENTO = 5;
@@ -1364,7 +1412,6 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-// Control táctil / mouse
 function posicionEnCanvas(e) {
     const caja = canvas.getBoundingClientRect();
     toque.x = (e.clientX - caja.left) * (canvas.width / caja.width);
@@ -1386,7 +1433,7 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 // ============================================================
-//  CUENTAS + MULTIJUGADOR FIRESTORE
+//  CUENTAS + MULTIJUGADOR FIRESTORE (salas1v1)
 // ============================================================
 const FIREBASE_CONFIG = window.FIREBASE_CONFIG_USUARIO || {
     apiKey: "PEGA_AQUI",
@@ -1440,22 +1487,22 @@ const nube = {
         await this.f.setDoc(this.f.doc(this.db, "jugadores", uid), datos, { merge: true });
     },
     async crearSala(codigo, datos) {
-        await this.f.setDoc(this.f.doc(this.db, "salas", codigo), datos);
+        await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
     },
     async leerSala(codigo) {
-        const snap = await this.f.getDoc(this.f.doc(this.db, "salas", codigo));
+        const snap = await this.f.getDoc(this.f.doc(this.db, "salas1v1", codigo));
         return snap.exists() ? snap.data() : null;
     },
     async actualizarSala(codigo, datos) {
         if (!codigo) return;
-        await this.f.updateDoc(this.f.doc(this.db, "salas", codigo), datos);
+        await this.f.updateDoc(this.f.doc(this.db, "salas1v1", codigo), datos);
     },
     async borrarSala(codigo) {
         if (!codigo) return;
-        await this.f.deleteDoc(this.f.doc(this.db, "salas", codigo));
+        await this.f.deleteDoc(this.f.doc(this.db, "salas1v1", codigo));
     },
     escucharSala(codigo, callback) {
-        return this.f.onSnapshot(this.f.doc(this.db, "salas", codigo), (snap) => {
+        return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo), (snap) => {
             callback(snap.exists() ? snap.data() : null);
         }, (err) => {
             console.error("Error escuchando sala:", err);
@@ -1498,23 +1545,25 @@ async function crearSalaMulti() {
     const codigo = generarCodigoSala();
     const datosIniciales = {
         estado: "esperando",
-        skinGato: skinActual,
-        gato: { x: 450, y: 200 },
-        raton: { x: 120, y: 200 },
-        puntos: 0,
+        rolHost: "gato", // Se sortea al iniciar la partida
+        skinHost: skinActual,
+        skinGuest: "🐱",
+        gato: { x: 480, y: 200 },
+        raton: { x: 100, y: 200 },
         tiempo: DURACION_PARTIDA,
+        ganador: null,
         actualizado: Date.now()
     };
 
     try {
         await nube.crearSala(codigo, datosIniciales);
         salaId = codigo;
-        rolMulti = "gato";
-        skinGatoSala = skinActual;
+        esAnfitrionMulti = true;
+        rolMulti = null;
 
         document.getElementById("sala-codigo-display").textContent = codigo;
-        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🐱 GATO (Cazador)";
-        document.getElementById("sala-estado-texto").textContent = "Esperando a que entre el Ratón...";
+        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🎲 Aleatorio al empezar";
+        document.getElementById("sala-estado-texto").textContent = "Esperando a que entre tu rival...";
         document.getElementById("btn-iniciar-multi").style.display = "none";
         cambiarPantalla("menu-sala");
 
@@ -1522,7 +1571,7 @@ async function crearSalaMulti() {
     } catch (e) {
         console.error(e);
         msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
             : "Error: " + (e.message || "no se pudo crear");
     }
 }
@@ -1552,14 +1601,14 @@ async function unirseSalaMulti() {
             return;
         }
 
-        await nube.actualizarSala(codigo, { estado: "listo" });
+        await nube.actualizarSala(codigo, { estado: "listo", skinGuest: skinActual });
         salaId = codigo;
-        rolMulti = "raton";
-        skinGatoSala = datos.skinGato || "🐱";
+        esAnfitrionMulti = false;
+        rolMulti = null;
 
         document.getElementById("sala-codigo-display").textContent = codigo;
-        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🐭 RATÓN (¡Escapa!)";
-        document.getElementById("sala-estado-texto").textContent = "¡Conectado! Esperando que el Gato inicie...";
+        document.getElementById("sala-rol-texto").textContent = "Tu rol: 🎲 Aleatorio al empezar";
+        document.getElementById("sala-estado-texto").textContent = "¡Conectado! Esperando inicio...";
         document.getElementById("btn-iniciar-multi").style.display = "none";
         cambiarPantalla("menu-sala");
 
@@ -1567,7 +1616,7 @@ async function unirseSalaMulti() {
     } catch (e) {
         console.error(e);
         msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas': revisa Reglas de Firestore."
+            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
             : "Error al entrar en la sala.";
     }
 }
@@ -1583,11 +1632,10 @@ function suscribirSala(codigo) {
             return;
         }
 
-        if (datos.skinGato) skinGatoSala = datos.skinGato;
-
+        // En sala de espera
         if (pantallaActual === "menu-sala") {
-            if (datos.estado === "listo" && rolMulti === "gato") {
-                document.getElementById("sala-estado-texto").textContent = "¡El Ratón está listo!";
+            if (datos.estado === "listo" && esAnfitrionMulti) {
+                document.getElementById("sala-estado-texto").textContent = "¡Rival conectado y listo!";
                 document.getElementById("btn-iniciar-multi").style.display = "inline-block";
                 sonar("equipar");
             }
@@ -1597,46 +1645,47 @@ function suscribirSala(codigo) {
             return;
         }
 
+        // En partida activa
         if (juegoIniciado && modoMulti) {
             if (datos.estado === "fin") {
-                puntos = datos.puntos || puntos;
-                terminarJuegoMulti();
+                terminarJuegoMulti(datos.ganador || "raton");
                 return;
             }
 
+            // Sincronizar posición del rival en pantalla
             if (rolMulti === "gato" && datos.raton) {
                 destinoRemoto.x = datos.raton.x;
                 destinoRemoto.y = datos.raton.y;
-            } else if (rolMulti === "raton") {
-                if (datos.gato) {
-                    destinoRemoto.x = datos.gato.x;
-                    destinoRemoto.y = datos.gato.y;
-                }
-                if (typeof datos.puntos === "number" && datos.puntos > puntos) {
-                    puntos = datos.puntos;
-                    sonar("captura");
-                    if (datos.raton) {
-                        raton.x = datos.raton.x;
-                        raton.y = datos.raton.y;
-                    }
-                    document.getElementById("puntos-valor").innerText = puntos;
-                }
-                if (typeof datos.tiempo === "number") {
-                    tiempo = datos.tiempo;
-                }
+            } else if (rolMulti === "raton" && datos.gato) {
+                destinoRemoto.x = datos.gato.x;
+                destinoRemoto.y = datos.gato.y;
+            }
+
+            // El invitado recibe el reloj oficial del anfitrión
+            if (!esAnfitrionMulti && typeof datos.tiempo === "number") {
+                tiempo = datos.tiempo;
             }
         }
     });
 }
 
+// --- REGLA 1 MULTIJUGADOR: Sorteo aleatorio de quién es el gato ---
 async function lanzarPartidaMulti() {
-    if (!salaId) return;
+    if (!salaId || !esAnfitrionMulti) return;
+    const hostEsGato = Math.random() < 0.5;
+    const rolHost = hostEsGato ? "gato" : "raton";
+
+    const datosActuales = await nube.leerSala(salaId);
+    const skinGatoElegida = hostEsGato ? (datosActuales.skinHost || "🐱") : (datosActuales.skinGuest || "🐱");
+
     await nube.actualizarSala(salaId, {
         estado: "jugando",
-        gato: { x: 450, y: 200 },
-        raton: { x: 120, y: 200 },
-        puntos: 0,
-        tiempo: DURACION_PARTIDA
+        rolHost: rolHost,
+        skinGato: skinGatoElegida,
+        gato: { x: 480, y: 200 },
+        raton: { x: 100, y: 200 },
+        tiempo: DURACION_PARTIDA,
+        ganador: null
     });
 }
 
@@ -1646,6 +1695,16 @@ function iniciarJuegoMultiLocal(datos) {
         animacionId = null;
     }
 
+    // Asignar rol según el sorteo aleatorio
+    const rolHost = datos.rolHost || "gato";
+    if (esAnfitrionMulti) {
+        rolMulti = rolHost;
+    } else {
+        rolMulti = rolHost === "gato" ? "raton" : "gato";
+    }
+
+    skinGatoSala = datos.skinGato || "🐱";
+    ganadoraMulti = null;
     modoMulti = true;
     juegoIniciado = true;
     pausado = false;
@@ -1655,9 +1714,9 @@ function iniciarJuegoMultiLocal(datos) {
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
 
-    gato.x = (datos.gato && datos.gato.x) || 450;
+    gato.x = (datos.gato && datos.gato.x) || 480;
     gato.y = (datos.gato && datos.gato.y) || 200;
-    raton.x = (datos.raton && datos.raton.x) || 120;
+    raton.x = (datos.raton && datos.raton.x) || 100;
     raton.y = (datos.raton && datos.raton.y) || 200;
     destinoRemoto = rolMulti === "gato" ? { x: raton.x, y: raton.y } : { x: gato.x, y: gato.y };
 
@@ -1665,38 +1724,38 @@ function iniciarJuegoMultiLocal(datos) {
 
     const elRol = document.getElementById("marcador-rol");
     elRol.style.display = "";
-    elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 Gato" : "Rol: 🐭 Ratón";
+    elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 GATO (¡Atrápalo!)" : "Rol: 🐭 RATÓN (¡Huye 60s!)";
+    
+    document.getElementById("marcador-puntos").style.display = "none";
     document.getElementById("marcador-monedas").style.display = "none";
     document.getElementById("marcador-nivel").style.display = "none";
-    document.getElementById("puntos-valor").innerText = "0";
     document.getElementById("tiempo-valor").innerText = DURACION_PARTIDA;
 
     cambiarPantalla("juego");
     sincronizarMusica();
+    sonar("nivel");
+    mostrarLogro(rolMulti === "gato" ? "🎲 ¡Te tocó ser el GATO! Atrapa al ratón." : "🎲 ¡Te tocó ser el RATÓN! Sobrevive 1 minuto.");
     animacionId = requestAnimationFrame(gameLoop);
 }
 
-function enviarEstadoMulti(forzar) {
-    if (!salaId || !nube.listo) return;
+function enviarEstadoMulti() {
+    if (!salaId || !nube.listo || !juegoIniciado) return;
     const ahora = Date.now();
-    if (!forzar && ahora - ultimaSyncRed < INTERVALO_SYNC_RED) return;
+    if (ahora - ultimaSyncRed < INTERVALO_SYNC_RED) return;
     ultimaSyncRed = ahora;
 
+    const paquete = {};
     if (rolMulti === "gato") {
-        const paquete = {
-            gato: { x: Math.round(gato.x), y: Math.round(gato.y) },
-            puntos: puntos,
-            tiempo: Math.max(0, Number(tiempo.toFixed(1)))
-        };
-        if (forzar) {
-            paquete.raton = { x: Math.round(raton.x), y: Math.round(raton.y) };
-        }
-        nube.actualizarSala(salaId, paquete).catch(() => {});
+        paquete.gato = { x: Math.round(gato.x), y: Math.round(gato.y) };
     } else if (rolMulti === "raton") {
-        nube.actualizarSala(salaId, {
-            raton: { x: Math.round(raton.x), y: Math.round(raton.y) }
-        }).catch(() => {});
+        paquete.raton = { x: Math.round(raton.x), y: Math.round(raton.y) };
     }
+
+    if (esAnfitrionMulti) {
+        paquete.tiempo = Math.max(0, Number(tiempo.toFixed(1)));
+    }
+
+    nube.actualizarSala(salaId, paquete).catch(() => {});
 }
 
 async function salirSalaMulti() {
@@ -1708,7 +1767,9 @@ async function salirSalaMulti() {
     volverMenu();
 }
 
-function terminarJuegoMulti() {
+function terminarJuegoMulti(ganador) {
+    if (!juegoIniciado && ganadoraMulti === ganador) return;
+    ganadoraMulti = ganador;
     juegoIniciado = false;
     if (animacionId !== null) {
         cancelAnimationFrame(animacionId);
@@ -1716,16 +1777,20 @@ function terminarJuegoMulti() {
     }
     const codigo = salaId;
     limpiarSalaMulti();
-    if (codigo && rolMulti === "gato" && nube.listo) {
-        nube.borrarSala(codigo).catch(() => {});
+    if (codigo && esAnfitrionMulti && nube.listo) {
+        setTimeout(() => nube.borrarSala(codigo).catch(() => {}), 1500);
     }
 
     sincronizarMusica();
-    sonar("fin");
+    const yoGane = (ganador === rolMulti);
+    sonar(yoGane ? "record" : "fin");
     cambiarPantalla("fin-juego");
 
-    document.getElementById("fin-titulo").innerText = "¡PARTIDA 1v1 TERMINADA!";
-    document.getElementById("fin-subtitulo").innerText = `Capturas totales del Gato: ${puntos}`;
+    document.getElementById("fin-titulo").innerText = yoGane ? "🏆 ¡GANASTE!" : "💀 ¡PERDISTE!";
+    document.getElementById("fin-subtitulo").innerText = ganador === "gato"
+        ? "🐱 El Gato atrapó al Ratón."
+        : "🐭 El Ratón sobrevivió 1 minuto completo.";
+
     document.getElementById("fin-puntos-linea").style.display = "none";
     document.getElementById("fin-monedas-linea").style.display = "none";
     document.getElementById("fin-record-linea").style.display = "none";
@@ -1891,7 +1956,6 @@ function mostrarLogin(mensaje) {
     bloquearLogin(false);
 }
 
-// --- Acciones ---
 async function conectarNube() {
     if (nubeConectada) return true;
     try {
@@ -2013,10 +2077,6 @@ async function prepararNube() {
 
 ["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, () => {
     prepararAudio();
-    const audioPres = document.getElementById("audio-presentacion");
-    if (audioPres && audioPres.paused && audioPres.currentTime === 0) {
-        audioPres.play().catch(() => {});
-    }
 }));
 
 construirTienda();
@@ -2026,6 +2086,6 @@ actualizarTextoDificultad();
 actualizarNivelVisualIA();
 actualizarSesionUI();
 prepararNube();
-    </script>
+</script>
 </body>
 </html>
