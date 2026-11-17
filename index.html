@@ -69,7 +69,7 @@
     </p>
 
     <button onclick="empezarJuego()">Jugar Solo</button><br>
-    <button id="btn-multi" onclick="abrirMultijugador()" style="display:none; background: #ffe082;">Multijugador 1v1</button><br>
+    <button id="btn-multi" onclick="abrirMultijugador()" style="background: #ffe082;">Multijugador 1v1</button><br>
     <button onclick="abrirTienda()" style="background: #b5e48c;">Tienda y Mejoras</button><br>
     <button onclick="abrirAjustes()">Ajustes</button><br>
     <button onclick="compartirJuego()" style="background: #90e0ef;">📢 Compartir Juego</button><br>
@@ -749,13 +749,11 @@ function bonusVelocidadSkin(emoji) {
     const skin = SKINS.find((s) => s.emoji === emoji);
     if (!skin) return 1;
     const nivelPj = obtenerNivelSkin(emoji);
-    // Cada mejora suma +6% de velocidad extra sobre la base del personaje
     return skin.velocidad + (nivelPj - 1) * 0.06;
 }
 
 function bonusMonedasSkin(emoji) {
     const nivelPj = obtenerNivelSkin(emoji);
-    // Cada mejora suma +25% de monedas extra por captura
     return 1 + (nivelPj - 1) * 0.25;
 }
 
@@ -1336,15 +1334,11 @@ if (imagenTate) imagenTate.src = "tate.png";
 
 function dibujarSombreroElegante(x, y) {
     ctx.save();
-    // Ala del sombrero de copa
     ctx.fillStyle = "#181818";
     ctx.fillRect(x + 2, y - 6, 36, 5);
-    // Copa del sombrero
     ctx.fillRect(x + 9, y - 22, 22, 17);
-    // Cinta dorada
     ctx.fillStyle = "gold";
     ctx.fillRect(x + 9, y - 10, 22, 3);
-    // Brillo sutil
     ctx.fillStyle = "rgba(255,255,255,0.25)";
     ctx.fillRect(x + 12, y - 20, 3, 12);
     ctx.restore();
@@ -1482,7 +1476,6 @@ const PREGUNTAS = [
       opciones: ["Rosada", "Negra", "Azul", "Verde"], correcta: 0 }
 ];
 
-// 10 preguntas infernales de anatomía, historia, ciencia felina y secretos del juego
 const PREGUNTAS_INFIERNO = [
     { pregunta: "¿Cuántos músculos independientes tiene un gato en CADA oreja?",
       opciones: ["32 músculos", "12 músculos", "18 músculos", "44 músculos"], correcta: 0 },
@@ -1544,12 +1537,7 @@ function intentarRitualInfierno() {
     const faltan = verificarRequisitosInfierno();
     if (faltan.length > 0) {
         sonar("error");
-        alert("🔥 RITUAL DE TATE CON SOMBRERO BLOQUEADO 🔥
-
-Para entrar a la Prueba del Infierno necesitas cumplir TODO esto:
-
-" + faltan.join("
-"));
+        alert("🔥 RITUAL DE TATE CON SOMBRERO BLOQUEADO 🔥\n\nPara entrar a la Prueba del Infierno necesitas cumplir TODO esto:\n\n" + faltan.join("\n"));
         return;
     }
     abrirQuiz("infierno");
@@ -1571,7 +1559,6 @@ function registrarPatron(direccion) {
     patronEntrada.push(direccion);
     if (patronEntrada.length > PATRON_INFIERNO.length) patronEntrada.shift();
 
-    // Revisar patrón del Infierno (12 teclas)
     if (patronEntrada.length === PATRON_INFIERNO.length && patronEntrada.every((d, i) => d === PATRON_INFIERNO[i])) {
         patronEntrada = [];
         if (skinsCompradas.includes("tate_sombrero")) {
@@ -1582,7 +1569,6 @@ function registrarPatron(direccion) {
         return;
     }
 
-    // Revisar patrón Konami clásico (8 teclas)
     const ultimas8 = patronEntrada.slice(-PATRON_SECRETO.length);
     if (ultimas8.length === PATRON_SECRETO.length && ultimas8.every((d, i) => d === PATRON_SECRETO[i])) {
         patronEntrada = [];
@@ -1655,7 +1641,6 @@ function responderQuiz(opcion, boton) {
         boton.style.background = "#e07a7a";
         const buena = quiz.preguntas[quiz.indice].opciones.find((o) => o.ok).texto;
         if (quiz.modo === "infierno") {
-            // Castigo infernal por fallar: pierdes 500 monedas
             const multa = Math.min(monedas, 500);
             monedas -= multa;
             guardar("monedas", monedas);
@@ -1763,7 +1748,7 @@ const FIREBASE_CONFIG = window.FIREBASE_CONFIG_USUARIO || {
 const FIREBASE_VERSION = "12.19.0";
 const DOMINIO_CUENTAS = "gatocazador.example.com";
 const RETRASO_SUBIDA_NUBE = 2000;
-const FIREBASE_ACTIVO = FIREBASE_CONFIG.apiKey !== "" && !FIREBASE_CONFIG.apiKey.startsWith("PEGA");
+const FIREBASE_ACTIVO = Boolean(FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith("PEGA"));
 
 let temporizadorNube = null;
 let accionEnCurso = false;
@@ -1856,6 +1841,11 @@ const nube = {
 
 // --- LÓGICA DE SALAS 1v1 ---
 function abrirMultijugador() {
+    if (!FIREBASE_ACTIVO) {
+        sonar("error");
+        mostrarLogro("⚠️ Falta configurar firebase-config.js para el 1v1 online");
+        return;
+    }
     enFlujoMulti = true;
     document.getElementById("multi-mensaje").textContent = "";
     document.getElementById("multi-codigo-input").value = "";
@@ -2316,7 +2306,7 @@ function actualizarSesionUI() {
     if (!FIREBASE_ACTIVO) {
         boton.style.display = "none";
         estado.style.display = "none";
-        if (btnMulti) btnMulti.style.display = "none";
+        if (btnMulti) btnMulti.style.display = "inline-block";
         return;
     }
     boton.style.display = "inline-block";
