@@ -1,23 +1,896 @@
-enedor.appendChild(seg);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GATO CAZADOR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="firebase-config.js" onerror="window.FIREBASE_CONFIG_USUARIO=null;"></script>
+    <style>
+        :root {
+            --bg-main: #070b14;
+            --bg-panel: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --accent-gold: #fbbf24;
+            --accent-cyan: #38bdf8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* BARRA SUPERIOR */
+        .top-bar {
+            width: 100%;
+            max-width: 980px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+        }
+
+        .brand {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.95rem;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .nav-link-btn:hover, .nav-link-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .monedas-pill {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            color: var(--accent-gold);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .app-container {
+            width: 100%;
+            max-width: 980px;
+            padding: 20px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MENÚ INICIO GRID */
+        #menu-inicio {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 780px) {
+            #menu-inicio {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-sub {
+            width: 100%;
+            max-width: 560px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .tactical-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s, border-color 0.15s;
+            margin-top: 8px;
+        }
+
+        .tactical-btn:hover:not(:disabled) {
+            border-color: var(--accent-cyan);
+            transform: translateY(-1px);
+        }
+
+        .tactical-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #0f172a;
+            border-color: #fbbf24;
+            font-weight: 800;
+        }
+
+        .btn-green {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--accent-green);
+            color: #4ade80;
+        }
+
+        .btn-cyan {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: var(--accent-cyan);
+            color: #7dd3fc;
+        }
+
+        .btn-peach {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: #fb923c;
+            color: #fdba74;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: var(--accent-red);
+            color: #fca5a5;
+        }
+
+        /* TARJETAS DE STATS Y BARRA IA */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            margin-top: 4px;
+        }
+
+        .ia-segments {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .ia-seg {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .ia-seg.activo {
+            background: var(--accent-cyan);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+        }
+
+        /* TIENDA Y MISIONES */
+        .lista-scroll {
+            max-height: 410px;
+            overflow-y: auto;
+            text-align: left;
+            padding-right: 4px;
+            margin: 12px 0;
+        }
+
+        .tarjeta-skin, .tarjeta-mision {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .tarjeta-skin.equipada {
+            border-color: var(--accent-green);
+        }
+
+        .skin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skin-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #0f172a;
+        }
+
+        .skin-fallback {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        /* ZONA DE JUEGO */
+        #zona-juego {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #marcador {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 10px 10px 0 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        canvas#juego {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            aspect-ratio: 3 / 2;
+            border: 2px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            background: #111827;
+            touch-action: none;
+        }
+
+        /* INPUTS */
+        .tactical-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #070b14;
+            color: #fff;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* NOTIFICACIÓN FLOTANTE */
+        #toast-logro {
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0f172a;
+            border: 1px solid var(--accent-gold);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 100;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        #toast-logro.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .badges-secretos {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .badge-item {
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid #a855f7;
+            color: #e9d5ff;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="brand">🐱 GATO CAZADOR</div>
+        <nav class="nav-links">
+            <button id="nav-inicio" class="nav-link-btn active" onclick="volverMenu()">INICIO</button>
+            <button id="nav-misiones" class="nav-link-btn" onclick="abrirMisiones()">MISIONES</button>
+            <button id="nav-tienda" class="nav-link-btn" onclick="abrirTienda()">TIENDA</button>
+            <button id="nav-ajustes" class="nav-link-btn" onclick="abrirAjustes()">AJUSTES</button>
+        </nav>
+        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas">
+            🪙 <span id="monedas-header">0</span>
+        </div>
+    </header>
+
+    <main class="app-container">
+
+        <!-- MENÚ PRINCIPAL -->
+        <section id="menu-inicio">
+            <div class="panel-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span style="font-size:0.75rem; font-weight:800; color:var(--accent-cyan);" id="texto-dificultad-actual">DIFICULTAD: FÁCIL</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);" id="resumen-ajustes"></span>
+                </div>
+
+                <h1 style="margin:10px 0 4px; font-size:1.55rem;">Centro de Caza</h1>
+                <p style="margin:0; color:var(--text-muted); font-size:0.88rem;">Atrapa al ratón controlado por Red Neuronal antes de que se agote el tiempo.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">🏆 Récord</div>
+                        <div class="stat-val" id="record-valor">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">🐾 Capturas Totales</div>
+                        <div class="stat-val" id="capturas-totales-valor" style="color:var(--accent-cyan);">0</div>
+                    </div>
+                </div>
+
+                <div class="badges-secretos">
+                    <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
+                    <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
+                </div>
+
+                <div style="margin-top:14px;">
+                    <button class="tactical-btn btn-gold" style="font-size:1rem; padding:14px;" onclick="empezarJuego()">▶ JUGAR PARTIDA (60s)</button>
+                    <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y NIVELES</button>
+                        <button class="tactical-btn" onclick="abrirMisiones()">🎯 MISIONES</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:18px;">
+                <!-- PANEL IA -->
+                <div class="panel-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:0.9rem;">🧠 RED NEURONAL DEL RATÓN</strong>
+                        <span id="ia-nivel-texto" style="font-size:0.78rem; color:var(--accent-cyan); font-weight:700;">LVL 1</span>
+                    </div>
+                    <p id="ia-stats-texto" style="font-size:0.78rem; color:var(--text-muted); margin:6px 0;">Partidas simuladas: 0 · Exp: 0</p>
+                    <div class="ia-segments" id="ia-barra-segmentos"></div>
+                    <button class="tactical-btn" style="margin-top:12px;" onclick="entrenarIAAcelerado()">⚡ ENTRENAR IA (+50 PARTIDAS)</button>
+                </div>
+
+                <!-- PANEL CUENTA EN LA NUBE -->
+                <div class="panel-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:0.9rem;">☁️ GUARDADO EN NUBE</strong>
+                        <span id="estado-cuenta-badge" style="font-size:0.72rem; font-weight:800; color:var(--accent-green);">ESTADO: LOCAL</span>
+                    </div>
+                    <p id="sesion-estado" style="font-size:0.78rem; color:var(--text-muted); margin:6px 0 10px;"></p>
+
+                    <div id="form-cuenta-integrado">
+                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username">
+                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
+                            <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
+                            <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR CUENTA</button>
+                        </div>
+                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;"></p>
+                    </div>
+
+                    <div id="panel-cuenta-activa" style="display:none;">
+                        <button class="tactical-btn btn-danger" onclick="cerrarSesion()">CERRAR SESIÓN</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TIENDA -->
+        <section id="menu-tienda" class="panel-sub" style="display:none;">
+            <h2 style="margin-top:0;">🛒 TIENDA DE CAZADORES</h2>
+            <p style="font-size:0.82rem; color:var(--text-muted);">Saldo disponible: <strong style="color:var(--accent-gold);">🪙 <span id="monedas-tienda">0</span></strong></p>
+            <div id="lista-tienda" class="lista-scroll"></div>
+            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
+        </section>
+
+        <!-- MISIONES -->
+        <section id="menu-misiones" class="panel-sub" style="display:none;">
+            <h2 style="margin-top:0;">🎯 MISIONES Y RECOMPENSAS</h2>
+            <div id="lista-misiones" class="lista-scroll"></div>
+            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
+        </section>
+
+        <!-- MULTIJUGADOR -->
+        <section id="menu-multi" class="panel-sub" style="display:none;">
+            <h2 style="margin-top:0;">⚔️ DUELO 1v1 ONLINE</h2>
+            <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 60 segundos.</p>
+            <button class="tactical-btn btn-gold" onclick="crearSalaMulti()">➕ CREAR SALA NUEVA</button>
+            <div style="margin:14px 0; border-top:1px solid var(--border-color); padding-top:12px;">
+                <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
+                <button class="tactical-btn btn-cyan" onclick="unirseSalaMulti()">🔗 UNIRSE A SALA</button>
+            </div>
+            <p id="multi-mensaje" style="font-size:0.8rem; color:var(--accent-gold);"></p>
+            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
+        </section>
+
+        <!-- SALA DE ESPERA 1v1 -->
+        <section id="menu-sala" class="panel-sub" style="display:none;">
+            <h2 style="margin-top:0;">SALA DE COMBATE</h2>
+            <div style="font-size:0.8rem; color:var(--text-muted);">Comparte este código con tu rival:</div>
+            <div id="sala-codigo-display" style="font-family:'Press Start 2P', monospace; font-size:1.5rem; color:var(--accent-gold); margin:14px 0; letter-spacing:4px;">------</div>
+            <p id="sala-rol-texto" style="font-weight:700;"></p>
+            <p id="sala-estado-texto" style="font-size:0.85rem; color:var(--accent-cyan);">Esperando rival...</p>
+            <button id="btn-iniciar-multi" class="tactical-btn btn-green" style="display:none;" onclick="lanzarPartidaMulti()">🚀 ¡EMPEZAR DUELO!</button>
+            <button class="tactical-btn btn-danger" onclick="salirSalaMulti()">✖ ABANDONAR SALA</button>
+        </section>
+
+        <!-- AJUSTES -->
+        <section id="menu-ajustes" class="panel-sub" style="display:none;">
+            <h2 style="margin-top:0;">⚙️ AJUSTES</h2>
+            <button id="btn-dificultad" class="tactical-btn" onclick="cambiarDificultad()">Dificultad: Fácil</button>
+            <button id="btn-sonido" class="tactical-btn" onclick="cambiarSonido()">Sonido: Sí</button>
+            <button id="btn-musica" class="tactical-btn" onclick="cambiarMusica()">Música: Sí</button>
+            <hr style="border:0; border-top:1px solid var(--border-color); margin:16px 0;">
+            <button class="tactical-btn btn-danger" onclick="borrarProgreso()">🗑️ BORRAR TODO EL PROGRESO</button>
+            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
+        </section>
+
+        <!-- QUIZ SECRETO -->
+        <section id="menu-quiz" class="panel-sub" style="display:none;">
+            <h2 id="quiz-titulo" style="margin-top:0; color:var(--accent-gold);">PREGUNTAS SECRETAS</h2>
+            <p id="quiz-progreso" style="font-size:0.8rem; color:var(--text-muted);"></p>
+            <p id="quiz-pregunta" style="font-weight:700; font-size:1rem; margin:14px 0;"></p>
+            <div id="quiz-opciones"></div>
+            <p id="quiz-mensaje" style="font-size:0.85rem; font-weight:700; margin-top:10px;"></p>
+            <button class="tactical-btn" style="margin-top:12px;" onclick="salirQuiz()">✖ SALIR</button>
+        </section>
+
+        <!-- ZONA DE JUEGO -->
+        <section id="zona-juego">
+            <div id="marcador">
+                <span id="marcador-rol" style="display:none; color:var(--accent-gold);"></span>
+                <span id="marcador-puntos">Puntos: <strong id="puntos-valor" style="color:var(--accent-cyan);">0</strong></span>
+                <span id="marcador-monedas">🪙 <strong id="monedas-valor" style="color:var(--accent-gold);">0</strong></span>
+                <span id="marcador-nivel">Nivel: <strong id="nivel-valor">1</strong></span>
+                <span>⏱️ <strong id="tiempo-valor" style="color:#f87171;">60</strong>s</span>
+                <button class="nav-link-btn" style="padding:4px 8px; border-color:var(--border-color);" onclick="volverMenu()">SALIR</button>
+            </div>
+            <canvas id="juego" width="600" height="400"></canvas>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas o WASD (P para pausa) · Celular: Toca o desliza sobre el tablero</p>
+        </section>
+
+        <!-- FIN DE PARTIDA -->
+        <section id="fin-juego" class="panel-sub" style="display:none;">
+            <h2 id="fin-titulo" style="margin-top:0; color:var(--accent-gold);">¡TIEMPO AGOTADO!</h2>
+            <p id="fin-subtitulo" style="color:var(--text-muted);"></p>
+            <p id="fin-puntos-linea">Puntos conseguidos: <strong id="puntos-finales" style="color:var(--accent-cyan);">0</strong></p>
+            <p id="fin-monedas-linea">Gatomonedas ganadas: <strong id="monedas-partida" style="color:var(--accent-gold);">0</strong> 🪙</p>
+            <p id="fin-record-linea">Récord actual: <strong id="record-final">0</strong></p>
+            <p id="mensaje-record" style="display:none; color:var(--accent-green); font-weight:800;">🎉 ¡NUEVO RÉCORD PERSONAL!</p>
+            <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 JUGAR DE NUEVO</button>
+            <button class="tactical-btn" onclick="volverMenu()">🏠 MENÚ PRINCIPAL</button>
+        </section>
+
+    </main>
+
+    <div id="toast-logro"></div>
+
+<script>
+// ============================================================
+//  CONFIGURACIÓN Y ESTADO GLOBAL
+// ============================================================
+const canvas = document.getElementById("juego");
+const ctx = canvas.getContext("2d");
+
+const DURACION_PARTIDA = 60;
+const CAPTURAS_POR_NIVEL = 5;
+const NIVELES_POR_RATON = 2;
+const BONUS_TIEMPO_NIVEL = 4;
+const RADIO_CAPTURA = 34;
+const DISTANCIA_MIN_APARICION = 140;
+const MAX_NIVEL_MEJORA = 5;
+const TOPE_APRENDIZAJE = 250;
+
+const VELOCIDAD_GATO_1V1 = 5.4;
+const VELOCIDAD_RATON_1V1 = 5.7;
+const VELOCIDAD_RATON_JUGADOR_VUDU = 5.6;
+const VELOCIDAD_JEFE_FACILIER_BASE = 5.15;
+
+const FONDOS = ["#0f172a", "#111827", "#17153b", "#092635", "#1e1b4b"];
+const RATONES = ["🐭", "🐀", "🐹", "🐿️"];
+
+const DIFICULTADES = [
+    { nombre: "Fácil", velGato: 5.2, factorRaton: 0.78, monedasPorCaptura: 5 },
+    { nombre: "Normal", velGato: 5.6, factorRaton: 0.92, monedasPorCaptura: 8 },
+    { nombre: "Difícil", velGato: 6.0, factorRaton: 1.05, monedasPorCaptura: 12 }
+];
+
+const SKINS = [
+    { emoji: "🐱", nombre: "Gato Clásico", precio: 0, velocidad: 1.0, costoMejora: 80, descripcion: "Cazador ágil equilibrado." },
+    { emoji: "🐈‍⬛", nombre: "Sombra Nocturna", precio: 120, velocidad: 1.06, costoMejora: 110, descripcion: "Sigiloso y rápido en giros." },
+    { emoji: "🐯", nombre: "Tigre Bengala", precio: 280, velocidad: 1.12, costoMejora: 140, descripcion: "Depredador veloz de la selva." },
+    { emoji: "🦁", nombre: "León Dorado", precio: 550, velocidad: 1.18, costoMejora: 180, descripcion: "Rey de la caza con gran impulso." },
+    { emoji: "🐆", nombre: "Guepardo Turbo", precio: 950, velocidad: 1.25, costoMejora: 220, descripcion: "Velocidad extrema en persecución." },
+    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, descripcion: "El gato legendario de nariz rosada." },
+    { emoji: "tate_sombrero", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, descripcion: "Forjado en la Prueba del Infierno." },
+    { emoji: "tate_facilier", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, descripcion: "Maestro del vudú y las cartas." }
+];
+
+const MISIONES = [
+    { id: "cap_10", titulo: "Primeros pasos", desc: "Consigue 10 capturas totales", meta: 10, tipo: "capturas", premio: 60 },
+    { id: "cap_50", titulo: "Cazador experto", desc: "Consigue 50 capturas totales", meta: 50, tipo: "capturas", premio: 180 },
+    { id: "cap_150", titulo: "Leyenda felina", desc: "Consigue 150 capturas totales", meta: 150, tipo: "capturas", premio: 450 },
+    { id: "rec_20", titulo: "Reflejos rápidos", desc: "Alcanza un récord de 20 puntos", meta: 20, tipo: "record", premio: 150 },
+    { id: "rec_40", titulo: "Imparable", desc: "Alcanza un récord de 40 puntos", meta: 40, tipo: "record", premio: 400 },
+    { id: "win_1v1", titulo: "Duelista Online", desc: "Gana 1 partida en Duelo 1v1", meta: 1, tipo: "1v1", premio: 200 }
+];
+
+// --- ALMACENAMIENTO LOCAL ---
+let sesion = null;
+function claveAlmacen(k) {
+    return sesion ? `gc_${sesion.uid}_${k}` : `gc_local_${k}`;
+}
+function leerNumero(k) {
+    return Number(localStorage.getItem(claveAlmacen(k))) || 0;
+}
+function leerTexto(k, def) {
+    return localStorage.getItem(claveAlmacen(k)) || def;
+}
+function leerLista(k, def) {
+    try {
+        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
+        return Array.isArray(v) ? v : def;
+    } catch (e) { return def; }
+}
+function leerObjeto(k, def) {
+    try {
+        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
+        return v && typeof v === "object" && !Array.isArray(v) ? v : def;
+    } catch (e) { return def; }
+}
+function guardarLocal(k, v) {
+    try { localStorage.setItem(claveAlmacen(k), v); } catch (e) {}
+}
+function guardar(k, v) {
+    guardarLocal(k, v);
+    guardarLocal("actualizado", Date.now());
+    programarSubidaNube();
+}
+
+// --- VARIABLES DE ESTADO ---
+let record = leerNumero("record");
+let monedas = leerNumero("monedas");
+let capturasTotales = leerNumero("capturasTotales");
+let victorias1v1 = leerNumero("victorias1v1");
+let misionesReclamadas = leerObjeto("misionesReclamadas", {});
+let experienciaRaton = leerNumero("experienciaRaton");
+let dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
+let velocidadGato = DIFICULTADES[dificultad - 1].velGato;
+let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
+if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
+let nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
+let skinActual = leerTexto("skin", "🐱");
+if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
+
+let sonidoActivo = leerTexto("sonido", "1") === "1";
+let musicaActiva = leerTexto("musica", "1") === "1";
+
+let juegoIniciado = false;
+let pausado = false;
+let animacionId = null;
+let tiempo = DURACION_PARTIDA;
+let puntos = 0;
+let nivel = 1;
+let monedasPartida = 0;
+let ultimoTimestamp = null;
+let ultimoSegundoMostrado = null;
+
+// Estados Multijugador / Jefes
+let modoMulti = false;
+let modoJefeFacilier = false;
+let rolMulti = null;
+let esAnfitrionMulti = false;
+let salaId = null;
+let enFlujoMulti = false;
+let desuscribirSala = null;
+let desuscribirRival = null;
+let skinGatoSala = "🐱";
+let ganadoraMulti = null;
+let destinoRemoto = { x: 100, y: 200 };
+let ultimaPosEnviada = { x: -1, y: -1 };
+let ultimoSegundoEnviado = -1;
+let ultimaSyncRed = 0;
+let errorSyncMostrado = false;
+
+const gato = { x: 280, y: 180, w: 36, h: 36 };
+const raton = { x: 100, y: 100, w: 28, h: 28, accionActual: null };
+const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
+const toque = { activo: false, x: 0, y: 0 };
+const cacheImagenesSkins = {};
+const cacheDataUrlSkins = {};
+
+// ============================================================
+//  AUDIO SINTETIZADO (WEB AUDIO API)
+// ============================================================
+let audioCtx = null;
+let intervaloMusica = null;
+
+function prepararAudio() {
+    if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
     }
 }
 
-const badgeInfierno = document.getElementById("badge-tate-infierno");
-if (badgeInfierno) {
-    badgeInfierno.style.display = skinsCompradas.includes("tate_sombrero") ? "inline-block" : "none";
+function sonar(tipo) {
+    if (!sonidoActivo) return;
+    prepararAudio();
+    if (!audioCtx) return;
+
+    const ahora = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (tipo === "captura") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520, ahora);
+        osc.frequency.exponentialRampToValueAtTime(880, ahora + 0.11);
+        gain.gain.setValueAtTime(0.14, ahora);
+        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.12);
+        osc.start(ahora);
+        osc.stop(ahora + 0.12);
+    } else if (tipo === "nivel" || tipo === "record" || tipo === "compra") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(440, ahora);
+        osc.frequency.setValueAtTime(554, ahora + 0.08);
+        osc.frequency.setValueAtTime(659, ahora + 0.16);
+        gain.gain.setValueAtTime(0.15, ahora);
+        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.3);
+        osc.start(ahora);
+        osc.stop(ahora + 0.3);
+    } else if (tipo === "error") {
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(180, ahora);
+        osc.frequency.linearRampToValueAtTime(110, ahora + 0.22);
+        gain.gain.setValueAtTime(0.14, ahora);
+        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.23);
+        osc.start(ahora);
+        osc.stop(ahora + 0.23);
+    } else {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(600, ahora);
+        gain.gain.setValueAtTime(0.08, ahora);
+        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.07);
+        osc.start(ahora);
+        osc.stop(ahora + 0.07);
+    }
 }
 
-const badgeFacilier = document.getElementById("badge-tate-facilier");
-if (badgeFacilier) {
-    badgeFacilier.style.display = skinsCompradas.includes("tate_facilier") ? "inline-block" : "none";
+function sincronizarMusica() {
+    const debeSonar = musicaActiva && juegoIniciado && !pausado;
+    if (debeSonar && !intervaloMusica) {
+        const notas = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
+        let paso = 0;
+        intervaloMusica = setInterval(() => {
+            if (!musicaActiva || !juegoIniciado || pausado || !audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.value = notas[paso % notas.length];
+            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0008, audioCtx.currentTime + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.23);
+            paso++;
+        }, 280);
+    } else if (!debeSonar && intervaloMusica) {
+        clearInterval(intervaloMusica);
+        intervaloMusica = null;
+    }
 }
 
-const elementoRecord = document.getElementById("record-valor");
-if (elementoRecord) elementoRecord.innerText = record;
-const elCapturas = document.getElementById("capturas-totales-valor");
-if (elCapturas) elCapturas.innerText = capturasTotales;
-sincronizarMonedasUI();
-renderizarMisiones();
+// ============================================================
+//  UI, TOASTS, MISIONES Y BARRA IA
+// ============================================================
+let timerToast = null;
+function mostrarLogro(texto) {
+    const el = document.getElementById("toast-logro");
+    if (!el) return;
+    el.textContent = texto;
+    el.classList.add("visible");
+    clearTimeout(timerToast);
+    timerToast = setTimeout(() => el.classList.remove("visible"), 3000);
+}
+
+function sincronizarMonedasUI() {
+    ["monedas-header", "monedas-tienda", "monedas-valor"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = monedas;
+    });
+}
+
+function abrirMisiones() {
+    renderizarMisiones();
+    cambiarPantalla("menu-misiones");
+}
+
+function renderizarMisiones() {
+    const lista = document.getElementById("lista-misiones");
+    if (!lista) return;
+    lista.textContent = "";
+
+    MISIONES.forEach((m) => {
+        let actual = 0;
+        if (m.tipo === "capturas") actual = capturasTotales;
+        if (m.tipo === "record") actual = record;
+        if (m.tipo === "1v1") actual = victorias1v1;
+
+        const completada = actual >= m.meta;
+        const reclamada = Boolean(misionesReclamadas[m.id]);
+
+        const card = document.createElement("div");
+        card.className = "tarjeta-mision";
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong>${m.titulo}</strong>
+                <span style="color:var(--accent-gold); font-weight:800;">+${m.premio} 🪙</span>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin:4px 0 8px;">${m.desc} (${Math.min(actual, m.meta)}/${m.meta})</div>
+        `;
+
+        const btn = document.createElement("button");
+        btn.className = reclamada ? "tactical-btn" : (completada ? "tactical-btn btn-green" : "tactical-btn");
+        btn.disabled = reclamada || !completada;
+        btn.textContent = reclamada ? "✅ RECLAMADA" : (completada ? `🎁 RECLAMAR ${m.premio} 🪙` : "EN PROGRESO");
+        btn.onclick = () => {
+            if (!completada || misionesReclamadas[m.id]) return;
+            misionesReclamadas[m.id] = true;
+            monedas += m.premio;
+            guardar("misionesReclamadas", JSON.stringify(misionesReclamadas));
+            guardar("monedas", monedas);
+            sonar("compra");
+            mostrarLogro(`🎁 +${m.premio} Gatomonedas reclamadas`);
+            actualizarNivelVisualIA();
+        };
+
+        card.appendChild(btn);
+        lista.appendChild(card);
+    });
+}
+
+function actualizarNivelVisualIA() {
+    const nivelIA = Math.min(10, Math.floor(experienciaRaton / 25) + 1);
+    const elNivel = document.getElementById("ia-nivel-texto");
+    if (elNivel) elNivel.textContent = `LVL ${nivelIA}/10`;
+    const elStats = document.getElementById("ia-stats-texto");
+    if (elStats) elStats.textContent = `Partidas simuladas: ${partidasEntrenadas} · Exp: ${experienciaRaton}`;
+
+    const contenedor = document.getElementById("ia-barra-segmentos");
+    if (contenedor) {
+        contenedor.textContent = "";
+        for (let i = 1; i <= 10; i++) {
+            const seg = document.createElement("div");
+            seg.className = "ia-seg" + (i <= nivelIA ? " activo" : "");
+            contenedor.appendChild(seg);
+        }
+    }
+
+    const badgeInfierno = document.getElementById("badge-tate-infierno");
+    if (badgeInfierno) {
+        badgeInfierno.style.display = skinsCompradas.includes("tate_sombrero") ? "inline-block" : "none";
+    }
+
+    const badgeFacilier = document.getElementById("badge-tate-facilier");
+    if (badgeFacilier) {
+        badgeFacilier.style.display = skinsCompradas.includes("tate_facilier") ? "inline-block" : "none";
+    }
+
+    const elementoRecord = document.getElementById("record-valor");
+    if (elementoRecord) elementoRecord.innerText = record;
+    const elCapturas = document.getElementById("capturas-totales-valor");
+    if (elCapturas) elCapturas.innerText = capturasTotales;
+    sincronizarMonedasUI();
+    renderizarMisiones();
 }
 
 function actualizarMarcador() {
@@ -158,7 +1031,6 @@ function intentarDueloFacilier() {
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
 
-    // Tú controlas al ratón en el centro; Tate Dr. Facilier empieza en una esquina
     raton.x = canvas.width / 2 - raton.w / 2;
     raton.y = canvas.height / 2 - raton.h / 2;
     gato.x = 30;
@@ -192,7 +1064,6 @@ function actualizarRatonJugadorVudu(f) {
 }
 
 function actualizarJefeFacilier(f) {
-    // Tate Dr. Facilier te persigue y acelera ligeramente en los últimos 20 segundos
     const boostFinal = tiempo <= 20 ? 0.55 : 0;
     const velJefe = VELOCIDAD_JEFE_FACILIER_BASE + boostFinal;
 
@@ -1072,7 +1943,6 @@ function dibujarEfectoFacilier(x, y) {
     const t = Date.now() * 0.005;
 
     ctx.save();
-    // Aura vudú morada y verde
     const grad = ctx.createRadialGradient(cx, cy, 6, cx, cy, 48);
     grad.addColorStop(0, "rgba(168, 85, 247, 0.48)");
     grad.addColorStop(0.65, "rgba(34, 197, 94, 0.22)");
@@ -1082,7 +1952,6 @@ function dibujarEfectoFacilier(x, y) {
     ctx.arc(cx, cy, 48, 0, Math.PI * 2);
     ctx.fill();
 
-    // 4 cartas flotantes girando en órbita
     const palos = ["♠", "♦", "♣", "♥"];
     for (let i = 0; i < 4; i++) {
         const ang = t + (i * Math.PI) / 2;
@@ -1104,7 +1973,6 @@ function dibujarEfectoFacilier(x, y) {
         ctx.restore();
     }
 
-    // Sombrero de copa vudú con cinta morada y calavera verde
     const hatY = y - 6 + Math.sin(t * 1.5) * 1.5;
     ctx.fillStyle = "#141418";
     ctx.strokeStyle = "#a855f7";
@@ -1300,8 +2168,6 @@ const PREGUNTAS_INFIERNO = [
 
 let patronEntrada = [];
 let ultimaEntradaPatron = 0;
-let toquesFoto = 0;
-let ultimoToqueFoto = 0;
 let toquesFacilier = 0;
 let ultimoToqueFacilier = 0;
 let quiz = null;
@@ -1315,25 +2181,6 @@ function verificarRequisitosInfierno() {
     if (capturasTotales < 250) faltan.push(`4. 250+ capturas totales (tienes ${capturasTotales})`);
     if (monedas < 3000) faltan.push(`5. Tener 3000 🪙 de tributo (tienes ${monedas})`);
     return faltan;
-}
-
-function toqueSecretoFoto() {
-    const ahora = Date.now();
-    if (ahora - ultimoToqueFoto > 1500) toquesFoto = 0;
-    ultimoToqueFoto = ahora;
-    toquesFoto++;
-    if (toquesFoto >= 5) {
-        toquesFoto = 0;
-        if (!skinsCompradas.includes("tate")) {
-            abrirQuiz("tate");
-        } else if (!skinsCompradas.includes("tate_sombrero")) {
-            intentarRitualInfierno();
-        } else if (!skinsCompradas.includes("tate_facilier")) {
-            intentarDueloFacilier();
-        } else {
-            mostrarLogro("🎩🃏 Ya tienes a los 3 Tates secretos");
-        }
-    }
 }
 
 function toqueSecretoFacilier() {
@@ -2262,16 +3109,6 @@ async function cerrarSesion() {
     mostrarLogro("Sesión cerrada");
 }
 
-function botonSesion() {
-    if (sesion) cerrarSesion();
-}
-
-function jugarSinCuenta() {
-    guardar("invitado", "1");
-    entrarAlMenu();
-    mostrarLogro("Modo invitado activo");
-}
-
 function alCambiarSesion(usuario) {
     if (accionEnCurso || juegoIniciado || enFlujoMulti) return;
     if (usuario && !usuario.isAnonymous) {
@@ -2303,3 +3140,6 @@ actualizarNivelVisualIA();
 actualizarSesionUI();
 cambiarPantalla("menu-inicio");
 prepararNube();
+</script>
+</body>
+</html>
