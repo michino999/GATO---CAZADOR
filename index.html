@@ -274,7 +274,7 @@
             border-top: 3px solid var(--accent-orange);
             border-radius: 8px;
             padding: 24px;
-            max-width: 520px;
+            max-width: 580px;
             width: 94%;
             margin: 26px auto;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
@@ -282,13 +282,44 @@
         }
         .menu-panel h2 { margin-top: 0; font-family: 'Press Start 2P', monospace; font-size: 1rem; color: #fff; }
 
-        #lista-tienda { max-height: 50vh; overflow-y: auto; padding-right: 4px; text-align: left; }
+        #lista-tienda { max-height: 55vh; overflow-y: auto; padding-right: 4px; text-align: left; }
         .tarjeta-skin {
             background: var(--panel-alt);
             border: 1px solid var(--panel-border);
             border-radius: 6px;
             padding: 12px;
             margin: 10px 0;
+            transition: border-color 0.2s;
+        }
+        .tarjeta-skin.equipada { border-color: var(--accent-green); }
+
+        .skin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .skin-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #070b14;
+            border: 2px solid var(--accent-cyan);
+            padding: 3px;
+            flex-shrink: 0;
+        }
+        .skin-fallback {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #070b14;
+            border: 2px solid var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            flex-shrink: 0;
         }
 
         /* TABLÓN DE MISIONES */
@@ -434,13 +465,12 @@
         <span style="font-size: 1.6rem;">🐱</span>
         <div>
             <h1 class="brand-title pixel-font">GATO CAZADOR</h1>
-            <div class="brand-sub">● SISTEMA ARCADE // V24 CRT + CONTRATOS</div>
+            <div class="brand-sub">● SISTEMA ARCADE // V25 CRT + PERSONAJES HD</div>
         </div>
     </div>
 
     <div class="stats-bar">
         <div class="stat-pill" title="Gatomonedas">
-            <!-- Gatomoneda Oficial SVG -->
             <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true">
                 <defs>
                     <radialGradient id="goldGrad" cx="35%" cy="30%" r="70%">
@@ -521,7 +551,7 @@
                     <span class="badge badge-green">MEJORAS LVL 5</span>
                 </div>
                 <h3 style="margin:0 0 4px; font-size:1rem;">TIENDA Y MEJORAS</h3>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Mejora a tu personaje hasta LVL 5 (+velocidad y +monedas).</p>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Equipa tus personajes HD y súbelos hasta LVL 5 (+vel y +monedas).</p>
             </div>
 
             <div class="tactical-card" onclick="abrirMisiones()" style="border-color: rgba(247, 181, 0, 0.45);">
@@ -565,7 +595,6 @@
                 Guarda tu progreso en la nube y sincroniza tus monedas y récords.
             </p>
 
-            <!-- Formulario rápido integrado -->
             <div id="form-cuenta-integrado">
                 <label style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">NOMBRE DE CAZADOR / ALIAS</label>
                 <input id="login-nombre" class="tactical-input" type="text" placeholder="FELINO_ALPHA" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false" onkeydown="if (event.key === 'Enter') iniciarSesion()">
@@ -582,7 +611,6 @@
                 <button class="tactical-btn" style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;" onclick="jugarSinCuenta()">JUGAR SIN CUENTA (INVITADO)</button>
             </div>
 
-            <!-- Vista cuando ya inició sesión -->
             <div id="panel-cuenta-activa" style="display:none;">
                 <button id="btn-sesion" class="tactical-btn btn-danger" onclick="botonSesion()">CERRAR SESIÓN</button>
             </div>
@@ -732,7 +760,7 @@
     <div><span class="keycap">W</span> <span class="keycap">A</span> <span class="keycap">S</span> <span class="keycap">D</span> / FLECHAS — Moverse</div>
     <div><span class="keycap">P</span> — Pausar juego</div>
     <div>📱 MÓVIL: Mantén el dedo en la pantalla</div>
-    <div style="color:var(--accent-green); font-weight:700;">CRT-SCAN-60HZ • V24</div>
+    <div style="color:var(--accent-green); font-weight:700;">CRT-SCAN-60HZ • V25</div>
 </footer>
 
 <div id="logro"></div>
@@ -740,7 +768,7 @@
 <script src="firebase-config.js"></script>
 <script>
 // ============================================================
-//  GATO CAZADOR - Red Neuronal DQN + Mejoras + Tate Infierno + Misiones + 1v1
+//  GATO CAZADOR - Red Neuronal DQN + Personajes HD + Misiones + 1v1
 // ============================================================
 const canvas = document.getElementById("juego");
 const ctx = canvas.getContext("2d");
@@ -764,17 +792,114 @@ const DIFICULTADES = [
 const VELOCIDAD_TATE = 2;
 const VELOCIDAD_TATE_SOMBRERO = 2.45;
 
+// Lista de personajes con sus imágenes y descripciones
 const SKINS = [
-    { emoji: "🐱", nombre: "Gato",     precio: 0,    costoMejora: 80,   velocidad: 1 },
-    { emoji: "🐯", nombre: "Tigre",    precio: 100,  costoMejora: 120,  velocidad: 1 },
-    { emoji: "🐆", nombre: "Leopardo", precio: 200,  costoMejora: 180,  velocidad: 1.05 },
-    { emoji: "🦊", nombre: "Zorro",    precio: 300,  costoMejora: 240,  velocidad: 1.08 },
-    { emoji: "🦁", nombre: "León",     precio: 500,  costoMejora: 350,  velocidad: 1.1 },
-    { emoji: "🐺", nombre: "Lobo",     precio: 800,  costoMejora: 500,  velocidad: 1.12 },
-    { emoji: "🐲", nombre: "Dragón",   precio: 1500, costoMejora: 800,  velocidad: 1.15 },
-    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, costoMejora: 1200, velocidad: VELOCIDAD_TATE, secreta: true, imagen: "tate.png" },
-    { emoji: "tate_sombrero", icono: "🎩", nombre: "Tate con Sombrero", precio: 0, costoMejora: 2500, velocidad: VELOCIDAD_TATE_SOMBRERO, secreta: true, imagen: "tate.png", sombrero: true }
+    { emoji: "🐱", nombre: "Gato",     precio: 0,    costoMejora: 80,   velocidad: 1,    archivoBase: "gato",     sinFondo: true, descripcion: "Cazador urbano ágil y equilibrado con collar neón." },
+    { emoji: "🐯", nombre: "Tigre",    precio: 100,  costoMejora: 120,  velocidad: 1,    archivoBase: "tigre",    sinFondo: true, descripcion: "Depredador de rayas incandescentes y mirada ámbar." },
+    { emoji: "🐆", nombre: "Leopardo", precio: 200,  costoMejora: 180,  velocidad: 1.05, archivoBase: "leopardo", sinFondo: true, descripcion: "Velocista sigiloso (+5% vel. base) en persecuciones." },
+    { emoji: "🦊", nombre: "Zorro",    precio: 300,  costoMejora: 240,  velocidad: 1.08, archivoBase: "zorro",    sinFondo: true, descripcion: "Estratega astuto (+8% vel. base) con reflejos cian." },
+    { emoji: "🦁", nombre: "León",     precio: 500,  costoMejora: 350,  velocidad: 1.1,  archivoBase: "leon",     sinFondo: true, descripcion: "Rey del circuito arcade (+10% vel. base)." },
+    { emoji: "🐺", nombre: "Lobo",     precio: 800,  costoMejora: 500,  velocidad: 1.12, archivoBase: "lobo",     sinFondo: true, descripcion: "Rastreador cibernético nocturno (+12% vel. base)." },
+    { emoji: "🐲", nombre: "Dragón",   precio: 1500, costoMejora: 800,  velocidad: 1.15, archivoBase: "dragon",   sinFondo: true, descripcion: "Bestia mecánica de élite (+15% vel. base)." },
+    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, costoMejora: 1200, velocidad: VELOCIDAD_TATE, secreta: true, archivoBase: "tate", sinFondo: false, descripcion: "El felino legendario secreto (+100% vel. base)." },
+    { emoji: "tate_sombrero", icono: "🎩", nombre: "Tate con Sombrero", precio: 0, costoMejora: 2500, velocidad: VELOCIDAD_TATE_SOMBRERO, secreta: true, archivoBase: "tate", sombrero: true, sinFondo: false, descripcion: "Superviviente de la Prueba del Infierno (+145% vel. base)." }
 ];
+
+// ============================================================
+//  SISTEMA DE IMÁGENES + LIMPIEZA AUTOMÁTICA DE FONDO BLANCO
+// ============================================================
+const cacheImagenesSkins = {};
+const cacheDataUrlSkins = {};
+
+function quitarFondoBlanco(img, tolerancia = 36) {
+    const c = document.createElement("canvas");
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const cx = c.getContext("2d");
+    cx.drawImage(img, 0, 0);
+
+    const imgData = cx.getImageData(0, 0, c.width, c.height);
+    const data = imgData.data;
+    const w = c.width;
+    const h = c.height;
+    const visitado = new Uint8Array(w * h);
+
+    function esFondoBlanco(idx) {
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2], a = data[idx + 3];
+        if (a < 10) return true;
+        return r >= 255 - tolerancia && g >= 255 - tolerancia && b >= 255 - tolerancia;
+    }
+
+    const cola = [];
+    for (let x = 0; x < w; x++) cola.push(x, (h - 1) * w + x);
+    for (let y = 0; y < h; y++) cola.push(y * w, y * w + (w - 1));
+
+    while (cola.length > 0) {
+        const pos = cola.pop();
+        if (visitado[pos]) continue;
+        visitado[pos] = 1;
+
+        const idx = pos * 4;
+        if (!esFondoBlanco(idx)) continue;
+
+        data[idx + 3] = 0;
+
+        const x = pos % w;
+        const y = (pos / w) | 0;
+        if (x > 0 && !visitado[pos - 1]) cola.push(pos - 1);
+        if (x < w - 1 && !visitado[pos + 1]) cola.push(pos + 1);
+        if (y > 0 && !visitado[pos - w]) cola.push(pos - w);
+        if (y < h - 1 && !visitado[pos + w]) cola.push(pos + w);
+    }
+
+    cx.putImageData(imgData, 0, 0);
+    return c;
+}
+
+// Prueba automáticamente .png, .jpg, .jpeg, .webp y mayúsculas por si el archivo tiene otra extensión en GitHub
+function registrarImagenPersonaje(clave, archivoBase, quitarBlanco = true) {
+    if (!archivoBase || cacheImagenesSkins[clave]) return;
+    const candidatos = [
+        `${archivoBase}.png`,
+        `${archivoBase}.jpg`,
+        `${archivoBase}.jpeg`,
+        `${archivoBase}.webp`,
+        `${archivoBase.toUpperCase()}.PNG`,
+        `${archivoBase.toUpperCase()}.JPG`
+    ];
+    let indice = 0;
+
+    function intentarSiguiente() {
+        if (indice >= candidatos.length) return;
+        const ruta = candidatos[indice++];
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            if (quitarBlanco) {
+                try {
+                    const limpia = quitarFondoBlanco(img);
+                    cacheImagenesSkins[clave] = limpia;
+                    cacheDataUrlSkins[clave] = limpia.toDataURL("image/png");
+                } catch (e) {
+                    cacheImagenesSkins[clave] = img;
+                    cacheDataUrlSkins[clave] = ruta;
+                }
+            } else {
+                cacheImagenesSkins[clave] = img;
+                cacheDataUrlSkins[clave] = ruta;
+            }
+            actualizarBotonesTienda();
+        };
+        img.onerror = intentarSiguiente;
+        img.src = ruta;
+    }
+
+    intentarSiguiente();
+}
+
+SKINS.forEach((s) => {
+    if (s.archivoBase) registrarImagenPersonaje(s.archivoBase, s.archivoBase, Boolean(s.sinFondo));
+});
 
 const FONDOS = ["#000000", "#0b1b3a", "#2a0b3a", "#3a0b0b", "#0b3a1f"];
 const RATONES = ["🐭", "🐹", "🐀", "🐿️"];
@@ -1499,10 +1624,20 @@ function actualizarBotonesTienda() {
         const boton = skin.elemento;
         const btnMejora = skin.botonMejora;
         const infoStats = skin.infoStats;
+        const avatarImg = skin.avatarImg;
+        const avatarFallback = skin.avatarFallback;
         if (!tarjeta || !boton) return;
 
         const poseido = skinsCompradas.includes(skin.emoji);
         tarjeta.style.display = skin.secreta && !poseido ? "none" : "block";
+        tarjeta.classList.toggle("equipada", poseido && skin.emoji === skinActual);
+
+        // Actualiza la foto del personaje si ya cargó y se recortó el fondo
+        if (avatarImg && skin.archivoBase && cacheDataUrlSkins[skin.archivoBase]) {
+            avatarImg.src = cacheDataUrlSkins[skin.archivoBase];
+            avatarImg.style.display = "block";
+            if (avatarFallback) avatarFallback.style.display = "none";
+        }
 
         const simbolo = skin.icono || skin.emoji;
         const nivelPj = obtenerNivelSkin(skin.emoji);
@@ -1510,12 +1645,12 @@ function actualizarBotonesTienda() {
         const monPct = Math.round((bonusMonedasSkin(skin.emoji) - 1) * 100);
 
         if (poseido) {
-            infoStats.textContent = `LVL ${nivelPj}/${MAX_NIVEL_MEJORA} · Vel +${velPct}% · 🪙 +${monPct}%`;
+            infoStats.innerHTML = `<span style="color:#fff;">${skin.nombre.toUpperCase()}</span> · <span style="color:var(--accent-cyan);">LVL ${nivelPj}/${MAX_NIVEL_MEJORA} · Vel +${velPct}% · 🪙 +${monPct}%</span>`;
             if (skin.emoji === skinActual) {
-                boton.textContent = `${simbolo} EQUIPADO: ${skin.nombre.toUpperCase()}`;
+                boton.textContent = `${simbolo} EQUIPADO`;
                 boton.className = "tactical-btn btn-green";
             } else {
-                boton.textContent = `${simbolo} EQUIPAR ${skin.nombre.toUpperCase()}`;
+                boton.textContent = `${simbolo} EQUIPAR A ${skin.nombre.toUpperCase()}`;
                 boton.className = "tactical-btn";
             }
 
@@ -1534,8 +1669,9 @@ function actualizarBotonesTienda() {
             }
         } else {
             const basePct = Math.round((skin.velocidad - 1) * 100);
-            infoStats.textContent = basePct > 0 ? `Base: +${basePct}% velocidad` : "Personaje desbloqueable";
-            boton.textContent = `${simbolo} COMPRAR ${skin.nombre.toUpperCase()} (${skin.precio} 🪙)`;
+            const extra = basePct > 0 ? ` · Base +${basePct}% vel` : "";
+            infoStats.innerHTML = `<span style="color:#fff;">${skin.nombre.toUpperCase()}</span> <span style="color:var(--accent-gold);">${extra}</span>`;
+            boton.textContent = `${simbolo} DESBLOQUEAR (${skin.precio} 🪙)`;
             boton.className = "tactical-btn";
             if (btnMejora) btnMejora.style.display = "none";
         }
@@ -1550,11 +1686,36 @@ function construirTienda() {
         const tarjeta = document.createElement("div");
         tarjeta.className = "tarjeta-skin";
 
+        const header = document.createElement("div");
+        header.className = "skin-header";
+
+        const avatarImg = document.createElement("img");
+        avatarImg.className = "skin-avatar";
+        avatarImg.alt = skin.nombre;
+        avatarImg.style.display = "none";
+
+        const avatarFallback = document.createElement("div");
+        avatarFallback.className = "skin-fallback";
+        avatarFallback.textContent = skin.icono || skin.emoji;
+
+        const textoBox = document.createElement("div");
+        textoBox.style.flex = "1";
+
         const infoStats = document.createElement("div");
-        infoStats.style.fontSize = "0.78rem";
-        infoStats.style.marginBottom = "6px";
-        infoStats.style.color = "var(--accent-cyan)";
+        infoStats.style.fontSize = "0.82rem";
         infoStats.style.fontWeight = "700";
+
+        const desc = document.createElement("div");
+        desc.style.fontSize = "0.75rem";
+        desc.style.color = "var(--text-muted)";
+        desc.style.marginTop = "2px";
+        desc.textContent = skin.descripcion || "";
+
+        textoBox.appendChild(infoStats);
+        textoBox.appendChild(desc);
+        header.appendChild(avatarImg);
+        header.appendChild(avatarFallback);
+        header.appendChild(textoBox);
 
         const boton = document.createElement("button");
         boton.className = "tactical-btn";
@@ -1564,7 +1725,7 @@ function construirTienda() {
         btnMejora.className = "tactical-btn";
         btnMejora.onclick = () => mejorarSkin(skin.emoji);
 
-        tarjeta.appendChild(infoStats);
+        tarjeta.appendChild(header);
         tarjeta.appendChild(boton);
         tarjeta.appendChild(btnMejora);
         lista.appendChild(tarjeta);
@@ -1573,6 +1734,8 @@ function construirTienda() {
         skin.elemento = boton;
         skin.botonMejora = btnMejora;
         skin.infoStats = infoStats;
+        skin.avatarImg = avatarImg;
+        skin.avatarFallback = avatarFallback;
     });
     actualizarBotonesTienda();
 }
@@ -1589,7 +1752,7 @@ function comprarOEquipar(emoji, precio) {
         guardar("skinsCompradas", JSON.stringify(skinsCompradas));
         guardar("nivelesSkins", JSON.stringify(nivelesSkins));
         sonar("compra");
-        equiparSkin(emoji, "¡Compra exitosa! Skin equipada: " + emoji);
+        equiparSkin(emoji, "¡Compra exitosa! Personaje equipado");
     } else {
         sonar("error");
         mostrarLogro(`Te faltan ${precio - monedas} Gatomonedas`);
@@ -1629,8 +1792,8 @@ function equiparSkin(emoji, mensaje) {
     const nivelPj = obtenerNivelSkin(emoji);
     const extra = bonusSkin() > 1 ? ` (LVL ${nivelPj} · +${Math.round((bonusSkin() - 1) * 100)}% vel)` : "";
     const info = SKINS.find((s) => s.emoji === emoji);
-    const simbolo = info && info.icono ? info.icono : emoji;
-    mostrarLogro((mensaje || "Equipado: " + simbolo) + extra);
+    const nombre = info ? info.nombre : emoji;
+    mostrarLogro((mensaje || "Equipado: " + nombre) + extra);
 }
 
 // --- LÓGICA DE MOVIMIENTO ---
@@ -2065,9 +2228,6 @@ function gameLoop(timestamp) {
     }
 }
 
-const imagenTate = typeof Image !== "undefined" ? new Image() : null;
-if (imagenTate) imagenTate.src = "tate.png";
-
 function dibujarSombreroElegante(x, y) {
     ctx.save();
     ctx.fillStyle = "#181818";
@@ -2083,17 +2243,15 @@ function dibujarSombreroElegante(x, y) {
 function dibujarGato() {
     const skinId = modoMulti ? skinGatoSala : skinActual;
     const skin = SKINS.find((s) => s.emoji === skinId);
-    if (skin && skin.imagen) {
-        if (imagenTate && imagenTate.complete && imagenTate.naturalWidth > 0) {
-            ctx.drawImage(imagenTate, gato.x, gato.y - 2, 40, 40);
-        } else {
-            ctx.fillText(skin.icono || "🐱", gato.x, gato.y + 35);
-        }
+    const recurso = skin && skin.archivoBase ? cacheImagenesSkins[skin.archivoBase] : null;
+
+    if (recurso) {
+        ctx.drawImage(recurso, gato.x - 6, gato.y - 6, 48, 48);
         if (skin.sombrero) {
             dibujarSombreroElegante(gato.x, gato.y);
         }
     } else {
-        ctx.fillText(skinId || "🐱", gato.x, gato.y + 35);
+        ctx.fillText((skin && skin.icono) || skinId || "🐱", gato.x, gato.y + 35);
     }
 }
 
