@@ -1,771 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GATO CAZADOR</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="firebase-config.js" onerror="window.FIREBASE_CONFIG_USUARIO=null;"></script>
-    <style>
-        :root {
-            --bg-main: #060911;
-            --bg-panel: #0d1322;
-            --bg-card: #161f33;
-            --border-color: #26334d;
-            --accent-gold: #f59e0b;
-            --accent-gold-light: #fbbf24;
-            --accent-cyan: #38bdf8;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-purple: #a855f7;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* BARRA SUPERIOR */
-        .top-bar {
-            width: 100%;
-            max-width: 1120px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            background: rgba(13, 19, 34, 0.92);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            backdrop-filter: blur(8px);
-        }
-
-        .brand {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 0.95rem;
-            color: var(--accent-gold-light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: 1px;
-        }
-
-        .brand-logo {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            image-rendering: pixelated;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .nav-link-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: 0.15s;
-            letter-spacing: 0.03em;
-        }
-
-        .nav-link-btn:hover, .nav-link-btn.active {
-            background: var(--bg-card);
-            color: var(--text-main);
-            border-color: var(--border-color);
-        }
-
-        .monedas-pill {
-            background: rgba(245, 158, 11, 0.14);
-            border: 1px solid rgba(245, 158, 11, 0.55);
-            color: var(--accent-gold-light);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* CONTENEDOR PRINCIPAL */
-        .app-container {
-            width: 100%;
-            max-width: 1040px;
-            padding: 36px 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* MENÚ INICIO GRID */
-        #menu-inicio {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1.25fr 0.85fr;
-            gap: 22px;
-            align-items: start;
-        }
-
-        @media (max-width: 820px) {
-            #menu-inicio {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel-box {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-        }
-
-        .panel-sub {
-            width: 100%;
-            max-width: 560px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-        }
-
-        .tactical-btn {
-            width: 100%;
-            padding: 13px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.15s, border-color 0.15s;
-            margin-top: 10px;
-            letter-spacing: 0.02em;
-        }
-
-        .tactical-btn:hover:not(:disabled) {
-            border-color: var(--accent-cyan);
-            transform: translateY(-1px);
-        }
-
-        .tactical-btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        .btn-gold {
-            background: linear-gradient(180deg, #f59e0b, #d97706);
-            color: #090d16;
-            border-color: #fbbf24;
-            font-weight: 800;
-        }
-
-        .btn-green {
-            background: rgba(34, 197, 94, 0.18);
-            border-color: var(--accent-green);
-            color: #4ade80;
-        }
-
-        .btn-cyan {
-            background: rgba(14, 116, 144, 0.25);
-            border-color: #0284c7;
-            color: #7dd3fc;
-        }
-
-        .btn-peach {
-            background: rgba(251, 146, 60, 0.18);
-            border-color: #fb923c;
-            color: #fdba74;
-        }
-
-        .btn-danger {
-            background: rgba(127, 29, 29, 0.35);
-            border-color: #991b1b;
-            color: #fca5a5;
-        }
-
-        /* TARJETAS DE STATS Y BARRA IA */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 18px 0 12px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 16px;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 700;
-        }
-
-        .stat-val {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent-gold-light);
-            margin-top: 6px;
-        }
-
-        .ia-segments {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .ia-seg {
-            flex: 1;
-            height: 7px;
-            border-radius: 99px;
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-
-        .ia-seg.activo {
-            background: var(--accent-cyan);
-            border-color: #7dd3fc;
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.45);
-        }
-
-        /* TIENDA Y MISIONES */
-        .lista-scroll {
-            max-height: 420px;
-            overflow-y: auto;
-            text-align: left;
-            padding-right: 4px;
-            margin: 12px 0;
-        }
-
-        .tarjeta-skin, .tarjeta-mision {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-        }
-
-        .tarjeta-skin.equipada {
-            border-color: var(--accent-green);
-        }
-
-        .skin-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .skin-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            object-fit: contain;
-            background: #090d16;
-            border: 1px solid var(--border-color);
-            padding: 4px;
-            image-rendering: pixelated;
-        }
-
-        .skin-fallback {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            background: #090d16;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-        }
-
-        /* ZONA DE JUEGO */
-        #zona-juego {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        #marcador {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 12px 12px 0 0;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        canvas#juego {
-            width: 100%;
-            max-width: 600px;
-            height: auto;
-            aspect-ratio: 3 / 2;
-            border: 2px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            background: #111827;
-            touch-action: none;
-        }
-
-        /* INPUTS */
-        .tactical-input {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: #060911;
-            color: #fff;
-            font-size: 0.9rem;
-            margin-top: 8px;
-        }
-
-        /* NOTIFICACIÓN FLOTANTE */
-        #toast-logro {
-            position: fixed;
-            bottom: 22px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: #0d1322;
-            border: 1px solid var(--accent-gold-light);
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s, transform 0.25s;
-            z-index: 100;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65);
-            text-align: center;
-        }
-
-        #toast-logro.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .badges-secretos {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 6px 0 4px;
-        }
-
-        .badge-item {
-            font-size: 0.72rem;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            background: rgba(168, 85, 247, 0.16);
-            border: 1px solid #9333ea;
-            color: #e9d5ff;
-        }
-    </style>
-</head>
-<body>
-
-    <header class="top-bar">
-        <div class="brand">
-            <img id="brand-tate-img" src="cat.png" alt="Tate" class="brand-logo" onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
-            <span id="brand-fallback" style="display:none;">🐱</span>
-            <span>GATO CAZADOR</span>
-        </div>
-        <nav class="nav-links">
-            <button id="nav-inicio" class="nav-link-btn active" onclick="volverMenu()">INICIO</button>
-            <button id="nav-misiones" class="nav-link-btn" onclick="abrirMisiones()">MISIONES</button>
-            <button id="nav-tienda" class="nav-link-btn" onclick="abrirTienda()">TIENDA</button>
-            <button id="nav-ajustes" class="nav-link-btn" onclick="abrirAjustes()">AJUSTES</button>
-        </nav>
-        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas">
-            <span>🪙</span>
-            <span id="monedas-header">0</span>
-        </div>
-    </header>
-
-    <main class="app-container">
-
-        <!-- MENÚ PRINCIPAL -->
-        <section id="menu-inicio">
-            <div class="panel-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <span style="font-size:0.75rem; font-weight:800; color:var(--accent-cyan);" id="texto-dificultad-actual">DIFICULTAD: FÁCIL</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);" id="resumen-ajustes"></span>
-                </div>
-
-                <h1 style="margin:12px 0 6px; font-size:1.65rem; font-weight:800;">Centro de Caza</h1>
-                <p style="margin:0; color:var(--text-muted); font-size:0.88rem;">Atrapa al ratón controlado por Red Neuronal antes de que se agote el tiempo.</p>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">🏆 Récord</div>
-                        <div class="stat-val" id="record-valor">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">🐾 Capturas Totales</div>
-                        <div class="stat-val" id="capturas-totales-valor" style="color:var(--accent-cyan);">0</div>
-                    </div>
-                </div>
-
-                <div class="badges-secretos">
-                    <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
-                    <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
-                </div>
-
-                <div style="margin-top:10px;">
-                    <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ JUGAR PARTIDA (60s)</button>
-                    <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y NIVELES</button>
-                        <button class="tactical-btn" onclick="abrirMisiones()">🎯 MISIONES</button>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <!-- PANEL IA -->
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">🧠 RED NEURONAL DEL RATÓN</strong>
-                        <span id="ia-nivel-texto" style="font-size:0.78rem; color:var(--accent-cyan); font-weight:800;">LVL 1</span>
-                    </div>
-                    <p id="ia-stats-texto" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0;">Partidas simuladas: 0 · Exp: 0</p>
-                    <div class="ia-segments" id="ia-barra-segmentos"></div>
-                    <button class="tactical-btn" style="margin-top:14px;" onclick="entrenarIAAcelerado()">⚡ ENTRENAR IA (+50 PARTIDAS)</button>
-                </div>
-
-                <!-- PANEL CUENTA EN LA NUBE -->
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">☁️ GUARDADO EN NUBE</strong>
-                        <span id="estado-cuenta-badge" style="font-size:0.72rem; font-weight:800; color:var(--accent-green);">ESTADO: LOCAL</span>
-                    </div>
-                    <p id="sesion-estado" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0 12px;"></p>
-
-                    <div id="form-cuenta-integrado">
-                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username">
-                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
-                            <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
-                            <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR CUENTA</button>
-                        </div>
-                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;"></p>
-                    </div>
-
-                    <div id="panel-cuenta-activa" style="display:none;">
-                        <button class="tactical-btn btn-danger" onclick="cerrarSesion()">CERRAR SESIÓN</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TIENDA -->
-        <section id="menu-tienda" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">🛒 TIENDA DE CAZADORES</h2>
-            <p style="font-size:0.82rem; color:var(--text-muted);">Saldo disponible: <strong style="color:var(--accent-gold-light);">🪙 <span id="monedas-tienda">0</span></strong></p>
-            <div id="lista-tienda" class="lista-scroll"></div>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
-        </section>
-
-        <!-- MISIONES -->
-        <section id="menu-misiones" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">🎯 MISIONES Y RECOMPENSAS</h2>
-            <div id="lista-misiones" class="lista-scroll"></div>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
-        </section>
-
-        <!-- MULTIJUGADOR -->
-        <section id="menu-multi" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">⚔️ DUELO 1v1 ONLINE</h2>
-            <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 60 segundos.</p>
-            <button class="tactical-btn btn-gold" onclick="crearSalaMulti()">➕ CREAR SALA NUEVA</button>
-            <div style="margin:14px 0; border-top:1px solid var(--border-color); padding-top:12px;">
-                <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
-                <button class="tactical-btn btn-cyan" onclick="unirseSalaMulti()">🔗 UNIRSE A SALA</button>
-            </div>
-            <p id="multi-mensaje" style="font-size:0.8rem; color:var(--accent-gold-light);"></p>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
-        </section>
-
-        <!-- SALA DE ESPERA 1v1 -->
-        <section id="menu-sala" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">SALA DE COMBATE</h2>
-            <div style="font-size:0.8rem; color:var(--text-muted);">Comparte este código con tu rival:</div>
-            <div id="sala-codigo-display" style="font-family:'Press Start 2P', monospace; font-size:1.5rem; color:var(--accent-gold-light); margin:14px 0; letter-spacing:4px;">------</div>
-            <p id="sala-rol-texto" style="font-weight:700;"></p>
-            <p id="sala-estado-texto" style="font-size:0.85rem; color:var(--accent-cyan);">Esperando rival...</p>
-            <button id="btn-iniciar-multi" class="tactical-btn btn-green" style="display:none;" onclick="lanzarPartidaMulti()">🚀 ¡EMPEZAR DUELO!</button>
-            <button class="tactical-btn btn-danger" onclick="salirSalaMulti()">✖ ABANDONAR SALA</button>
-        </section>
-
-        <!-- AJUSTES -->
-        <section id="menu-ajustes" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">⚙️ AJUSTES</h2>
-            <button id="btn-dificultad" class="tactical-btn" onclick="cambiarDificultad()">Dificultad: Fácil</button>
-            <button id="btn-sonido" class="tactical-btn" onclick="cambiarSonido()">Sonido: Sí</button>
-            <button id="btn-musica" class="tactical-btn" onclick="cambiarMusica()">Música: Sí</button>
-            <hr style="border:0; border-top:1px solid var(--border-color); margin:16px 0;">
-            <button class="tactical-btn btn-danger" onclick="borrarProgreso()">🗑️ BORRAR TODO EL PROGRESO</button>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
-        </section>
-
-        <!-- QUIZ SECRETO -->
-        <section id="menu-quiz" class="panel-sub" style="display:none;">
-            <h2 id="quiz-titulo" style="margin-top:0; color:var(--accent-gold-light);">PREGUNTAS SECRETAS</h2>
-            <div id="quiz-foto-tate" style="margin:8px auto; display:none;">
-                <img id="quiz-img-tate" src="cat.png" alt="Tate" style="width:76px; height:76px; object-fit:contain; border-radius:12px; border:2px solid var(--accent-gold-light); background:#060911; padding:4px; image-rendering:pixelated;">
-            </div>
-            <p id="quiz-progreso" style="font-size:0.8rem; color:var(--text-muted);"></p>
-            <p id="quiz-pregunta" style="font-weight:700; font-size:1rem; margin:14px 0;"></p>
-            <div id="quiz-opciones"></div>
-            <p id="quiz-mensaje" style="font-size:0.85rem; font-weight:700; margin-top:10px;"></p>
-            <button class="tactical-btn" style="margin-top:12px;" onclick="salirQuiz()">✖ SALIR</button>
-        </section>
-
-        <!-- ZONA DE JUEGO -->
-        <section id="zona-juego">
-            <div id="marcador">
-                <span id="marcador-rol" style="display:none; color:var(--accent-gold-light);"></span>
-                <span id="marcador-puntos">Puntos: <strong id="puntos-valor" style="color:var(--accent-cyan);">0</strong></span>
-                <span id="marcador-monedas">🪙 <strong id="monedas-valor" style="color:var(--accent-gold-light);">0</strong></span>
-                <span id="marcador-nivel">Nivel: <strong id="nivel-valor">1</strong></span>
-                <span>⏱️ <strong id="tiempo-valor" style="color:#f87171;">60</strong>s</span>
-                <button class="nav-link-btn" style="padding:4px 8px; border-color:var(--border-color);" onclick="volverMenu()">SALIR</button>
-            </div>
-            <canvas id="juego" width="600" height="400"></canvas>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas o WASD (P para pausa) · Celular: Toca o desliza sobre el tablero</p>
-        </section>
-
-        <!-- FIN DE PARTIDA -->
-        <section id="fin-juego" class="panel-sub" style="display:none;">
-            <h2 id="fin-titulo" style="margin-top:0; color:var(--accent-gold-light);">¡TIEMPO AGOTADO!</h2>
-            <p id="fin-subtitulo" style="color:var(--text-muted);"></p>
-            <p id="fin-puntos-linea">Puntos conseguidos: <strong id="puntos-finales" style="color:var(--accent-cyan);">0</strong></p>
-            <p id="fin-monedas-linea">Gatomonedas ganadas: <strong id="monedas-partida" style="color:var(--accent-gold-light);">0</strong> 🪙</p>
-            <p id="fin-record-linea">Récord actual: <strong id="record-final">0</strong></p>
-            <p id="mensaje-record" style="display:none; color:var(--accent-green); font-weight:800;">🎉 ¡NUEVO RÉCORD PERSONAL!</p>
-            <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 JUGAR DE NUEVO</button>
-            <button class="tactical-btn" onclick="volverMenu()">🏠 MENÚ PRINCIPAL</button>
-        </section>
-
-    </main>
-
-    <div id="toast-logro"></div>
-
-<script>
-// ============================================================
-//  CONFIGURACIÓN Y ESTADO GLOBAL
-// ============================================================
-const canvas = document.getElementById("juego");
-const ctx = canvas.getContext("2d");
-
-const DURACION_PARTIDA = 60;
-const CAPTURAS_POR_NIVEL = 5;
-const NIVELES_POR_RATON = 2;
-const BONUS_TIEMPO_NIVEL = 4;
-const RADIO_CAPTURA = 34;
-const DISTANCIA_MIN_APARICION = 140;
-const MAX_NIVEL_MEJORA = 5;
-const TOPE_APRENDIZAJE = 250;
-
-const VELOCIDAD_GATO_1V1 = 5.4;
-const VELOCIDAD_RATON_1V1 = 5.7;
-
-// Balance justo para el Duelo Vudú contra Tate Dr. Facilier
-const VELOCIDAD_RATON_JUGADOR_VUDU = 5.75;
-const VELOCIDAD_JEFE_FACILIER_BASE = 4.35;
-
-const FONDOS = ["#0d1322", "#111827", "#17153b", "#092635", "#1e1b4b"];
-const RATONES = ["🐭", "🐀", "🐹", "🐿️"];
-
-const DIFICULTADES = [
-    { nombre: "Fácil", velGato: 5.2, factorRaton: 0.78, monedasPorCaptura: 5 },
-    { nombre: "Normal", velGato: 5.6, factorRaton: 0.92, monedasPorCaptura: 8 },
-    { nombre: "Difícil", velGato: 6.0, factorRaton: 1.05, monedasPorCaptura: 12 }
-];
-
-const SKINS = [
-    { emoji: "🐱", nombre: "Gato Clásico", precio: 0, velocidad: 1.0, costoMejora: 80, descripcion: "Cazador ágil equilibrado." },
-    { emoji: "🐈‍⬛", nombre: "Sombra Nocturna", precio: 120, velocidad: 1.06, costoMejora: 110, descripcion: "Sigiloso y rápido en giros." },
-    { emoji: "🐯", nombre: "Tigre Bengala", precio: 280, velocidad: 1.12, costoMejora: 140, descripcion: "Depredador veloz de la selva." },
-    { emoji: "🦁", nombre: "León Dorado", precio: 550, velocidad: 1.18, costoMejora: 180, descripcion: "Rey de la caza con gran impulso." },
-    { emoji: "🐆", nombre: "Guepardo Turbo", precio: 950, velocidad: 1.25, costoMejora: 220, descripcion: "Velocidad extrema en persecución." },
-    { emoji: "tate", archivoBase: "cat.png", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, descripcion: "El gato legendario de nariz rosada." },
-    { emoji: "tate_sombrero", archivoBase: "cat.png", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, descripcion: "Forjado en la Prueba del Infierno." },
-    { emoji: "tate_facilier", archivoBase: "cat.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, descripcion: "Maestro del vudú y las cartas." }
-];
-
-const MISIONES = [
-    { id: "cap_10", titulo: "Primeros pasos", desc: "Consigue 10 capturas totales", meta: 10, tipo: "capturas", premio: 60 },
-    { id: "cap_50", titulo: "Cazador experto", desc: "Consigue 50 capturas totales", meta: 50, tipo: "capturas", premio: 180 },
-    { id: "cap_150", titulo: "Leyenda felina", desc: "Consigue 150 capturas totales", meta: 150, tipo: "capturas", premio: 450 },
-    { id: "rec_20", titulo: "Reflejos rápidos", desc: "Alcanza un récord de 20 puntos", meta: 20, tipo: "record", premio: 150 },
-    { id: "rec_40", titulo: "Imparable", desc: "Alcanza un récord de 40 puntos", meta: 40, tipo: "record", premio: 400 },
-    { id: "win_1v1", titulo: "Duelista Online", desc: "Gana 1 partida en Duelo 1v1", meta: 1, tipo: "1v1", premio: 200 }
-];
-
-// ============================================================
-//  CARGADOR DE LA FOTO DE TATE (cat.png)
-// ============================================================
-const cacheImagenesSkins = {};
-const cacheDataUrlSkins = { "cat.png": "cat.png" };
-
-function cargarImagenTate() {
-    const rutasPosibles = ["cat.png", "./cat.png", "Cat.png"];
-    let indice = 0;
-
-    function intentarSiguiente() {
-        if (indice >= rutasPosibles.length) return;
-        const ruta = rutasPosibles[indice++];
-        const img = new Image();
-        img.onload = () => {
-            cacheImagenesSkins["cat.png"] = img;
-            cacheDataUrlSkins["cat.png"] = ruta;
-
-            const brandImg = document.getElementById("brand-tate-img");
-            if (brandImg) {
-                brandImg.src = ruta;
-                brandImg.style.display = "inline-block";
-            }
-            const brandFallback = document.getElementById("brand-fallback");
-            if (brandFallback) brandFallback.style.display = "none";
-
-            const quizImg = document.getElementById("quiz-img-tate");
-            if (quizImg) quizImg.src = ruta;
-
-            actualizarBotonesTienda();
-        };
-        img.onerror = intentarSiguiente;
-        img.src = ruta;
-    }
-
-    intentarSiguiente();
-}
-
-// --- ALMACENAMIENTO LOCAL ---
-let sesion = null;
-function claveAlmacen(k) {
-    return sesion ? `gc_${sesion.uid}_${k}` : `gc_local_${k}`;
-}
-function leerNumero(k) {
-    return Number(localStorage.getItem(claveAlmacen(k))) || 0;
-}
-function leerTexto(k, def) {
-    return localStorage.getItem(claveAlmacen(k)) || def;
-}
-function leerLista(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
-}
-function leerObjeto(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return v && typeof v === "object" && !Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
-}
-function guardarLocal(k, v) {
-    try { localStorage.setItem(claveAlmacen(k), v); } catch (e) {}
-}
-function guardar(k, v) {
-    guardarLocal(k, v);
-    guardarLocal("actualizado", Date.now());
-    programarSubidaNube();
-}
-
-// --- VARIABLES DE ESTADO ---
-let record = leerNumero("record");
-let monedas = leerNumero("monedas");
-let capturasTotales = leerNumero("capturasTotales");
-let victorias1v1 = leerNumero("victorias1v1");
-let misionesReclamadas = leerObjeto("misionesReclamadas", {});
-let experienciaRaton = leerNumero("experienciaRaton");
-let dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
-let velocidadGato = DIFICULTADES[dificultad - 1].velGato;
-let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
-if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
-let nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
-let skinActual = leerTexto("skin", "🐱");
-if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
-
-let sonidoActivo = leerTexto("sonido", "1") === "1";
-let musicaActiva = leerTexto("musica", "1") === "1";
-
-let juegoIniciado = false;
-let pausado = false;
-let animacionId = null;
-let tiempo = DURACION_PARTIDA;
-let puntos = 0;
-let nivel = 1;
-let monedasPartida = 0;
-let ultimoTimestamp = null;
-let ultimoSegundoMostrado = null;
-
-// Estados Multijugador / Jefes
-let modoMulti = false;
-let modoJefeFacilier = false;
-let rolMulti = null;
-let esAnfitrionMulti = false;
-let salaId = null;
-let enFlujoMulti = false;
-let desuscribirSala = null;
-let desuscribirRival = null;
-let skinGatoSala = "🐱";
-let ganadoraMulti = null;
-let destinoRemoto = { x: 100, y: 200 };
-let ultimaPosEnviada = { x: -1, y: -1 };
-let ultimoSegundoEnviado = -1;
-let ultimaSyncRed = 0;
-let errorSyncMostrado = false;
-
-let jefeVelX = 0;
-let jefeVelY = 0;
-
 const gato = { x: 280, y: 180, w: 36, h: 36 };
 const raton = { x: 100, y: 100, w: 28, h: 28, accionActual: null };
 const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
@@ -1046,6 +278,17 @@ function empezarJuego() {
     ultimoEstadoIA = null;
     ultimaAccionIA = null;
 
+    particulas = [];
+    ondasChoque = [];
+    estelaGato = [];
+    textosFlotantes = [];
+    sacudidaPantalla = 0;
+    cooldownHabilidad = 0;
+    habilidadActivaTipo = null;
+    habilidadActivaTimer = 0;
+    ratonAturdidoTimer = 0;
+    bannerAnimeTimer = 0;
+
     gato.x = canvas.width / 2 - gato.w / 2;
     gato.y = canvas.height / 2 - gato.h / 2;
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
@@ -1056,6 +299,7 @@ function empezarJuego() {
     document.getElementById("marcador-monedas").style.display = "";
     document.getElementById("marcador-nivel").style.display = "";
 
+    actualizarBotonHabilidad();
     actualizarMarcador();
     cambiarPantalla("zona-juego");
     sincronizarMusica();
@@ -1102,6 +346,14 @@ function intentarDueloFacilier() {
     jefeVelX = 0;
     jefeVelY = 0;
 
+    particulas = [];
+    ondasChoque = [];
+    estelaGato = [];
+    textosFlotantes = [];
+    cooldownHabilidad = 0;
+    habilidadActivaTipo = null;
+    habilidadActivaTimer = 0;
+
     raton.x = canvas.width / 2 - raton.w / 2;
     raton.y = canvas.height / 2 - raton.h / 2;
     gato.x = 30;
@@ -1118,6 +370,7 @@ function intentarDueloFacilier() {
     document.getElementById("marcador-nivel").style.display = "none";
     document.getElementById("tiempo-valor").innerText = DURACION_PARTIDA;
 
+    actualizarBotonHabilidad();
     cambiarPantalla("zona-juego");
     sincronizarMusica();
     sonar("record");
@@ -1580,7 +833,11 @@ function obtenerVectorEntrada(entidad) {
 
 function actualizarGato(f) {
     const { dx, dy } = obtenerVectorEntrada(gato);
-    const velocidadActual = modoMulti ? VELOCIDAD_GATO_1V1 : (velocidadGato * bonusSkin());
+    const boostHabilidad = habilidadActivaTipo === "overdrive" ? 1.45 : 1.0;
+    const velocidadActual = modoMulti
+        ? (VELOCIDAD_GATO_1V1 * boostHabilidad)
+        : (velocidadGato * bonusSkin() * boostHabilidad);
+
     gato.x += dx * velocidadActual * f;
     gato.y += dy * velocidadActual * f;
 
@@ -1726,6 +983,16 @@ function obtenerEstadoRed(rx, ry, gx, gy) {
 }
 
 function actualizarRaton(dt, f) {
+    if (ratonAturdidoTimer > 0) return;
+
+    if (habilidadActivaTipo === "magnet") {
+        const dx = (gato.x + gato.w / 2) - (raton.x + raton.w / 2);
+        const dy = (gato.y + gato.h / 2) - (raton.y + raton.h / 2);
+        const dist = Math.hypot(dx, dy) || 1;
+        raton.x += (dx / dist) * 3.2 * f;
+        raton.y += (dy / dist) * 3.2 * f;
+    }
+
     const dif = DIFICULTADES[dificultad - 1];
     temporizadorDecisionIA += dt;
 
@@ -1885,6 +1152,19 @@ function revisarColision() {
     }
 
     const monedasGanadas = Math.round(dif.monedasPorCaptura * bonusMonedasSkin(skinActual));
+    const skinObj = SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
+    const rx = raton.x + raton.w / 2;
+    const ry = raton.y + raton.h / 2;
+
+    generarExplosionParticulas(rx, ry, skinObj.skillColor || "#fbbf24", 18, ["✨", "💥"]);
+    generarOndaChoque(rx, ry, skinObj.skillColor || "#fbbf24", 75);
+    agregarTextoFlotante(rx, ry - 12, `+${monedasGanadas} 🪙`, "#fbbf24");
+    sacudidaPantalla = 4;
+
+    if (cooldownHabilidad > 0) {
+        cooldownHabilidad = Math.max(0, cooldownHabilidad - 0.6);
+    }
+
     puntos++;
     capturasTotales++;
     monedas += monedasGanadas;
@@ -1911,6 +1191,19 @@ function revisarColision() {
 }
 
 function actualizarTiempo(dt) {
+    if (cooldownHabilidad > 0) {
+        cooldownHabilidad = Math.max(0, cooldownHabilidad - dt);
+        actualizarBotonHabilidad();
+    }
+    if (habilidadActivaTimer > 0) {
+        habilidadActivaTimer = Math.max(0, habilidadActivaTimer - dt);
+        if (habilidadActivaTimer <= 0) habilidadActivaTipo = null;
+        actualizarBotonHabilidad();
+    }
+    if (ratonAturdidoTimer > 0) {
+        ratonAturdidoTimer = Math.max(0, ratonAturdidoTimer - dt);
+    }
+
     if (modoJefeFacilier) {
         tiempo -= dt;
         const segundos = Math.max(0, Math.ceil(tiempo));
@@ -1999,6 +1292,7 @@ function gameLoop(timestamp) {
         revisarColision();
     }
 
+    actualizarEfectosVisuales(dt, f);
     dibujar();
     actualizarTiempo(dt);
 
@@ -2072,10 +1366,42 @@ function dibujarEfectoFacilier(x, y) {
     ctx.restore();
 }
 
+function dibujarAuraPersonajeTop(skin, x, y) {
+    if (!skin) return;
+    const cx = x + 18;
+    const cy = y + 18;
+    const t = Date.now() * 0.006;
+
+    if (skin.sombrero && !skin.facilier) {
+        ctx.save();
+        const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 42);
+        grad.addColorStop(0, "rgba(239, 68, 68, 0.5)");
+        grad.addColorStop(0.7, "rgba(245, 158, 11, 0.22)");
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 42 + Math.sin(t * 2) * 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    } else if (skin.emoji === "tate") {
+        ctx.save();
+        const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 38);
+        grad.addColorStop(0, "rgba(250, 204, 21, 0.45)");
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 38 + Math.sin(t * 2) * 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
 function dibujarGato() {
     const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
     const skin = SKINS.find((s) => s.emoji === skinId);
     const recurso = skin && skin.archivoBase ? cacheImagenesSkins[skin.archivoBase] : null;
+
+    dibujarAuraPersonajeTop(skin, gato.x, gato.y);
 
     if (skin && skin.facilier) {
         dibujarEfectoFacilier(gato.x, gato.y);
@@ -2095,10 +1421,19 @@ function dibujarGato() {
 }
 
 function dibujar() {
+    ctx.save();
+    if (sacudidaPantalla > 0) {
+        const sx = (Math.random() - 0.5) * sacudidaPantalla;
+        const sy = (Math.random() - 0.5) * sacudidaPantalla;
+        ctx.translate(sx, sy);
+    }
+
     ctx.fillStyle = modoJefeFacilier
         ? "#180826"
         : (modoMulti ? "#0b1b3a" : FONDOS[(nivel - 1) % FONDOS.length]);
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    dibujarEfectosFondo();
 
     if (modoJefeFacilier) {
         const progresoVudu = Math.max(0, tiempo / DURACION_PARTIDA);
@@ -2128,6 +1463,12 @@ function dibujar() {
         : RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
     ctx.fillText(emojiRaton, raton.x, raton.y + 30);
 
+    if (ratonAturdidoTimer > 0) {
+        ctx.font = "16px Arial";
+        const t = Date.now() * 0.01;
+        ctx.fillText("💫", raton.x + Math.cos(t) * 14, raton.y - 2);
+    }
+
     if (modoJefeFacilier) {
         ctx.font = "10px 'Press Start 2P', Arial";
         ctx.textAlign = "center";
@@ -2148,6 +1489,8 @@ function dibujar() {
         ctx.textAlign = "left";
     }
 
+    dibujarEfectosFrente();
+
     if (pausado && !modoMulti && !modoJefeFacilier) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2157,6 +1500,8 @@ function dibujar() {
         ctx.fillText("PAUSA", canvas.width / 2, canvas.height / 2);
         ctx.textAlign = "left";
     }
+
+    ctx.restore();
 }
 
 // --- CONTROLES ---
@@ -2169,6 +1514,11 @@ const MAPA_TECLAS = {
 
 window.addEventListener("keydown", (e) => {
     if (!e || !e.key) return;
+    if (juegoIniciado && (e.code === "Space" || e.key === " ")) {
+        e.preventDefault();
+        activarHabilidadEspecial();
+        return;
+    }
     if (juegoIniciado && !modoMulti && !modoJefeFacilier && (e.key === "p" || e.key === "P" || e.key === "Escape")) {
         pausado = !pausado;
         sonar("pausa");
@@ -2811,6 +2161,14 @@ function iniciarJuegoMultiLocal(datos) {
     ultimoSegundoEnviado = -1;
     errorSyncMostrado = false;
 
+    particulas = [];
+    ondasChoque = [];
+    estelaGato = [];
+    textosFlotantes = [];
+    cooldownHabilidad = 0;
+    habilidadActivaTipo = null;
+    habilidadActivaTimer = 0;
+
     gato.x = 480;
     gato.y = 200;
     raton.x = 100;
@@ -2835,6 +2193,7 @@ function iniciarJuegoMultiLocal(datos) {
     document.getElementById("marcador-nivel").style.display = "none";
     document.getElementById("tiempo-valor").innerText = DURACION_PARTIDA;
 
+    actualizarBotonHabilidad();
     cambiarPantalla("zona-juego");
     sincronizarMusica();
     sonar("nivel");
