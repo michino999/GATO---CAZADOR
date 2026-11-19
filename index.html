@@ -41,7 +41,6 @@
             align-items: center;
         }
 
-        /* BARRA SUPERIOR */
         .top-bar {
             width: 100%;
             max-width: 980px;
@@ -101,7 +100,6 @@
             cursor: pointer;
         }
 
-        /* CONTENEDOR PRINCIPAL */
         .app-container {
             width: 100%;
             max-width: 980px;
@@ -113,7 +111,6 @@
             justify-content: center;
         }
 
-        /* MENÚ INICIO GRID */
         #menu-inicio {
             width: 100%;
             display: grid;
@@ -200,7 +197,6 @@
             color: #fca5a5;
         }
 
-        /* TARJETAS DE STATS Y BARRA IA */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -249,7 +245,6 @@
             box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
         }
 
-        /* TIENDA Y MISIONES */
         .lista-scroll {
             max-height: 410px;
             overflow-y: auto;
@@ -277,16 +272,17 @@
         }
 
         .skin-avatar {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 8px;
             object-fit: contain;
             background: #0f172a;
+            image-rendering: pixelated;
         }
 
         .skin-fallback {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 8px;
             background: #0f172a;
             display: flex;
@@ -295,7 +291,6 @@
             font-size: 1.6rem;
         }
 
-        /* ZONA DE JUEGO */
         #zona-juego {
             display: none;
             flex-direction: column;
@@ -331,7 +326,6 @@
             touch-action: none;
         }
 
-        /* INPUTS */
         .tactical-input {
             width: 100%;
             padding: 10px 12px;
@@ -343,7 +337,6 @@
             margin-top: 8px;
         }
 
-        /* NOTIFICACIÓN FLOTANTE */
         #toast-logro {
             position: fixed;
             bottom: 22px;
@@ -397,7 +390,7 @@
             <button id="nav-tienda" class="nav-link-btn" onclick="abrirTienda()">TIENDA</button>
             <button id="nav-ajustes" class="nav-link-btn" onclick="abrirAjustes()">AJUSTES</button>
         </nav>
-        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas">
+        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Toca 7 veces rápido para invocar el trato vudú">
             🪙 <span id="monedas-header">0</span>
         </div>
     </header>
@@ -427,6 +420,7 @@
                 </div>
 
                 <div class="badges-secretos">
+                    <span id="badge-tate" class="badge-item" style="display:none; border-color:#f472b6; color:#fbcfe8;">⭐ TATE DESBLOQUEADO</span>
                     <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
                     <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
                 </div>
@@ -442,7 +436,6 @@
             </div>
 
             <div style="display:flex; flex-direction:column; gap:18px;">
-                <!-- PANEL IA -->
                 <div class="panel-box">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong style="font-size:0.9rem;">🧠 RED NEURONAL DEL RATÓN</strong>
@@ -453,7 +446,6 @@
                     <button class="tactical-btn" style="margin-top:12px;" onclick="entrenarIAAcelerado()">⚡ ENTRENAR IA (+50 PARTIDAS)</button>
                 </div>
 
-                <!-- PANEL CUENTA EN LA NUBE -->
                 <div class="panel-box">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong style="font-size:0.9rem;">☁️ GUARDADO EN NUBE</strong>
@@ -531,6 +523,9 @@
         <!-- QUIZ SECRETO -->
         <section id="menu-quiz" class="panel-sub" style="display:none;">
             <h2 id="quiz-titulo" style="margin-top:0; color:var(--accent-gold);">PREGUNTAS SECRETAS</h2>
+            <div id="quiz-foto-tate" style="margin:8px auto; display:none;">
+                <img id="quiz-img-tate" alt="Tate" style="width:76px; height:76px; object-fit:contain; border-radius:12px; border:2px solid var(--accent-gold); background:#070b14; padding:4px;">
+            </div>
             <p id="quiz-progreso" style="font-size:0.8rem; color:var(--text-muted);"></p>
             <p id="quiz-pregunta" style="font-weight:700; font-size:1rem; margin:14px 0;"></p>
             <div id="quiz-opciones"></div>
@@ -586,8 +581,10 @@ const TOPE_APRENDIZAJE = 250;
 
 const VELOCIDAD_GATO_1V1 = 5.4;
 const VELOCIDAD_RATON_1V1 = 5.7;
-const VELOCIDAD_RATON_JUGADOR_VUDU = 5.6;
-const VELOCIDAD_JEFE_FACILIER_BASE = 5.15;
+
+// Balance justo para el Duelo Vudú contra Tate Dr. Facilier
+const VELOCIDAD_RATON_JUGADOR_VUDU = 5.75;
+const VELOCIDAD_JEFE_FACILIER_BASE = 4.35;
 
 const FONDOS = ["#0f172a", "#111827", "#17153b", "#092635", "#1e1b4b"];
 const RATONES = ["🐭", "🐀", "🐹", "🐿️"];
@@ -604,9 +601,9 @@ const SKINS = [
     { emoji: "🐯", nombre: "Tigre Bengala", precio: 280, velocidad: 1.12, costoMejora: 140, descripcion: "Depredador veloz de la selva." },
     { emoji: "🦁", nombre: "León Dorado", precio: 550, velocidad: 1.18, costoMejora: 180, descripcion: "Rey de la caza con gran impulso." },
     { emoji: "🐆", nombre: "Guepardo Turbo", precio: 950, velocidad: 1.25, costoMejora: 220, descripcion: "Velocidad extrema en persecución." },
-    { emoji: "tate", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, descripcion: "El gato legendario de nariz rosada." },
-    { emoji: "tate_sombrero", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, descripcion: "Forjado en la Prueba del Infierno." },
-    { emoji: "tate_facilier", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, descripcion: "Maestro del vudú y las cartas." }
+    { emoji: "tate", archivoBase: "cat.png", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, descripcion: "El gato legendario de nariz rosada." },
+    { emoji: "tate_sombrero", archivoBase: "cat.png", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, descripcion: "Forjado en la Prueba del Infierno." },
+    { emoji: "tate_facilier", archivoBase: "cat.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, descripcion: "Maestro del vudú y las cartas." }
 ];
 
 const MISIONES = [
@@ -617,6 +614,47 @@ const MISIONES = [
     { id: "rec_40", titulo: "Imparable", desc: "Alcanza un récord de 40 puntos", meta: 40, tipo: "record", premio: 400 },
     { id: "win_1v1", titulo: "Duelista Online", desc: "Gana 1 partida en Duelo 1v1", meta: 1, tipo: "1v1", premio: 200 }
 ];
+
+// ============================================================
+//  CARGADOR DE LA FOTO DE TATE (cat.png)
+// ============================================================
+const cacheImagenesSkins = {};
+const cacheDataUrlSkins = {};
+
+function cargarImagenTate() {
+    const rutasPosibles = ["cat.png", "Cat.png", "./cat.png"];
+    let indice = 0;
+
+    function intentarSiguiente() {
+        if (indice >= rutasPosibles.length) return;
+        const ruta = rutasPosibles[indice++];
+        const img = new Image();
+        img.onload = () => {
+            // Recortar bordes transparentes si los hubiera para que se vea grande y nítido
+            const off = document.createElement("canvas");
+            off.width = img.naturalWidth || 64;
+            off.height = img.naturalHeight || 64;
+            const octx = off.getContext("2d");
+            octx.imageSmoothingEnabled = false;
+            octx.drawImage(img, 0, 0);
+
+            cacheImagenesSkins["cat.png"] = off;
+            try {
+                cacheDataUrlSkins["cat.png"] = off.toDataURL("image/png");
+            } catch (e) {
+                cacheDataUrlSkins["cat.png"] = ruta;
+            }
+
+            const quizImg = document.getElementById("quiz-img-tate");
+            if (quizImg) quizImg.src = cacheDataUrlSkins["cat.png"];
+            actualizarBotonesTienda();
+        };
+        img.onerror = intentarSiguiente;
+        img.src = ruta;
+    }
+
+    intentarSiguiente();
+}
 
 // --- ALMACENAMIENTO LOCAL ---
 let sesion = null;
@@ -695,12 +733,14 @@ let ultimoSegundoEnviado = -1;
 let ultimaSyncRed = 0;
 let errorSyncMostrado = false;
 
+// Vector de inercia suavizada para el jefe Dr. Facilier
+let jefeVelX = 0;
+let jefeVelY = 0;
+
 const gato = { x: 280, y: 180, w: 36, h: 36 };
 const raton = { x: 100, y: 100, w: 28, h: 28, accionActual: null };
 const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
 const toque = { activo: false, x: 0, y: 0 };
-const cacheImagenesSkins = {};
-const cacheDataUrlSkins = {};
 
 // ============================================================
 //  AUDIO SINTETIZADO (WEB AUDIO API)
@@ -875,6 +915,11 @@ function actualizarNivelVisualIA() {
         }
     }
 
+    const badgeTate = document.getElementById("badge-tate");
+    if (badgeTate) {
+        badgeTate.style.display = skinsCompradas.includes("tate") ? "inline-block" : "none";
+    }
+
     const badgeInfierno = document.getElementById("badge-tate-infierno");
     if (badgeInfierno) {
         badgeInfierno.style.display = skinsCompradas.includes("tate_sombrero") ? "inline-block" : "none";
@@ -1030,6 +1075,8 @@ function intentarDueloFacilier() {
     nivel = 1;
     ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
+    jefeVelX = 0;
+    jefeVelY = 0;
 
     raton.x = canvas.width / 2 - raton.w / 2;
     raton.y = canvas.height / 2 - raton.h / 2;
@@ -1050,7 +1097,7 @@ function intentarDueloFacilier() {
     cambiarPantalla("zona-juego");
     sincronizarMusica();
     sonar("record");
-    mostrarLogro("🎩 ¡CORRE! Sobrevive 60s contra Tate Dr. Facilier");
+    mostrarLogro("🎩 ¡CORRE! Haz quiebres para esquivar a Dr. Facilier");
     animacionId = requestAnimationFrame(gameLoop);
 }
 
@@ -1064,15 +1111,23 @@ function actualizarRatonJugadorVudu(f) {
 }
 
 function actualizarJefeFacilier(f) {
-    const boostFinal = tiempo <= 20 ? 0.55 : 0;
+    const boostFinal = tiempo <= 15 ? 0.4 : 0;
     const velJefe = VELOCIDAD_JEFE_FACILIER_BASE + boostFinal;
 
     const dx = (raton.x + raton.w / 2) - (gato.x + gato.w / 2);
     const dy = (raton.y + raton.h / 2) - (gato.y + gato.h / 2);
     const dist = Math.hypot(dx, dy) || 1;
 
-    gato.x += (dx / dist) * velJefe * f;
-    gato.y += (dy / dist) * velJefe * f;
+    // Suavizado de giro (inercia) para que puedas esquivarlo cambiando de dirección rápido
+    const objetivoVx = (dx / dist) * velJefe;
+    const objetivoVy = (dy / dist) * velJefe;
+    const factorGiro = Math.min(1, 0.11 * f);
+
+    jefeVelX += (objetivoVx - jefeVelX) * factorGiro;
+    jefeVelY += (objetivoVy - jefeVelY) * factorGiro;
+
+    gato.x += jefeVelX * f;
+    gato.y += jefeVelY * f;
 
     gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
     gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
@@ -2000,7 +2055,10 @@ function dibujarGato() {
     }
 
     if (recurso) {
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
         ctx.drawImage(recurso, gato.x - 6, gato.y - 6, 48, 48);
+        ctx.restore();
         if (skin.sombrero) {
             dibujarSombreroElegante(gato.x, gato.y);
         }
@@ -2246,6 +2304,15 @@ function registrarPatron(direccion) {
 }
 
 function abrirQuiz(modo) {
+    const cajaFoto = document.getElementById("quiz-foto-tate");
+    const imgFoto = document.getElementById("quiz-img-tate");
+    if (cajaFoto && imgFoto && cacheDataUrlSkins["cat.png"]) {
+        imgFoto.src = cacheDataUrlSkins["cat.png"];
+        cajaFoto.style.display = "block";
+    } else if (cajaFoto) {
+        cajaFoto.style.display = "none";
+    }
+
     if (modo === "infierno") {
         const elegidas = mezclar(PREGUNTAS_INFIERNO).slice(0, PREGUNTAS_INFIERNO_CANTIDAD).map((p) => ({
             texto: p.pregunta,
@@ -2268,7 +2335,7 @@ function abrirQuiz(modo) {
         opciones: mezclar(p.opciones.map((texto, i) => ({ texto: texto, ok: i === p.correcta })))
     }));
     quiz = { modo: "tate", preguntas: elegidas, indice: 0, bloqueado: false };
-    document.getElementById("quiz-titulo").textContent = "PREGUNTAS SECRETAS";
+    document.getElementById("quiz-titulo").textContent = "⭐ DESAFÍO SECRETO DE TATE ⭐";
     sonar("equipar");
     cambiarPantalla("menu-quiz");
     mostrarPregunta();
@@ -2352,6 +2419,7 @@ function desbloquearTate() {
     sonar("record");
     equiparSkin("tate", "⭐ ¡Encontraste a Tate!");
     actualizarBotonesTienda();
+    actualizarNivelVisualIA();
 }
 
 function desbloquearTateSombrero() {
@@ -3132,6 +3200,7 @@ async function prepararNube() {
     prepararAudio();
 }));
 
+cargarImagenTate();
 construirTienda();
 actualizarTextoSonido();
 actualizarTextoMusica();
