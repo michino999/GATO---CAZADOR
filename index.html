@@ -1,828 +1,545 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GATO CAZADOR</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="firebase-config.js" onerror="window.FIREBASE_CONFIG_USUARIO=null;"></script>
-    <style>
-        :root {
-            --bg-main: #060911;
-            --bg-panel: #0d1322;
-            --bg-card: #161f33;
-            --border-color: #26334d;
-            --accent-gold: #f59e0b;
-            --accent-gold-light: #fbbf24;
-            --accent-cyan: #38bdf8;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-purple: #a855f7;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .top-bar {
-            width: 100%;
-            max-width: 1120px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            background: rgba(13, 19, 34, 0.92);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            backdrop-filter: blur(8px);
-        }
-
-        .brand {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 0.95rem;
-            color: var(--accent-gold-light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: 1px;
-        }
-
-        .brand-logo {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            image-rendering: pixelated;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .nav-link-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: 0.15s;
-            letter-spacing: 0.03em;
-        }
-
-        .nav-link-btn:hover, .nav-link-btn.active {
-            background: var(--bg-card);
-            color: var(--text-main);
-            border-color: var(--border-color);
-        }
-
-        .monedas-pill {
-            background: rgba(245, 158, 11, 0.14);
-            border: 1px solid rgba(245, 158, 11, 0.55);
-            color: var(--accent-gold-light);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .app-container {
-            width: 100%;
-            max-width: 1040px;
-            padding: 36px 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #menu-inicio {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1.25fr 0.85fr;
-            gap: 22px;
-            align-items: start;
-        }
-
-        @media (max-width: 820px) {
-            #menu-inicio {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel-box {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-        }
-
-        .panel-sub {
-            width: 100%;
-            max-width: 560px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-        }
-
-        .tactical-btn {
-            width: 100%;
-            padding: 13px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.15s, border-color 0.15s;
-            margin-top: 10px;
-            letter-spacing: 0.02em;
-        }
-
-        .tactical-btn:hover:not(:disabled) {
-            border-color: var(--accent-cyan);
-            transform: translateY(-1px);
-        }
-
-        .tactical-btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        .btn-gold {
-            background: linear-gradient(180deg, #f59e0b, #d97706);
-            color: #090d16;
-            border-color: #fbbf24;
-            font-weight: 800;
-        }
-
-        .btn-green {
-            background: rgba(34, 197, 94, 0.18);
-            border-color: var(--accent-green);
-            color: #4ade80;
-        }
-
-        .btn-cyan {
-            background: rgba(14, 116, 144, 0.25);
-            border-color: #0284c7;
-            color: #7dd3fc;
-        }
-
-        .btn-peach {
-            background: rgba(251, 146, 60, 0.18);
-            border-color: #fb923c;
-            color: #fdba74;
-        }
-
-        .btn-danger {
-            background: rgba(127, 29, 29, 0.35);
-            border-color: #991b1b;
-            color: #fca5a5;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 18px 0 12px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 16px;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 700;
-        }
-
-        .stat-val {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent-gold-light);
-            margin-top: 6px;
-        }
-
-        .ia-segments {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .ia-seg {
-            flex: 1;
-            height: 7px;
-            border-radius: 99px;
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-
-        .ia-seg.activo {
-            background: var(--accent-cyan);
-            border-color: #7dd3fc;
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.45);
-        }
-
-        .lista-scroll {
-            max-height: 420px;
-            overflow-y: auto;
-            text-align: left;
-            padding-right: 4px;
-            margin: 12px 0;
-        }
-
-        .tarjeta-skin, .tarjeta-mision {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-        }
-
-        .tarjeta-skin.equipada {
-            border-color: var(--accent-green);
-        }
-
-        .skin-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .skin-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            object-fit: contain;
-            background: #090d16;
-            border: 1px solid var(--border-color);
-            padding: 4px;
-            image-rendering: pixelated;
-        }
-
-        .skin-fallback {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            background: #090d16;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-        }
-
-        #zona-juego {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        #marcador {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 12px 12px 0 0;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        canvas#juego {
-            width: 100%;
-            max-width: 600px;
-            height: auto;
-            aspect-ratio: 3 / 2;
-            border: 2px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            background: #111827;
-            touch-action: none;
-        }
-
-        .barra-habilidad {
-            width: 100%;
-            max-width: 600px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-        }
-
-        #btn-habilidad {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 2px solid var(--accent-purple);
-            background: linear-gradient(90deg, rgba(168, 85, 247, 0.25), rgba(56, 189, 248, 0.25));
-            color: #fff;
-            font-weight: 800;
-            font-size: 0.85rem;
-            cursor: pointer;
-            letter-spacing: 0.04em;
-            box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
-            transition: transform 0.1s, opacity 0.2s;
-        }
-
-        #btn-habilidad:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        #btn-habilidad:disabled {
-            opacity: 0.55;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .tactical-input {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: #060911;
-            color: #fff;
-            font-size: 0.9rem;
-            margin-top: 8px;
-        }
-
-        #toast-logro {
-            position: fixed;
-            bottom: 22px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: #0d1322;
-            border: 1px solid var(--accent-gold-light);
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s, transform 0.25s;
-            z-index: 100;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65);
-            text-align: center;
-        }
-
-        #toast-logro.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .badges-secretos {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 6px 0 4px;
-        }
-
-        .badge-item {
-            font-size: 0.72rem;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            background: rgba(168, 85, 247, 0.16);
-            border: 1px solid #9333ea;
-            color: #e9d5ff;
-        }
-    </style>
-</head>
-<body>
-
-    <header class="top-bar">
-        <div class="brand">
-            <img id="brand-tate-img" src="cat.png" alt="Tate" class="brand-logo" onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
-            <span id="brand-fallback" style="display:none;">🐱</span>
-            <span>GATO CAZADOR</span>
-        </div>
-        <nav class="nav-links">
-            <button id="nav-inicio" class="nav-link-btn active" onclick="volverMenu()">INICIO</button>
-            <button id="nav-misiones" class="nav-link-btn" onclick="abrirMisiones()">MISIONES</button>
-            <button id="nav-tienda" class="nav-link-btn" onclick="abrirTienda()">TIENDA</button>
-            <button id="nav-ajustes" class="nav-link-btn" onclick="abrirAjustes()">AJUSTES</button>
-        </nav>
-        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas">
-            <span>🪙</span>
-            <span id="monedas-header">0</span>
-        </div>
-    </header>
-
-    <main class="app-container">
-        <section id="menu-inicio">
-            <div class="panel-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <span style="font-size:0.75rem; font-weight:800; color:var(--accent-cyan);" id="texto-dificultad-actual">DIFICULTAD: FÁCIL</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);" id="resumen-ajustes"></span>
-                </div>
-
-                <h1 style="margin:12px 0 6px; font-size:1.65rem; font-weight:800;">Centro de Caza</h1>
-                <p style="margin:0; color:var(--text-muted); font-size:0.88rem;">Atrapa al ratón controlado por Red Neuronal antes de que se agote el tiempo.</p>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">🏆 Récord</div>
-                        <div class="stat-val" id="record-valor">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">🐾 Capturas Totales</div>
-                        <div class="stat-val" id="capturas-totales-valor" style="color:var(--accent-cyan);">0</div>
-                    </div>
-                </div>
-
-                <div class="badges-secretos">
-                    <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
-                    <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
-                </div>
-
-                <div style="margin-top:10px;">
-                    <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ JUGAR PARTIDA (60s)</button>
-                    <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y NIVELES</button>
-                        <button class="tactical-btn" onclick="abrirMisiones()">🎯 MISIONES</button>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">🧠 RED NEURONAL DEL RATÓN</strong>
-                        <span id="ia-nivel-texto" style="font-size:0.78rem; color:var(--accent-cyan); font-weight:800;">LVL 1</span>
-                    </div>
-                    <p id="ia-stats-texto" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0;">Partidas simuladas: 0 · Exp: 0</p>
-                    <div class="ia-segments" id="ia-barra-segmentos"></div>
-                    <button class="tactical-btn" style="margin-top:14px;" onclick="entrenarIAAcelerado()">⚡ ENTRENAR IA (+50 PARTIDAS)</button>
-                </div>
-
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">☁️ GUARDADO EN NUBE</strong>
-                        <span id="estado-cuenta-badge" style="font-size:0.72rem; font-weight:800; color:var(--accent-green);">ESTADO: LOCAL</span>
-                    </div>
-                    <p id="sesion-estado" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0 12px;"></p>
-
-                    <div id="form-cuenta-integrado">
-                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username">
-                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
-                            <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
-                            <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR CUENTA</button>
-                        </div>
-                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;"></p>
-                    </div>
-
-                    <div id="panel-cuenta-activa" style="display:none;">
-                        <button class="tactical-btn btn-danger" onclick="cerrarSesion()">CERRAR SESIÓN</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="menu-tienda" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">🛒 TIENDA DE CAZADORES</h2>
-            <p style="font-size:0.82rem; color:var(--text-muted);">Saldo disponible: <strong style="color:var(--accent-gold-light);">🪙 <span id="monedas-tienda">0</span></strong></p>
-            <div id="lista-tienda" class="lista-scroll"></div>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
-        </section>
-
-        <section id="menu-misiones" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">🎯 MISIONES Y RECOMPENSAS</h2>
-            <div id="lista-misiones" class="lista-scroll"></div>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
-        </section>
-
-        <section id="menu-multi" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">⚔️ DUELO 1v1 ONLINE</h2>
-            <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 60 segundos.</p>
-            <button class="tactical-btn btn-gold" onclick="crearSalaMulti()">➕ CREAR SALA NUEVA</button>
-            <div style="margin:14px 0; border-top:1px solid var(--border-color); padding-top:12px;">
-                <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
-                <button class="tactical-btn btn-cyan" onclick="unirseSalaMulti()">🔗 UNIRSE A SALA</button>
-            </div>
-            <p id="multi-mensaje" style="font-size:0.8rem; color:var(--accent-gold-light);"></p>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
-        </section>
-
-        <section id="menu-sala" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">SALA DE COMBATE</h2>
-            <div style="font-size:0.8rem; color:var(--text-muted);">Comparte este código con tu rival:</div>
-            <div id="sala-codigo-display" style="font-family:'Press Start 2P', monospace; font-size:1.5rem; color:var(--accent-gold-light); margin:14px 0; letter-spacing:4px;">------</div>
-            <p id="sala-rol-texto" style="font-weight:700;"></p>
-            <p id="sala-estado-texto" style="font-size:0.85rem; color:var(--accent-cyan);">Esperando rival...</p>
-            <button id="btn-iniciar-multi" class="tactical-btn btn-green" style="display:none;" onclick="lanzarPartidaMulti()">🚀 ¡EMPEZAR DUELO!</button>
-            <button class="tactical-btn btn-danger" onclick="salirSalaMulti()">✖ ABANDONAR SALA</button>
-        </section>
-
-        <section id="menu-ajustes" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">⚙️ AJUSTES</h2>
-            <button id="btn-dificultad" class="tactical-btn" onclick="cambiarDificultad()">Dificultad: Fácil</button>
-            <button id="btn-sonido" class="tactical-btn" onclick="cambiarSonido()">Sonido: Sí</button>
-            <button id="btn-musica" class="tactical-btn" onclick="cambiarMusica()">Música: Sí</button>
-            <hr style="border:0; border-top:1px solid var(--border-color); margin:16px 0;">
-            <button class="tactical-btn btn-danger" onclick="borrarProgreso()">🗑️ BORRAR TODO EL PROGRESO</button>
-            <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
-        </section>
-
-        <section id="menu-quiz" class="panel-sub" style="display:none;">
-            <h2 id="quiz-titulo" style="margin-top:0; color:var(--accent-gold-light);">PREGUNTAS SECRETAS</h2>
-            <div id="quiz-foto-tate" style="margin:8px auto; display:none;">
-                <img id="quiz-img-tate" src="cat.png" alt="Tate" style="width:76px; height:76px; object-fit:contain; border-radius:12px; border:2px solid var(--accent-gold-light); background:#060911; padding:4px; image-rendering:pixelated;">
-            </div>
-            <p id="quiz-progreso" style="font-size:0.8rem; color:var(--text-muted);"></p>
-            <p id="quiz-pregunta" style="font-weight:700; font-size:1rem; margin:14px 0;"></p>
-            <div id="quiz-opciones"></div>
-            <p id="quiz-mensaje" style="font-size:0.85rem; font-weight:700; margin-top:10px;"></p>
-            <button class="tactical-btn" style="margin-top:12px;" onclick="salirQuiz()">✖ SALIR</button>
-        </section>
-
-        <section id="zona-juego">
-            <div id="marcador">
-                <span id="marcador-rol" style="display:none; color:var(--accent-gold-light);"></span>
-                <span id="marcador-puntos">Puntos: <strong id="puntos-valor" style="color:var(--accent-cyan);">0</strong></span>
-                <span id="marcador-monedas">🪙 <strong id="monedas-valor" style="color:var(--accent-gold-light);">0</strong></span>
-                <span id="marcador-nivel">Nivel: <strong id="nivel-valor">1</strong></span>
-                <span>⏱️ <strong id="tiempo-valor" style="color:#f87171;">60</strong>s</span>
-                <button class="nav-link-btn" style="padding:4px 8px; border-color:var(--border-color);" onclick="volverMenu()">SALIR</button>
-            </div>
-            <canvas id="juego" width="600" height="400"></canvas>
-            <div id="contenedor-habilidad" class="barra-habilidad">
-                <button id="btn-habilidad" onclick="activarHabilidadEspecial()">⚡ HABILIDAD ESPECIAL [ESPACIO]</button>
-            </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas/WASD · ESPACIO: Habilidad Anime · P: Pausa | Celular: Toca o desliza</p>
-        </section>
-
-        <section id="fin-juego" class="panel-sub" style="display:none;">
-            <h2 id="fin-titulo" style="margin-top:0; color:var(--accent-gold-light);">¡TIEMPO AGOTADO!</h2>
-            <p id="fin-subtitulo" style="color:var(--text-muted);"></p>
-            <p id="fin-puntos-linea">Puntos conseguidos: <strong id="puntos-finales" style="color:var(--accent-cyan);">0</strong></p>
-            <p id="fin-monedas-linea">Gatomonedas ganadas: <strong id="monedas-partida" style="color:var(--accent-gold-light);">0</strong> 🪙</p>
-            <p id="fin-record-linea">Récord actual: <strong id="record-final">0</strong></p>
-            <p id="mensaje-record" style="display:none; color:var(--accent-green); font-weight:800;">🎉 ¡NUEVO RÉCORD PERSONAL!</p>
-            <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 JUGAR DE NUEVO</button>
-            <button class="tactical-btn" onclick="volverMenu()">🏠 MENÚ PRINCIPAL</button>
-        </section>
-    </main>
-
-    <div id="toast-logro"></div>
-
-<script>
-const canvas = document.getElementById("juego");
-const ctx = canvas.getContext("2d");
-
-const DURACION_PARTIDA = 60;
-const CAPTURAS_POR_NIVEL = 5;
-const NIVELES_POR_RATON = 2;
-const BONUS_TIEMPO_NIVEL = 4;
-const RADIO_CAPTURA = 34;
-const DISTANCIA_MIN_APARICION = 140;
-const MAX_NIVEL_MEJORA = 5;
-const TOPE_APRENDIZAJE = 250;
-
-const VELOCIDAD_GATO_1V1 = 5.4;
-const VELOCIDAD_RATON_1V1 = 5.7;
-const VELOCIDAD_RATON_JUGADOR_VUDU = 5.75;
-const VELOCIDAD_JEFE_FACILIER_BASE = 4.35;
-
-const FONDOS = ["#0d1322", "#111827", "#17153b", "#092635", "#1e1b4b"];
-const RATONES = ["🐭", "🐀", "🐹", "🐿️"];
-
-const DIFICULTADES = [
-    { nombre: "Fácil", velGato: 5.2, factorRaton: 0.78, monedasPorCaptura: 5 },
-    { nombre: "Normal", velGato: 5.6, factorRaton: 0.92, monedasPorCaptura: 8 },
-    { nombre: "Difícil", velGato: 6.0, factorRaton: 1.05, monedasPorCaptura: 12 }
-];
-
-const SKINS = [
-    { emoji: "🐱", nombre: "Gato Clásico", precio: 0, velocidad: 1.0, costoMejora: 80, skillName: "Impulso Felino", skillType: "overdrive", skillCd: 7, skillColor: "#38bdf8", descripcion: "Cazador ágil · Poder: Impulso Felino." },
-    { emoji: "🐈‍⬛", nombre: "Sombra Nocturna", precio: 120, velocidad: 1.06, costoMejora: 110, skillName: "Paso Sombrío", skillType: "overdrive", skillCd: 6.5, skillColor: "#a855f7", descripcion: "Sigiloso · Poder: Paso Sombrío veloz." },
-    { emoji: "🐯", nombre: "Tigre Bengala", precio: 280, velocidad: 1.12, costoMejora: 140, skillName: "Zarpa Feroz", skillType: "overdrive", skillCd: 6, skillColor: "#fb923c", descripcion: "Depredador · Poder: Zarpa Feroz." },
-    { emoji: "🦁", nombre: "León Dorado", precio: 550, velocidad: 1.18, costoMejora: 180, skillName: "Rugido Sísmico", skillType: "stun", skillCd: 8, skillColor: "#facc15", descripcion: "Rey · Poder Anime: Paraliza al ratón 2.5s." },
-    { emoji: "🐆", nombre: "Guepardo Turbo", precio: 950, velocidad: 1.25, costoMejora: 220, skillName: "Velocidad Relámpago", skillType: "overdrive", skillCd: 6, skillColor: "#22d3ee", descripcion: "Velocista · Poder Anime: Dash supersónico." },
-    { emoji: "tate", archivoBase: "cat.png", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, skillName: "Destello Estelar", skillType: "blink", skillCd: 6.5, skillColor: "#fde047", descripcion: "Legendario · Poder Anime: Teletransporte estelar." },
-    { emoji: "tate_sombrero", archivoBase: "cat.png", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, skillName: "Dominio Infernal", skillType: "magnet", skillCd: 7.5, skillColor: "#ef4444", descripcion: "Infernal · Poder Anime: Vórtice que atrae al ratón." },
-    { emoji: "tate_facilier", archivoBase: "cat.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, skillName: "Pacto de Sombras", skillType: "voodoo", skillCd: 7.5, skillColor: "#c084fc", descripcion: "Maestro Vudú · Poder Anime: Invoca y aturde al ratón." }
-];
-
-const MISIONES = [
-    { id: "cap_10", titulo: "Primeros pasos", desc: "Consigue 10 capturas totales", meta: 10, tipo: "capturas", premio: 60 },
-    { id: "cap_50", titulo: "Cazador experto", desc: "Consigue 50 capturas totales", meta: 50, tipo: "capturas", premio: 180 },
-    { id: "cap_150", titulo: "Leyenda felina", desc: "Consigue 150 capturas totales", meta: 150, tipo: "capturas", premio: 450 },
-    { id: "rec_20", titulo: "Reflejos rápidos", desc: "Alcanza un récord de 20 puntos", meta: 20, tipo: "record", premio: 150 },
-    { id: "rec_40", titulo: "Imparable", desc: "Alcanza un récord de 40 puntos", meta: 40, tipo: "record", premio: 400 },
-    { id: "win_1v1", titulo: "Duelista Online", desc: "Gana 1 partida en Duelo 1v1", meta: 1, tipo: "1v1", premio: 200 }
-];
-
-const cacheImagenesSkins = {};
-const cacheDataUrlSkins = { "cat.png": "cat.png" };
-
-function cargarImagenTate() {
-    const rutasPosibles = ["cat.png", "./cat.png", "Cat.png"];
-    let indice = 0;
-
-    function intentarSiguiente() {
-        if (indice >= rutasPosibles.length) return;
-        const ruta = rutasPosibles[indice++];
-        const img = new Image();
-        img.onload = () => {
-            cacheImagenesSkins["cat.png"] = img;
-            cacheDataUrlSkins["cat.png"] = ruta;
-
-            const brandImg = document.getElementById("brand-tate-img");
-            if (brandImg) {
-                brandImg.src = ruta;
-                brandImg.style.display = "inline-block";
-            }
-            const brandFallback = document.getElementById("brand-fallback");
-            if (brandFallback) brandFallback.style.display = "none";
-
-            const quizImg = document.getElementById("quiz-img-tate");
-            if (quizImg) quizImg.src = ruta;
-
-            actualizarBotonesTienda();
-        };
-        img.onerror = intentarSiguiente;
-        img.src = ruta;
+// ============================================================
+//  MOTOR PHASER 3: ESCENA ARCADE, OBSTÁCULOS, TÚNELES Y ZOOM
+// ============================================================
+let phaserGame = null;
+let escenaActiva = null;
+
+function crearTexturasPhaser(scene) {
+    if (!scene.textures.exists("tex-particula")) {
+        const g = scene.make.graphics({ x: 0, y: 0, add: false });
+        g.fillStyle(0xffffff, 1);
+        g.fillCircle(6, 6, 6);
+        g.generateTexture("tex-particula", 12, 12);
+        g.destroy();
+    }
+    if (!scene.textures.exists("tex-muro")) {
+        const g = scene.make.graphics({ x: 0, y: 0, add: false });
+        g.fillStyle(0x1e293b, 1);
+        g.fillRoundedRect(0, 0, 32, 32, 6);
+        g.lineStyle(2, 0x38bdf8, 0.7);
+        g.strokeRoundedRect(1, 1, 30, 30, 6);
+        g.generateTexture("tex-muro", 32, 32);
+        g.destroy();
+    }
+    if (!scene.textures.exists("tex-caja")) {
+        const g = scene.make.graphics({ x: 0, y: 0, add: false });
+        g.fillStyle(0xd97706, 1);
+        g.fillRoundedRect(0, 0, 28, 28, 5);
+        g.lineStyle(2, 0xfde047, 0.9);
+        g.strokeRoundedRect(1, 1, 26, 26, 5);
+        g.lineBetween(4, 4, 24, 24);
+        g.lineBetween(24, 4, 4, 24);
+        g.generateTexture("tex-caja", 28, 28);
+        g.destroy();
+    }
+    if (!scene.textures.exists("tex-tunel")) {
+        const g = scene.make.graphics({ x: 0, y: 0, add: false });
+        g.fillStyle(0x020617, 1);
+        g.fillCircle(18, 18, 16);
+        g.lineStyle(3, 0x38bdf8, 0.95);
+        g.strokeCircle(18, 18, 15);
+        g.lineStyle(1.5, 0xa855f7, 0.8);
+        g.strokeCircle(18, 18, 9);
+        g.generateTexture("tex-tunel", 36, 36);
+        g.destroy();
+    }
+}
+
+class EscenaGatoCazador extends Phaser.Scene {
+    constructor() {
+        super({ key: "EscenaGatoCazador" });
     }
 
-    intentarSiguiente();
-}
+    preload() {
+        this.load.image("tate-sprite", cacheDataUrlSkins["tate.png"] || "tate.png");
+    }
 
-let sesion = null;
-function claveAlmacen(k) {
-    return sesion ? `gc_${sesion.uid}_${k}` : `gc_local_${k}`;
-}
-function leerNumero(k) {
-    return Number(localStorage.getItem(claveAlmacen(k))) || 0;
-}
-function leerTexto(k, def) {
-    return localStorage.getItem(claveAlmacen(k)) || def;
-}
-function leerLista(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
-}
-function leerObjeto(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return v && typeof v === "object" && !Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
-}
-function guardarLocal(k, v) {
-    try { localStorage.setItem(claveAlmacen(k), v); } catch (e) {}
-}
-function guardar(k, v) {
-    guardarLocal(k, v);
-    guardarLocal("actualizado", Date.now());
-    programarSubidaNube();
-}
+    create() {
+        escenaActiva = this;
+        crearTexturasPhaser(this);
 
-let record = leerNumero("record");
-let monedas = leerNumero("monedas");
-let capturasTotales = leerNumero("capturasTotales");
-let victorias1v1 = leerNumero("victorias1v1");
-let misionesReclamadas = leerObjeto("misionesReclamadas", {});
-let experienciaRaton = leerNumero("experienciaRaton");
-let dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
-let velocidadGato = DIFICULTADES[dificultad - 1].velGato;
-let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
-if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
-let nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
-let skinActual = leerTexto("skin", "🐱");
-if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
+        this.fondoRect = this.add.rectangle(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, ANCHO_JUEGO, ALTO_JUEGO, FONDOS_HEX[0]);
+        this.gridGraphics = this.add.graphics();
+        this.dibujarCuadricula(0x38bdf8, 0.06);
 
-let sonidoActivo = leerTexto("sonido", "1") === "1";
-let musicaActiva = leerTexto("musica", "1") === "1";
+        this.barraFondo = this.add.rectangle(ANCHO_JUEGO / 2, 4, ANCHO_JUEGO, 8, 0x1e293b).setDepth(30);
+        this.barraProgreso = this.add.rectangle(0, 4, ANCHO_JUEGO, 8, 0xfacc15).setOrigin(0, 0.5).setDepth(31);
 
-let juegoIniciado = false;
-let pausado = false;
-let animacionId = null;
-let tiempo = DURACION_PARTIDA;
-let puntos = 0;
-let nivel = 1;
-let monedasPartida = 0;
-let ultimoTimestamp = null;
-let ultimoSegundoMostrado = null;
+        // Grupos físicos
+        this.muros = this.physics.add.staticGroup();
+        this.cajas = this.physics.add.group({
+            bounceX: 0.5,
+            bounceY: 0.5,
+            dragX: 380,
+            dragY: 380,
+            collideWorldBounds: true
+        });
+        this.tuneles = [];
 
-let modoMulti = false;
-let modoJefeFacilier = false;
-let rolMulti = null;
-let esAnfitrionMulti = false;
-let salaId = null;
-let enFlujoMulti = false;
-let desuscribirSala = null;
-let desuscribirRival = null;
-let skinGatoSala = "🐱";
-let ganadoraMulti = null;
-let destinoRemoto = { x: 100, y: 200 };
-let ultimaPosEnviada = { x: -1, y: -1 };
-let ultimoSegundoEnviado = -1;
-let ultimaSyncRed = 0;
-let errorSyncMostrado = false;
+        // Emisor de partículas nativo
+        this.emisor = this.add.particles(0, 0, "tex-particula", {
+            speed: { min: 60, max: 230 },
+            scale: { start: 0.9, end: 0 },
+            alpha: { start: 1, end: 0 },
+            lifespan: 520,
+            emitting: false
+        }).setDepth(25);
 
-let jefeVelX = 0;
-let jefeVelY = 0;
+        // Jugador Gato (Contenedor físico)
+        this.gatoContainer = this.add.container(300, 200).setDepth(15);
+        this.auraGfx = this.add.graphics();
+        this.gatoContainer.add(this.auraGfx);
 
-let particulas = [];
-let ondasChoque = [];
-let estelaGato = [];
-let textosFlotantes = [];
-let sacudidaPantalla = 0;
-let cooldownHabilidad = 0;
-let habilidadActivaTipo = null;
-let habilidadActivaTimer = 0;
-let ratonAturdidoTimer = 0;
-let bannerAnimeTexto = "";
-let bannerAnimeTimer = 0;
-let bannerAnimeColor = "#c084fc";
+        this.gatoSprite = this.add.image(0, 0, "tate-sprite").setDisplaySize(44, 44).setVisible(false);
+        this.gatoTexto = this.add.text(0, 0, "🐱", { fontSize: "34px" }).setOrigin(0.5);
+        this.sombreroGfx = this.add.graphics().setVisible(false);
+        this.dibujarSombreroEnGfx(this.sombreroGfx);
+        this.etiquetaGato = this.add.text(0, -28, "", { fontFamily: "'Press Start 2P', Arial", fontSize: "9px", color: "#fbbf24" }).setOrigin(0.5);
 
-function activarBannerAnime(texto, color) {
-    bannerAnimeTexto = texto;
-    bannerAnimeColor = color || "#c084fc";
-    bannerAnimeTimer = 1.4;
-}
+        this.gatoContainer.add([this.gatoSprite, this.gatoTexto, this.sombreroGfx, this.etiquetaGato]);
+        this.physics.world.enable(this.gatoContainer);
+        this.gatoContainer.body.setSize(32, 32).setOffset(-16, -16).setCollideWorldBounds(true).setBounce(0.25);
 
-function generarExplosionParticulas(x, y, color, cantidad, simbolos) {
-    for (let i = 0; i < cantidad; i++) {
-        const ang = (Math.PI * 2 * i) / cantidad + (Math.random() - 0.5) * 0.5;
-        const vel = 2 + Math.random() * 5.5;
-        particulas.push({
-            x: x,
-            y: y,
-            vx: Math.cos(ang) * vel,
-            vy: Math.sin(ang) * vel,
-            vida: 0.45 + Math.random() * 0.4,
-            vidaMax: 0.85,
-            tam: 3 + Math.random() * 4,
-            color: color,
-            simbolo: simbolos && Math.random() < 0.35 ? simbolos[Math.floor(Math.random() * simbolos.length)] : null
+        // Ratón (Contenedor físico)
+        this.ratonContainer = this.add.container(100, 100).setDepth(14);
+        this.ratonTexto = this.add.text(0, 0, "🐭", { fontSize: "28px" }).setOrigin(0.5);
+        this.stunTexto = this.add.text(0, -20, "💫", { fontSize: "15px" }).setOrigin(0.5).setVisible(false);
+        this.etiquetaRaton = this.add.text(0, -24, "", { fontFamily: "'Press Start 2P', Arial", fontSize: "9px", color: "#4ade80" }).setOrigin(0.5);
+        this.ratonContainer.add([this.ratonTexto, this.stunTexto, this.etiquetaRaton]);
+        this.physics.world.enable(this.ratonContainer);
+        this.ratonContainer.body.setSize(24, 24).setOffset(-12, -12).setCollideWorldBounds(true).setBounce(0.35);
+
+        // Colisiones físicas reales
+        this.physics.add.collider(this.gatoContainer, this.muros);
+        this.physics.add.collider(this.ratonContainer, this.muros);
+        this.physics.add.collider(this.cajas, this.muros);
+        this.physics.add.collider(this.cajas, this.cajas);
+        this.physics.add.collider(this.gatoContainer, this.cajas);
+        this.physics.add.collider(this.ratonContainer, this.cajas);
+
+        // Captura al tocarse
+        this.physics.add.overlap(this.gatoContainer, this.ratonContainer, () => {
+            if (juegoIniciado && !pausado) procesarCapturaPhaser();
+        });
+
+        // Controles táctiles en Phaser
+        this.input.on("pointerdown", (pointer) => {
+            if (!juegoIniciado) return;
+            if (pausado && !modoMulti && !modoJefeFacilier) {
+                pausado = false;
+                this.physics.resume();
+                if (this.textoPausa) this.textoPausa.setVisible(false);
+                return;
+            }
+            toque.activo = true;
+            toque.x = pointer.x;
+            toque.y = pointer.y;
+        });
+        this.input.on("pointermove", (pointer) => {
+            if (toque.activo) {
+                toque.x = pointer.x;
+                toque.y = pointer.y;
+            }
+        });
+        this.input.on("pointerup", () => { toque.activo = false; });
+
+        this.textoPausa = this.add.text(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, "PAUSA", {
+            fontFamily: "'Press Start 2P', Arial",
+            fontSize: "24px",
+            color: "#ffffff",
+            backgroundColor: "rgba(0,0,0,0.75)",
+            padding: { x: 20, y: 14 }
+        }).setOrigin(0.5).setDepth(50).setVisible(false);
+
+        this.cameras.main.setBounds(0, 0, ANCHO_JUEGO, ALTO_JUEGO);
+        this.configurarPartidaEnEscena();
+    }
+
+    dibujarCuadricula(color, alpha) {
+        this.gridGraphics.clear();
+        this.gridGraphics.lineStyle(1, color, alpha);
+        for (let x = 0; x <= ANCHO_JUEGO; x += 40) {
+            this.gridGraphics.lineBetween(x, 0, x, ALTO_JUEGO);
+        }
+        for (let y = 0; y <= ALTO_JUEGO; y += 40) {
+            this.gridGraphics.lineBetween(0, y, ANCHO_JUEGO, y);
+        }
+    }
+
+    dibujarSombreroEnGfx(gfx) {
+        gfx.clear();
+        gfx.fillStyle(0x141418, 1);
+        gfx.fillRect(-18, -24, 36, 5);
+        gfx.fillRect(-11, -39, 22, 16);
+        gfx.fillStyle(0xfacc15, 1);
+        gfx.fillRect(-11, -28, 22, 3);
+    }
+
+    construirArena(nivelMapa) {
+        this.muros.clear(true, true);
+        this.cajas.clear(true, true);
+        this.tuneles.forEach((t) => t.destroy());
+        this.tuneles = [];
+
+        // En 1v1 online dejamos arena limpia para sincronización perfecta
+        if (modoMulti) return;
+
+        // 2 Túneles en esquinas opuestas (solo el ratón puede usarlos)
+        const t1 = this.add.image(55, 65, "tex-tunel").setDepth(4);
+        const t2 = this.add.image(ANCHO_JUEGO - 55, ALTO_JUEGO - 65, "tex-tunel").setDepth(4);
+        t1.destino = t2;
+        t2.destino = t1;
+        this.tuneles.push(t1, t2);
+
+        const patron = (nivelMapa - 1) % 3;
+        if (patron === 0) {
+            // Dos pilares laterales y 3 cajas empujables en el centro
+            this.crearMuro(170, 125, 32, 96);
+            this.crearMuro(430, 275, 32, 96);
+            this.crearCaja(300, 120);
+            this.crearCaja(300, 280);
+            this.crearCaja(220, 200);
+        } else if (patron === 1) {
+            // Barreras horizontales y cajas
+            this.crearMuro(210, 110, 110, 28);
+            this.crearMuro(390, 290, 110, 28);
+            this.crearCaja(160, 250);
+            this.crearCaja(440, 150);
+            this.crearCaja(300, 200);
+        } else {
+            // Cuatro bloques simétricos y 4 cajas
+            this.crearMuro(170, 120, 64, 32);
+            this.crearMuro(430, 120, 64, 32);
+            this.crearMuro(170, 280, 64, 32);
+            this.crearMuro(430, 280, 64, 32);
+            this.crearCaja(300, 110);
+            this.crearCaja(300, 290);
+            this.crearCaja(210, 200);
+            this.crearCaja(390, 200);
+        }
+    }
+
+    crearMuro(x, y, w, h) {
+        const muro = this.muros.create(x, y, "tex-muro");
+        muro.setDisplaySize(w, h);
+        muro.refreshBody();
+    }
+
+    crearCaja(x, y) {
+        const caja = this.cajas.create(x, y, "tex-caja");
+        caja.setBounce(0.55).setDrag(360, 360).setCollideWorldBounds(true);
+    }
+
+    actualizarAparienciaGato() {
+        const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
+        const skin = SKINS.find((s) => s.emoji === skinId) || SKINS[0];
+
+        if (skin.archivoBase && this.textures.exists("tate-sprite")) {
+            this.gatoSprite.setVisible(true);
+            this.gatoTexto.setVisible(false);
+            this.sombreroGfx.setVisible(Boolean(skin.sombrero || skin.facilier));
+        } else {
+            this.gatoSprite.setVisible(false);
+            this.gatoTexto.setVisible(true).setText(skin.icono || skin.emoji);
+            this.sombreroGfx.setVisible(false);
+        }
+        this.skinActualObj = skin;
+    }
+
+    configurarPartidaEnEscena() {
+        this.actualizarAparienciaGato();
+        this.construirArena(nivel);
+        this.cameras.main.setZoom(1);
+
+        if (modoJefeFacilier) {
+            this.fondoRect.setFillStyle(0x180826);
+            this.dibujarCuadricula(0xa855f7, 0.12);
+            this.gatoContainer.setPosition(45, 45);
+            this.ratonContainer.setPosition(ANCHO_JUEGO / 2, ALTO_JUEGO / 2);
+            this.etiquetaGato.setText("DR. FACILIER").setColor("#c084fc");
+            this.etiquetaRaton.setText("TÚ").setColor("#4ade80");
+        } else if (modoMulti) {
+            this.fondoRect.setFillStyle(0x0b1b3a);
+            this.dibujarCuadricula(0x38bdf8, 0.08);
+            this.gatoContainer.setPosition(480, 200);
+            this.ratonContainer.setPosition(100, 200);
+            this.etiquetaGato.setText(rolMulti === "gato" ? "TÚ" : "");
+            this.etiquetaRaton.setText(rolMulti === "raton" ? "TÚ" : "");
+        } else {
+            this.fondoRect.setFillStyle(FONDOS_HEX[(nivel - 1) % FONDOS_HEX.length]);
+            this.dibujarCuadricula(0x38bdf8, 0.06);
+            this.gatoContainer.setPosition(ANCHO_JUEGO / 2, ALTO_JUEGO / 2);
+            this.etiquetaGato.setText("");
+            this.etiquetaRaton.setText("");
+            this.reaparecerRatonSeguro();
+        }
+    }
+
+    reaparecerRatonSeguro() {
+        const gx = this.gatoContainer.x;
+        const gy = this.gatoContainer.y;
+
+        for (let intento = 0; intento < 35; intento++) {
+            const rx = 45 + Math.random() * (ANCHO_JUEGO - 90);
+            const ry = 45 + Math.random() * (ALTO_JUEGO - 90);
+            if (Math.hypot(rx - gx, ry - gy) < DISTANCIA_MIN_APARICION) continue;
+
+            // Evitar aparecer encima de un muro
+            let chocaMuro = false;
+            this.muros.getChildren().forEach((m) => {
+                if (Phaser.Geom.Intersects.RectangleToRectangle(
+                    new Phaser.Geom.Rectangle(rx - 16, ry - 16, 32, 32),
+                    m.getBounds()
+                )) chocaMuro = true;
+            });
+            if (!chocaMuro) {
+                this.ratonContainer.setPosition(rx, ry);
+                this.ratonContainer.body.setVelocity(0, 0);
+                return;
+            }
+        }
+        this.ratonContainer.setPosition(gx < ANCHO_JUEGO / 2 ? ANCHO_JUEGO - 50 : 50, gy < ALTO_JUEGO / 2 ? ALTO_JUEGO - 50 : 50);
+    }
+
+    efectoAnimeCamara(texto, colorHex, colorStr) {
+        this.cameras.main.shake(260, 0.014);
+        this.cameras.main.zoomTo(1.14, 180, "Sine.easeOut", true, (cam, prog) => {
+            if (prog === 1) this.cameras.main.zoomTo(1.0, 420, "Sine.easeInOut");
+        });
+
+        const banner = this.add.text(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, texto, {
+            fontFamily: "'Press Start 2P', Arial",
+            fontSize: "14px",
+            color: "#ffffff",
+            backgroundColor: "rgba(6, 9, 17, 0.88)",
+            padding: { x: 16, y: 12 }
+        }).setOrigin(0.5).setDepth(45);
+
+        this.tweens.add({
+            targets: banner,
+            scale: { from: 0.7, to: 1.05 },
+            alpha: { from: 1, to: 0 },
+            duration: 1100,
+            ease: "Power2",
+            onComplete: () => banner.destroy()
+        });
+
+        const onda = this.add.circle(this.gatoContainer.x, this.gatoContainer.y, 14).setStrokeStyle(4, colorHex, 1).setDepth(20);
+        this.tweens.add({
+            targets: onda,
+            radius: 175,
+            alpha: 0,
+            duration: 480,
+            onComplete: () => onda.destroy()
         });
     }
+
+    textoFlotante(x, y, mensaje, color) {
+        const txt = this.add.text(x, y, mensaje, {
+            fontFamily: "'Press Start 2P', Arial",
+            fontSize: "11px",
+            color: color || "#fbbf24"
+        }).setOrigin(0.5).setDepth(40);
+        this.tweens.add({
+            targets: txt,
+            y: y - 34,
+            alpha: 0,
+            duration: 850,
+            onComplete: () => txt.destroy()
+        });
+    }
+
+    update(time, delta) {
+        if (!juegoIniciado) return;
+        sincronizarMusica();
+
+        if (pausado && !modoMulti && !modoJefeFacilier) {
+            this.physics.pause();
+            this.textoPausa.setVisible(true);
+            return;
+        } else {
+            this.physics.resume();
+            this.textoPausa.setVisible(false);
+        }
+
+        const dt = Math.min(delta / 1000, 0.1);
+
+        // Dibujar auras dinámicas de Phaser
+        this.auraGfx.clear();
+        const t = time * 0.006;
+        if (this.skinActualObj && (this.skinActualObj.facilier || this.skinActualObj.sombrero || habilidadActivaTimer > 0)) {
+            const col = this.skinActualObj.skillHex || 0xa855f7;
+            this.auraGfx.fillStyle(col, 0.24 + Math.sin(t * 2) * 0.08);
+            this.auraGfx.fillCircle(0, 0, 30 + Math.sin(t * 3) * 4);
+            this.auraGfx.lineStyle(2, col, 0.85);
+            this.auraGfx.strokeCircle(0, 0, 26 + Math.cos(t * 2) * 3);
+        }
+
+        // Rotar túneles
+        this.tuneles.forEach((tun) => { tun.rotation += 1.8 * dt; });
+        if (cooldownTunel > 0) cooldownTunel = Math.max(0, cooldownTunel - dt);
+
+        // Movimiento según modo
+        if (modoJefeFacilier) {
+            this.moverEntidadConEntrada(this.ratonContainer, VELOCIDAD_RATON_JUGADOR_VUDU);
+            const boostFinal = tiempo <= 15 ? 25 : 0;
+            this.physics.moveToObject(this.gatoContainer, this.ratonContainer, VELOCIDAD_JEFE_FACILIER_BASE + boostFinal);
+        } else if (modoMulti) {
+            if (rolMulti === "gato") {
+                const boost = habilidadActivaTipo === "overdrive" ? 1.45 : 1.0;
+                this.moverEntidadConEntrada(this.gatoContainer, VELOCIDAD_GATO_1V1 * boost);
+                this.ratonContainer.x += (destinoRemoto.x - this.ratonContainer.x) * 0.35;
+                this.ratonContainer.y += (destinoRemoto.y - this.ratonContainer.y) * 0.35;
+            } else {
+                this.moverEntidadConEntrada(this.ratonContainer, VELOCIDAD_RATON_1V1);
+                this.gatoContainer.x += (destinoRemoto.x - this.gatoContainer.x) * 0.35;
+                this.gatoContainer.y += (destinoRemoto.y - this.gatoContainer.y) * 0.35;
+            }
+            enviarEstadoMulti();
+        } else {
+            const boost = habilidadActivaTipo === "overdrive" ? 1.45 : 1.0;
+            this.moverEntidadConEntrada(this.gatoContainer, velocidadGato * bonusSkin() * boost);
+            this.actualizarRatonIAPhaser(dt);
+            this.revisarTunelesRaton();
+        }
+
+        // Actualizar barra superior
+        if (modoJefeFacilier || modoMulti) {
+            const prog = Math.max(0, tiempo / DURACION_PARTIDA);
+            this.barraProgreso.width = ANCHO_JUEGO * prog;
+            this.barraProgreso.fillColor = tiempo <= 10 ? 0xef4444 : (modoJefeFacilier ? 0xa855f7 : 0x22c55e);
+        } else {
+            const prog = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
+            this.barraProgreso.width = ANCHO_JUEGO * prog;
+            this.barraProgreso.fillColor = 0xfacc15;
+        }
+
+        this.stunTexto.setVisible(ratonAturdidoTimer > 0);
+        actualizarTiempo(dt);
+    }
+
+    moverEntidadConEntrada(entidad, velocidad) {
+        let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
+        let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
+
+        if (dx !== 0 && dy !== 0) {
+            dx *= Math.SQRT1_2;
+            dy *= Math.SQRT1_2;
+        }
+
+        if (toque.activo) {
+            const ox = toque.x - entidad.x;
+            const oy = toque.y - entidad.y;
+            const dist = Math.hypot(ox, oy);
+            if (dist > 8) {
+                dx = ox / dist;
+                dy = oy / dist;
+            } else {
+                dx = 0;
+                dy = 0;
+            }
+        }
+        entidad.body.setVelocity(dx * velocidad, dy * velocidad);
+    }
+
+    revisarTunelesRaton() {
+        if (cooldownTunel > 0 || this.tuneles.length < 2) return;
+        for (const tun of this.tuneles) {
+            if (Math.hypot(this.ratonContainer.x - tun.x, this.ratonContainer.y - tun.y) < 22) {
+                cooldownTunel = 3.2;
+                sonar("tunel");
+                this.emisor.setPosition(tun.x, tun.y);
+                this.emisor.explode(14);
+                this.ratonContainer.setPosition(tun.destino.x, tun.destino.y);
+                this.emisor.setPosition(tun.destino.x, tun.destino.y);
+                this.emisor.explode(14);
+                this.textoFlotante(tun.destino.x, tun.destino.y - 18, "¡TÚNEL!", "#38bdf8");
+                break;
+            }
+        }
+    }
+
+    actualizarRatonIAPhaser(dt) {
+        if (ratonAturdidoTimer > 0) {
+            this.ratonContainer.body.setVelocity(0, 0);
+            return;
+        }
+
+        if (habilidadActivaTipo === "magnet") {
+            this.physics.moveToObject(this.ratonContainer, this.gatoContainer, 210);
+            this.cajas.getChildren().forEach((caja) => {
+                if (Math.hypot(caja.x - this.gatoContainer.x, caja.y - this.gatoContainer.y) < 190) {
+                    this.physics.moveToObject(caja, this.gatoContainer, 150);
+                }
+            });
+            return;
+        }
+
+        const dif = DIFICULTADES[dificultad - 1];
+        temporizadorDecisionIA += dt;
+
+        if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
+            temporizadorDecisionIA = 0;
+            const estadoActual = obtenerEstadoRed(this.ratonContainer.x, this.ratonContainer.y, this.gatoContainer.x, this.gatoContainer.y);
+
+            if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+                memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: PREMIO_VIVO, estadoNuevo: estadoActual });
+                if (memoria.length > MEMORIA_MAX) memoria.shift();
+                if (memoria.length >= TAMANO_LOTE) {
+                    const lote = [];
+                    for (let i = 0; i < TAMANO_LOTE; i++) lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
+                    entrenarLote(lote, redRaton);
+                }
+            }
+
+            const epsilon = Math.max(0.05, 0.3 - partidasEntrenadas * 0.001);
+            let accionElegida = 0;
+            const res = propagarRed(estadoActual, redRaton);
+
+            if (Math.random() < epsilon) {
+                accionElegida = Math.floor(Math.random() * SALIDAS_RED);
+            } else {
+                let mejorQ = res.salidas[0];
+                for (let i = 1; i < SALIDAS_RED; i++) {
+                    if (res.salidas[i] > mejorQ) { mejorQ = res.salidas[i]; accionElegida = i; }
+                }
+            }
+
+            accionActualRaton = ACCIONES_IA[accionElegida];
+            ultimoEstadoIA = estadoActual;
+            ultimaAccionIA = accionElegida;
+        }
+
+        const mov = accionActualRaton || ACCIONES_IA[0];
+        const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
+        let vel = (155 + nivel * 15 + nivelAprendizaje * 0.72) * dif.factorRaton;
+        vel = Math.min(vel, velocidadGato * 1.05);
+        this.ratonContainer.body.setVelocity(mov.dx * vel, mov.dy * vel);
+    }
 }
 
-function generarOndaChoque(x, y, color, radioMax) {
-    ondasChoque.push({
-        x: x,
-        y: y,
-        radio: 10,
-        radioMax: radioMax || 130,
-        color: color,
-        vida: 0.45,
-        vidaMax: 0.45
+function iniciarMotorPhaser() {
+    if (phaserGame) {
+        if (escenaActiva) escenaActiva.configurarPartidaEnEscena();
+        return;
+    }
+    phaserGame = new Phaser.Game({
+        type: Phaser.AUTO,
+        width: ANCHO_JUEGO,
+        height: ALTO_JUEGO,
+        parent: "phaser-contenedor",
+        backgroundColor: "#0d1322",
+        physics: {
+            default: "arcade",
+            arcade: { debug: false }
+        },
+        scene: [EscenaGatoCazador]
     });
 }
 
-function agregarTextoFlotante(x, y, texto, color) {
-    textosFlotantes.push({ x, y, texto, color: color || "#fbbf24", vida: 0.9 });
-}
-
+// ============================================================
+//  HABILIDADES ESPECIALES CON FÍSICAS DE PHASER 3
+// ============================================================
 function actualizarBotonHabilidad() {
     const contenedor = document.getElementById("contenedor-habilidad");
     const btn = document.getElementById("btn-habilidad");
@@ -849,306 +566,138 @@ function actualizarBotonHabilidad() {
 }
 
 function activarHabilidadEspecial() {
-    if (!juegoIniciado || pausado || modoJefeFacilier) return;
+    if (!juegoIniciado || pausado || modoJefeFacilier || !escenaActiva) return;
     if (modoMulti && rolMulti !== "gato") return;
     if (cooldownHabilidad > 0 || habilidadActivaTimer > 0) return;
 
     const skin = SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
-    const gx = gato.x + gato.w / 2;
-    const gy = gato.y + gato.h / 2;
-    const rx = raton.x + raton.w / 2;
-    const ry = raton.y + raton.h / 2;
-    const color = skin.skillColor || "#38bdf8";
+    const gatoObj = escenaActiva.gatoContainer;
+    const ratonObj = escenaActiva.ratonContainer;
+    const colorHex = skin.skillHex || 0x38bdf8;
 
     prepararAudio();
     sonar("record");
-    sacudidaPantalla = 9;
     cooldownHabilidad = skin.skillCd || 7;
-    activarBannerAnime(`⚡ ¡${skin.skillName.toUpperCase()}!`, color);
+    escenaActiva.efectoAnimeCamara(`⚡ ¡${skin.skillName.toUpperCase()}!`, colorHex, skin.skillColor);
+
+    escenaActiva.emisor.setPosition(gatoObj.x, gatoObj.y);
+    escenaActiva.emisor.explode(26);
 
     if (skin.skillType === "stun") {
         ratonAturdidoTimer = 2.5;
         habilidadActivaTipo = "stun";
         habilidadActivaTimer = 2.5;
-        generarOndaChoque(gx, gy, color, 240);
-        generarExplosionParticulas(rx, ry, color, 26, ["💫", "⚡", "👑"]);
-        agregarTextoFlotante(rx, ry - 15, "¡ATURDIDO!", color);
+        // Onda expansiva física que empuja cajas y ratón
+        const ang = Phaser.Math.Angle.Between(gatoObj.x, gatoObj.y, ratonObj.x, ratonObj.y);
+        ratonObj.body.setVelocity(Math.cos(ang) * 420, Math.sin(ang) * 420);
+        escenaActiva.cajas.getChildren().forEach((caja) => {
+            const a = Phaser.Math.Angle.Between(gatoObj.x, gatoObj.y, caja.x, caja.y);
+            caja.body.setVelocity(Math.cos(a) * 380, Math.sin(a) * 380);
+        });
+        escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 20, "¡RUGIDO SÍSMICO!", skin.skillColor);
     } else if (skin.skillType === "blink") {
-        generarExplosionParticulas(gx, gy, color, 22, ["⭐", "✨"]);
-        generarOndaChoque(gx, gy, color, 110);
-        const ang = Math.atan2(gy - ry, gx - rx);
-        gato.x = Math.max(0, Math.min(canvas.width - gato.w, raton.x + Math.cos(ang) * 44));
-        gato.y = Math.max(0, Math.min(canvas.height - gato.h, raton.y + Math.sin(ang) * 44));
-        generarExplosionParticulas(gato.x + 18, gato.y + 18, color, 26, ["⭐", "💥"]);
-        generarOndaChoque(gato.x + 18, gato.y + 18, color, 140);
+        // Teletransporte que atraviesa muros directo hacia el ratón
+        const ang = Phaser.Math.Angle.Between(ratonObj.x, ratonObj.y, gatoObj.x, gatoObj.y);
+        const nx = Phaser.Math.Clamp(ratonObj.x + Math.cos(ang) * 44, 30, ANCHO_JUEGO - 30);
+        const ny = Phaser.Math.Clamp(ratonObj.y + Math.sin(ang) * 44, 30, ALTO_JUEGO - 30);
+        gatoObj.setPosition(nx, ny);
+        escenaActiva.emisor.setPosition(nx, ny);
+        escenaActiva.emisor.explode(26);
         habilidadActivaTipo = "blink";
         habilidadActivaTimer = 0.6;
     } else if (skin.skillType === "magnet") {
         habilidadActivaTipo = "magnet";
         habilidadActivaTimer = 3.5;
-        generarOndaChoque(gx, gy, color, 220);
-        generarExplosionParticulas(gx, gy, color, 28, ["🔥", "💀"]);
     } else if (skin.skillType === "voodoo") {
-        generarExplosionParticulas(rx, ry, "#22c55e", 24, ["🃏", "♠", "♥"]);
-        generarOndaChoque(rx, ry, "#a855f7", 150);
-        raton.x = Math.max(0, Math.min(canvas.width - raton.w, gato.x + (Math.random() < 0.5 ? 46 : -46)));
-        raton.y = Math.max(0, Math.min(canvas.height - raton.h, gato.y + (Math.random() < 0.5 ? 46 : -46)));
+        ratonObj.setPosition(
+            Phaser.Math.Clamp(gatoObj.x + (Math.random() < 0.5 ? 46 : -46), 30, ANCHO_JUEGO - 30),
+            Phaser.Math.Clamp(gatoObj.y + (Math.random() < 0.5 ? 46 : -46), 30, ALTO_JUEGO - 30)
+        );
         ratonAturdidoTimer = 2.0;
-        generarExplosionParticulas(raton.x + 14, raton.y + 14, "#c084fc", 26, ["🃏", "✨"]);
-        agregarTextoFlotante(raton.x + 14, raton.y - 12, "¡TRATO VUDÚ!", "#c084fc");
+        escenaActiva.emisor.setPosition(ratonObj.x, ratonObj.y);
+        escenaActiva.emisor.explode(28);
+        escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 20, "¡TRATO VUDÚ!", "#c084fc");
         habilidadActivaTipo = "voodoo";
         habilidadActivaTimer = 2.0;
     } else {
         habilidadActivaTipo = "overdrive";
         habilidadActivaTimer = 3.5;
-        generarOndaChoque(gx, gy, color, 160);
-        generarExplosionParticulas(gx, gy, color, 24, ["⚡", "💨"]);
     }
 
     actualizarBotonHabilidad();
 }
 
-function actualizarEfectosVisuales(dt, f) {
-    if (sacudidaPantalla > 0) sacudidaPantalla = Math.max(0, sacudidaPantalla - 25 * dt);
-    if (bannerAnimeTimer > 0) bannerAnimeTimer = Math.max(0, bannerAnimeTimer - dt);
+function procesarCapturaPhaser() {
+    if (!escenaActiva || !juegoIniciado) return;
 
-    const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
-    const skin = SKINS.find((s) => s.emoji === skinId) || SKINS[0];
-
-    if (habilidadActivaTimer > 0 || skin.secreta || skin.velocidad >= 1.18) {
-        estelaGato.push({
-            x: gato.x + gato.w / 2,
-            y: gato.y + gato.h / 2,
-            vida: habilidadActivaTimer > 0 ? 0.35 : 0.22,
-            vidaMax: habilidadActivaTimer > 0 ? 0.35 : 0.22,
-            color: skin.skillColor || "#38bdf8",
-            radio: habilidadActivaTimer > 0 ? 18 : 12
-        });
+    if (modoJefeFacilier) {
+        terminarDueloFacilier(false);
+        return;
     }
 
-    for (let i = estelaGato.length - 1; i >= 0; i--) {
-        estelaGato[i].vida -= dt;
-        if (estelaGato[i].vida <= 0) estelaGato.splice(i, 1);
-    }
-
-    for (let i = particulas.length - 1; i >= 0; i--) {
-        const p = particulas[i];
-        p.x += p.vx * f;
-        p.y += p.vy * f;
-        p.vx *= 0.95;
-        p.vy *= 0.95;
-        p.vida -= dt;
-        if (p.vida <= 0) particulas.splice(i, 1);
-    }
-
-    for (let i = ondasChoque.length - 1; i >= 0; i--) {
-        const o = ondasChoque[i];
-        o.vida -= dt;
-        const prog = 1 - Math.max(0, o.vida / o.vidaMax);
-        o.radio = 10 + (o.radioMax - 10) * prog;
-        if (o.vida <= 0) ondasChoque.splice(i, 1);
-    }
-
-    for (let i = textosFlotantes.length - 1; i >= 0; i--) {
-        const tf = textosFlotantes[i];
-        tf.y -= 1.2 * f;
-        tf.vida -= dt;
-        if (tf.vida <= 0) textosFlotantes.splice(i, 1);
-    }
-}
-
-function dibujarEfectosFondo() {
-    for (const e of estelaGato) {
-        const alpha = Math.max(0, e.vida / e.vidaMax) * 0.45;
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = e.color;
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.radio * (e.vida / e.vidaMax), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    }
-
-    if (habilidadActivaTipo === "magnet") {
-        const gx = gato.x + gato.w / 2;
-        const gy = gato.y + gato.h / 2;
-        const rx = raton.x + raton.w / 2;
-        const ry = raton.y + raton.h / 2;
-        ctx.save();
-        ctx.strokeStyle = "rgba(239, 68, 68, 0.75)";
-        ctx.lineWidth = 3;
-        ctx.setLineDash([8, 6]);
-        ctx.beginPath();
-        ctx.moveTo(gx, gy);
-        ctx.lineTo(rx, ry);
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    for (const o of ondasChoque) {
-        const alpha = Math.max(0, o.vida / o.vidaMax);
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.strokeStyle = o.color;
-        ctx.lineWidth = 4 * alpha;
-        ctx.beginPath();
-        ctx.arc(o.x, o.y, o.radio, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-    }
-}
-
-function dibujarEfectosFrente() {
-    for (const p of particulas) {
-        const alpha = Math.max(0, p.vida / p.vidaMax);
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        if (p.simbolo) {
-            ctx.font = "14px Arial";
-            ctx.fillText(p.simbolo, p.x - 7, p.y + 5);
-        } else {
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.tam * alpha, 0, Math.PI * 2);
-            ctx.fill();
+    if (modoMulti) {
+        if (esAnfitrionMulti && juegoIniciado) {
+            ganadoraMulti = "gato";
+            nube.actualizarSala(salaId, { estado: "fin", ganador: "gato", tiempo: Math.max(0, Math.ceil(tiempo)) }).catch(() => {});
+            terminarJuegoMulti("gato");
         }
-        ctx.restore();
+        return;
     }
 
-    if (habilidadActivaTimer > 0) {
-        ctx.save();
-        ctx.strokeStyle = bannerAnimeColor;
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = 0.45;
-        const t = Date.now() * 0.02;
-        for (let i = 0; i < 16; i++) {
-            const ang = (Math.PI * 2 * i) / 16 + Math.sin(t + i) * 0.05;
-            const r1 = 220 + ((t * 15 + i * 37) % 60);
-            const r2 = 360;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2 + Math.cos(ang) * r1, canvas.height / 2 + Math.sin(ang) * r1);
-            ctx.lineTo(canvas.width / 2 + Math.cos(ang) * r2, canvas.height / 2 + Math.sin(ang) * r2);
-            ctx.stroke();
+    const dif = DIFICULTADES[dificultad - 1];
+    const gatoObj = escenaActiva.gatoContainer;
+    const ratonObj = escenaActiva.ratonContainer;
+
+    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
+        const estadoActual = obtenerEstadoRed(ratonObj.x, ratonObj.y, gatoObj.x, gatoObj.y);
+        memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: CASTIGO_CAPTURA_RED, estadoNuevo: estadoActual });
+        if (memoria.length > MEMORIA_MAX) memoria.shift();
+        if (memoria.length >= TAMANO_LOTE) {
+            const lote = [];
+            for (let i = 0; i < TAMANO_LOTE; i++) lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
+            entrenarLote(lote, redRaton);
+            guardarRed();
         }
-        ctx.restore();
+        ultimoEstadoIA = null;
+        ultimaAccionIA = null;
     }
 
-    for (const tf of textosFlotantes) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, tf.vida);
-        ctx.font = "bold 13px 'Press Start 2P', Arial";
-        ctx.fillStyle = tf.color;
-        ctx.textAlign = "center";
-        ctx.fillText(tf.texto, tf.x, tf.y);
-        ctx.restore();
+    const monedasGanadas = Math.round(dif.monedasPorCaptura * bonusMonedasSkin(skinActual));
+    escenaActiva.emisor.setPosition(ratonObj.x, ratonObj.y);
+    escenaActiva.emisor.explode(18);
+    escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 16, `+${monedasGanadas} 🪙`, "#fbbf24");
+    escenaActiva.cameras.main.shake(120, 0.007);
+
+    if (cooldownHabilidad > 0) {
+        cooldownHabilidad = Math.max(0, cooldownHabilidad - 0.6);
     }
 
-    if (bannerAnimeTimer > 0) {
-        ctx.save();
-        const alpha = Math.min(1, bannerAnimeTimer * 1.5);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = "rgba(6, 9, 17, 0.85)";
-        ctx.fillRect(0, canvas.height / 2 - 24, canvas.width, 48);
-        ctx.strokeStyle = bannerAnimeColor;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(0, canvas.height / 2 - 24, canvas.width, 48);
-        ctx.font = "14px 'Press Start 2P', Arial";
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.fillText(bannerAnimeTexto, canvas.width / 2, canvas.height / 2 + 6);
-        ctx.restore();
-    }
-}
-const gato = { x: 280, y: 180, w: 36, h: 36 };
-const raton = { x: 100, y: 100, w: 28, h: 28, accionActual: null };
-const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
-const toque = { activo: false, x: 0, y: 0 };
+    puntos++;
+    capturasTotales++;
+    monedas += monedasGanadas;
+    monedasPartida += monedasGanadas;
+    experienciaRaton++;
 
-// ============================================================
-//  AUDIO SINTETIZADO (WEB AUDIO API)
-// ============================================================
-let audioCtx = null;
-let intervaloMusica = null;
+    guardar("monedas", monedas);
+    guardar("capturasTotales", capturasTotales);
+    guardar("experienciaRaton", experienciaRaton);
 
-function prepararAudio() {
-    if (!audioCtx) {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (Ctx) audioCtx = new Ctx();
-    }
-    if (audioCtx && audioCtx.state === "suspended") {
-        audioCtx.resume().catch(() => {});
-    }
-}
-
-function sonar(tipo) {
-    if (!sonidoActivo) return;
-    prepararAudio();
-    if (!audioCtx) return;
-
-    const ahora = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    if (tipo === "captura") {
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(520, ahora);
-        osc.frequency.exponentialRampToValueAtTime(880, ahora + 0.11);
-        gain.gain.setValueAtTime(0.14, ahora);
-        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.12);
-        osc.start(ahora);
-        osc.stop(ahora + 0.12);
-    } else if (tipo === "nivel" || tipo === "record" || tipo === "compra") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(440, ahora);
-        osc.frequency.setValueAtTime(554, ahora + 0.08);
-        osc.frequency.setValueAtTime(659, ahora + 0.16);
-        gain.gain.setValueAtTime(0.15, ahora);
-        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.3);
-        osc.start(ahora);
-        osc.stop(ahora + 0.3);
-    } else if (tipo === "error") {
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(180, ahora);
-        osc.frequency.linearRampToValueAtTime(110, ahora + 0.22);
-        gain.gain.setValueAtTime(0.14, ahora);
-        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.23);
-        osc.start(ahora);
-        osc.stop(ahora + 0.23);
+    const nivelNuevo = Math.floor(puntos / CAPTURAS_POR_NIVEL) + 1;
+    if (nivelNuevo > nivel) {
+        nivel = nivelNuevo;
+        tiempo += BONUS_TIEMPO_NIVEL;
+        escenaActiva.fondoRect.setFillStyle(FONDOS_HEX[(nivel - 1) % FONDOS_HEX.length]);
+        escenaActiva.ratonTexto.setText(RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length]);
+        escenaActiva.construirArena(nivel);
+        mostrarLogro(`¡Nivel ${nivel}! Nueva arena y +${BONUS_TIEMPO_NIVEL}s`);
+        sonar("nivel");
     } else {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(600, ahora);
-        gain.gain.setValueAtTime(0.08, ahora);
-        gain.gain.exponentialRampToValueAtTime(0.001, ahora + 0.07);
-        osc.start(ahora);
-        osc.stop(ahora + 0.07);
+        sonar("captura");
     }
-}
 
-function sincronizarMusica() {
-    const debeSonar = musicaActiva && juegoIniciado && !pausado;
-    if (debeSonar && !intervaloMusica) {
-        const notas = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
-        let paso = 0;
-        intervaloMusica = setInterval(() => {
-            if (!musicaActiva || !juegoIniciado || pausado || !audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "triangle";
-            osc.frequency.value = notas[paso % notas.length];
-            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0008, audioCtx.currentTime + 0.22);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.23);
-            paso++;
-        }, 280);
-    } else if (!debeSonar && intervaloMusica) {
-        clearInterval(intervaloMusica);
-        intervaloMusica = null;
-    }
+    actualizarMarcador();
+    actualizarNivelVisualIA();
+    escenaActiva.reaparecerRatonSeguro();
 }
 
 // ============================================================
@@ -1238,14 +787,9 @@ function actualizarNivelVisualIA() {
     }
 
     const badgeInfierno = document.getElementById("badge-tate-infierno");
-    if (badgeInfierno) {
-        badgeInfierno.style.display = skinsCompradas.includes("tate_sombrero") ? "inline-block" : "none";
-    }
-
+    if (badgeInfierno) badgeInfierno.style.display = skinsCompradas.includes("tate_sombrero") ? "inline-block" : "none";
     const badgeFacilier = document.getElementById("badge-tate-facilier");
-    if (badgeFacilier) {
-        badgeFacilier.style.display = skinsCompradas.includes("tate_facilier") ? "inline-block" : "none";
-    }
+    if (badgeFacilier) badgeFacilier.style.display = skinsCompradas.includes("tate_facilier") ? "inline-block" : "none";
 
     const elementoRecord = document.getElementById("record-valor");
     if (elementoRecord) elementoRecord.innerText = record;
@@ -1283,7 +827,6 @@ function cambiarPantalla(pantallaObjetivo) {
 
     if (pantallaObjetivo === "zona-juego") {
         document.getElementById("zona-juego").style.display = "flex";
-        document.getElementById("juego").style.display = "block";
         document.getElementById("marcador").style.display = "flex";
     } else if (pantallaObjetivo === "menu-inicio") {
         document.getElementById("menu-inicio").style.display = "grid";
@@ -1293,38 +836,11 @@ function cambiarPantalla(pantallaObjetivo) {
     }
 }
 
-function reaparecerRaton() {
-    const centroGatoX = gato.x + gato.w / 2;
-    const centroGatoY = gato.y + gato.h / 2;
-
-    for (let intento = 0; intento < 30; intento++) {
-        const x = Math.random() * (canvas.width - raton.w);
-        const y = Math.random() * (canvas.height - raton.h);
-        const distancia = Math.hypot(x + raton.w / 2 - centroGatoX, y + raton.h / 2 - centroGatoY);
-        if (distancia >= DISTANCIA_MIN_APARICION) {
-            raton.x = x;
-            raton.y = y;
-            raton.targetX = null;
-            raton.targetY = null;
-            return;
-        }
-    }
-
-    raton.x = centroGatoX < canvas.width / 2 ? canvas.width - raton.w : 0;
-    raton.y = centroGatoY < canvas.height / 2 ? canvas.height - raton.h : 0;
-    raton.targetX = null;
-    raton.targetY = null;
-}
-
 function empezarJuego() {
     modoMulti = false;
     modoJefeFacilier = false;
     rolMulti = null;
     esAnfitrionMulti = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
 
     juegoIniciado = true;
     pausado = false;
@@ -1333,27 +849,16 @@ function empezarJuego() {
     puntos = 0;
     nivel = 1;
     monedasPartida = 0;
-    ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
     temporizadorDecisionIA = 0;
     ultimoEstadoIA = null;
     ultimaAccionIA = null;
 
-    particulas = [];
-    ondasChoque = [];
-    estelaGato = [];
-    textosFlotantes = [];
-    sacudidaPantalla = 0;
     cooldownHabilidad = 0;
     habilidadActivaTipo = null;
     habilidadActivaTimer = 0;
     ratonAturdidoTimer = 0;
-    bannerAnimeTimer = 0;
-
-    gato.x = canvas.width / 2 - gato.w / 2;
-    gato.y = canvas.height / 2 - gato.h / 2;
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
-    reaparecerRaton();
 
     document.getElementById("marcador-rol").style.display = "none";
     document.getElementById("marcador-puntos").style.display = "";
@@ -1363,8 +868,8 @@ function empezarJuego() {
     actualizarBotonHabilidad();
     actualizarMarcador();
     cambiarPantalla("zona-juego");
+    iniciarMotorPhaser();
     sincronizarMusica();
-    animacionId = requestAnimationFrame(gameLoop);
 }
 
 // ============================================================
@@ -1391,10 +896,6 @@ function intentarDueloFacilier() {
     modoJefeFacilier = true;
     rolMulti = null;
     esAnfitrionMulti = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
 
     juegoIniciado = true;
     pausado = false;
@@ -1402,23 +903,10 @@ function intentarDueloFacilier() {
     tiempo = DURACION_PARTIDA;
     puntos = 0;
     nivel = 1;
-    ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
-    jefeVelX = 0;
-    jefeVelY = 0;
-
-    particulas = [];
-    ondasChoque = [];
-    estelaGato = [];
-    textosFlotantes = [];
     cooldownHabilidad = 0;
     habilidadActivaTipo = null;
     habilidadActivaTimer = 0;
-
-    raton.x = canvas.width / 2 - raton.w / 2;
-    raton.y = canvas.height / 2 - raton.h / 2;
-    gato.x = 30;
-    gato.y = 30;
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
 
     const elRol = document.getElementById("marcador-rol");
@@ -1433,51 +921,15 @@ function intentarDueloFacilier() {
 
     actualizarBotonHabilidad();
     cambiarPantalla("zona-juego");
+    iniciarMotorPhaser();
     sincronizarMusica();
     sonar("record");
-    mostrarLogro("🎩 ¡CORRE! Haz quiebres para esquivar a Dr. Facilier");
-    animacionId = requestAnimationFrame(gameLoop);
-}
-
-function actualizarRatonJugadorVudu(f) {
-    const { dx, dy } = obtenerVectorEntrada(raton);
-    raton.x += dx * VELOCIDAD_RATON_JUGADOR_VUDU * f;
-    raton.y += dy * VELOCIDAD_RATON_JUGADOR_VUDU * f;
-
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
-}
-
-function actualizarJefeFacilier(f) {
-    const boostFinal = tiempo <= 15 ? 0.4 : 0;
-    const velJefe = VELOCIDAD_JEFE_FACILIER_BASE + boostFinal;
-
-    const dx = (raton.x + raton.w / 2) - (gato.x + gato.w / 2);
-    const dy = (raton.y + raton.h / 2) - (gato.y + gato.h / 2);
-    const dist = Math.hypot(dx, dy) || 1;
-
-    const objetivoVx = (dx / dist) * velJefe;
-    const objetivoVy = (dy / dist) * velJefe;
-    const factorGiro = Math.min(1, 0.11 * f);
-
-    jefeVelX += (objetivoVx - jefeVelX) * factorGiro;
-    jefeVelY += (objetivoVy - jefeVelY) * factorGiro;
-
-    gato.x += jefeVelX * f;
-    gato.y += jefeVelY * f;
-
-    gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
-    gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
+    mostrarLogro("🎩 ¡CORRE! Usa las cajas para frenar a Dr. Facilier");
 }
 
 function terminarDueloFacilier(victoria) {
     modoJefeFacilier = false;
     juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-
     document.getElementById("marcador-rol").style.color = "var(--accent-gold-light)";
     sincronizarMusica();
 
@@ -1523,11 +975,6 @@ function terminarDueloFacilier(victoria) {
 
 function terminarJuego() {
     juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-
     const esRecord = puntos > record;
     if (esRecord) {
         record = puntos;
@@ -1553,14 +1000,8 @@ function terminarJuego() {
     actualizarNivelVisualIA();
 }
 
-function reiniciarJuego() {
-    empezarJuego();
-}
-
-function abrirAjustes() {
-    cambiarPantalla("menu-ajustes");
-}
-
+function reiniciarJuego() { empezarJuego(); }
+function abrirAjustes() { cambiarPantalla("menu-ajustes"); }
 function abrirTienda() {
     construirTienda();
     cambiarPantalla("menu-tienda");
@@ -1576,13 +1017,66 @@ function volverMenu() {
     esAnfitrionMulti = false;
     juegoIniciado = false;
     document.getElementById("marcador-rol").style.color = "var(--accent-gold-light)";
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
     sincronizarMusica();
     cambiarPantalla("menu-inicio");
     actualizarNivelVisualIA();
+}
+
+function actualizarTiempo(dt) {
+    if (cooldownHabilidad > 0) {
+        cooldownHabilidad = Math.max(0, cooldownHabilidad - dt);
+        actualizarBotonHabilidad();
+    }
+    if (habilidadActivaTimer > 0) {
+        habilidadActivaTimer = Math.max(0, habilidadActivaTimer - dt);
+        if (habilidadActivaTimer <= 0) habilidadActivaTipo = null;
+        actualizarBotonHabilidad();
+    }
+    if (ratonAturdidoTimer > 0) {
+        ratonAturdidoTimer = Math.max(0, ratonAturdidoTimer - dt);
+    }
+
+    if (modoJefeFacilier) {
+        tiempo -= dt;
+        const segundos = Math.max(0, Math.ceil(tiempo));
+        if (segundos !== ultimoSegundoMostrado) {
+            ultimoSegundoMostrado = segundos;
+            document.getElementById("tiempo-valor").innerText = segundos;
+        }
+        if (tiempo <= 0 && juegoIniciado) terminarDueloFacilier(true);
+        return;
+    }
+
+    if (modoMulti) {
+        if (esAnfitrionMulti) {
+            tiempo -= dt;
+            const segundos = Math.max(0, Math.ceil(tiempo));
+            if (segundos !== ultimoSegundoMostrado) {
+                ultimoSegundoMostrado = segundos;
+                document.getElementById("tiempo-valor").innerText = segundos;
+            }
+            if (tiempo <= 0 && juegoIniciado) {
+                ganadoraMulti = "raton";
+                nube.actualizarSala(salaId, { estado: "fin", ganador: "raton", tiempo: 0 }).catch(() => {});
+                terminarJuegoMulti("raton");
+            }
+        } else {
+            const segundos = Math.max(0, Math.ceil(tiempo));
+            if (segundos !== ultimoSegundoMostrado) {
+                ultimoSegundoMostrado = segundos;
+                document.getElementById("tiempo-valor").innerText = segundos;
+            }
+        }
+        return;
+    }
+
+    tiempo -= dt;
+    const segundos = Math.max(0, Math.ceil(tiempo));
+    if (segundos !== ultimoSegundoMostrado) {
+        ultimoSegundoMostrado = segundos;
+        document.getElementById("tiempo-valor").innerText = segundos;
+    }
+    if (tiempo <= 0) terminarJuego();
 }
 
 function actualizarTextoDificultad() {
@@ -1629,26 +1123,16 @@ function cambiarMusica() {
 
 function borrarProgreso() {
     if (!confirm("¿Seguro? Se borrarán monedas, skins, mejoras, misiones, récord y el cerebro neuronal de la IA.")) return;
-
     try {
         ["record", "monedas", "skin", "skinsCompradas", "nivelesSkins", "capturasTotales", "experienciaRaton", "dificultad", "misionesReclamadas", "victorias1v1", CLAVE_RED, "partidasEntrenadasRed"].forEach((clave) => {
             localStorage.removeItem(claveAlmacen(clave));
         });
     } catch (e) {}
 
-    record = 0;
-    monedas = 0;
-    capturasTotales = 0;
-    victorias1v1 = 0;
-    misionesReclamadas = {};
-    skinsCompradas = ["🐱"];
-    nivelesSkins = { "🐱": 1 };
-    skinActual = "🐱";
-    experienciaRaton = 0;
-    dificultad = 1;
-    velocidadGato = DIFICULTADES[0].velGato;
-    redRaton = crearRed();
-    partidasEntrenadas = 0;
+    record = 0; monedas = 0; capturasTotales = 0; victorias1v1 = 0;
+    misionesReclamadas = {}; skinsCompradas = ["🐱"]; nivelesSkins = { "🐱": 1 };
+    skinActual = "🐱"; experienciaRaton = 0; dificultad = 1;
+    velocidadGato = DIFICULTADES[0].velGato; redRaton = crearRed(); partidasEntrenadas = 0;
 
     actualizarTextoDificultad();
     actualizarNivelVisualIA();
@@ -1660,28 +1144,22 @@ function borrarProgreso() {
     mostrarLogro("Progreso, mejoras y red neuronal borrados");
 }
 
-// --- TIENDA, SKINS Y MEJORAS DE PERSONAJE ---
+// --- TIENDA, SKINS Y MEJORAS ---
 function obtenerNivelSkin(emoji) {
     const n = Number(nivelesSkins[emoji]);
     return Number.isFinite(n) && n >= 1 ? Math.min(MAX_NIVEL_MEJORA, Math.floor(n)) : 1;
 }
-
 function costoSubirNivelSkin(skin, nivelActual) {
     return Math.round((skin.costoMejora || 100) * Math.pow(1.65, nivelActual - 1));
 }
-
 function bonusVelocidadSkin(emoji) {
     const skin = SKINS.find((s) => s.emoji === emoji);
     if (!skin) return 1;
-    const nivelPj = obtenerNivelSkin(emoji);
-    return skin.velocidad + (nivelPj - 1) * 0.06;
+    return skin.velocidad + (obtenerNivelSkin(emoji) - 1) * 0.06;
 }
-
 function bonusMonedasSkin(emoji) {
-    const nivelPj = obtenerNivelSkin(emoji);
-    return 1 + (nivelPj - 1) * 0.25;
+    return 1 + (obtenerNivelSkin(emoji) - 1) * 0.25;
 }
-
 function bonusSkin() {
     return bonusVelocidadSkin(skinActual);
 }
@@ -1867,54 +1345,6 @@ function equiparSkin(emoji, mensaje) {
     mostrarLogro((mensaje || "Equipado: " + nombre) + extra);
 }
 
-// --- LÓGICA DE MOVIMIENTO ---
-function obtenerVectorEntrada(entidad) {
-    let dx = (teclas.derecha ? 1 : 0) - (teclas.izquierda ? 1 : 0);
-    let dy = (teclas.abajo ? 1 : 0) - (teclas.arriba ? 1 : 0);
-
-    if (dx !== 0 && dy !== 0) {
-        dx *= Math.SQRT1_2;
-        dy *= Math.SQRT1_2;
-    }
-
-    if (toque.activo) {
-        const ox = toque.x - (entidad.x + entidad.w / 2);
-        const oy = toque.y - (entidad.y + entidad.h / 2);
-        const distanciaToque = Math.hypot(ox, oy);
-        if (distanciaToque > 8) {
-            dx = ox / distanciaToque;
-            dy = oy / distanciaToque;
-        } else {
-            dx = 0;
-            dy = 0;
-        }
-    }
-    return { dx, dy };
-}
-
-function actualizarGato(f) {
-    const { dx, dy } = obtenerVectorEntrada(gato);
-    const boostHabilidad = habilidadActivaTipo === "overdrive" ? 1.45 : 1.0;
-    const velocidadActual = modoMulti
-        ? (VELOCIDAD_GATO_1V1 * boostHabilidad)
-        : (velocidadGato * bonusSkin() * boostHabilidad);
-
-    gato.x += dx * velocidadActual * f;
-    gato.y += dy * velocidadActual * f;
-
-    gato.x = Math.max(0, Math.min(canvas.width - gato.w, gato.x));
-    gato.y = Math.max(0, Math.min(canvas.height - gato.h, gato.y));
-}
-
-function actualizarRatonJugador(f) {
-    const { dx, dy } = obtenerVectorEntrada(raton);
-    raton.x += dx * VELOCIDAD_RATON_1V1 * f;
-    raton.y += dy * VELOCIDAD_RATON_1V1 * f;
-
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y));
-}
-
 // ============================================================
 //  IA DEL RATÓN: RED NEURONAL + APRENDIZAJE POR REFUERZO (DQN)
 // ============================================================
@@ -1960,18 +1390,13 @@ function propagarRed(entrada, red) {
     const ocultas = new Float64Array(OCULTAS_RED);
     for (let i = 0; i < OCULTAS_RED; i++) {
         let suma = red.w1[i * (ENTRADAS_RED + 1)];
-        for (let j = 0; j < ENTRADAS_RED; j++) {
-            suma += entrada[j] * red.w1[i * (ENTRADAS_RED + 1) + j + 1];
-        }
+        for (let j = 0; j < ENTRADAS_RED; j++) suma += entrada[j] * red.w1[i * (ENTRADAS_RED + 1) + j + 1];
         ocultas[i] = tanh(suma);
     }
-
     const salidas = new Float64Array(SALIDAS_RED);
     for (let i = 0; i < SALIDAS_RED; i++) {
         let suma = red.w2[i * (OCULTAS_RED + 1)];
-        for (let j = 0; j < OCULTAS_RED; j++) {
-            suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
-        }
+        for (let j = 0; j < OCULTAS_RED; j++) suma += ocultas[j] * red.w2[i * (OCULTAS_RED + 1) + j + 1];
         salidas[i] = suma;
     }
     return { ocultas, salidas };
@@ -1983,39 +1408,28 @@ function entrenarLote(lote, red) {
         const resAnt = propagarRed(exp.estado, red);
         const resNuevo = propagarRed(exp.estadoNuevo, red);
         let maxQuesNuevo = resNuevo.salidas[0];
-        for (let i = 1; i < SALIDAS_RED; i++) {
-            if (resNuevo.salidas[i] > maxQuesNuevo) maxQuesNuevo = resNuevo.salidas[i];
-        }
+        for (let i = 1; i < SALIDAS_RED; i++) if (resNuevo.salidas[i] > maxQuesNuevo) maxQuesNuevo = resNuevo.salidas[i];
 
         const objetivoQ = new Float64Array(resAnt.salidas);
         objetivoQ[exp.accion] = exp.recompensa + DESCUENTO * maxQuesNuevo;
 
         const gradSalidas = new Float64Array(SALIDAS_RED);
-        for (let i = 0; i < SALIDAS_RED; i++) {
-            gradSalidas[i] = objetivoQ[i] - resAnt.salidas[i];
-        }
+        for (let i = 0; i < SALIDAS_RED; i++) gradSalidas[i] = objetivoQ[i] - resAnt.salidas[i];
 
         const gradOcultas = new Float64Array(OCULTAS_RED);
         for (let i = 0; i < OCULTAS_RED; i++) {
             let error = 0;
-            for (let j = 0; j < SALIDAS_RED; j++) {
-                error += gradSalidas[j] * red.w2[j * (OCULTAS_RED + 1) + i + 1];
-            }
+            for (let j = 0; j < SALIDAS_RED; j++) error += gradSalidas[j] * red.w2[j * (OCULTAS_RED + 1) + i + 1];
             gradOcultas[i] = error * dTanh(resAnt.ocultas[i]);
         }
 
         for (let i = 0; i < SALIDAS_RED; i++) {
             red.w2[i * (OCULTAS_RED + 1)] += TASA_APRENDIZAJE * gradSalidas[i];
-            for (let j = 0; j < OCULTAS_RED; j++) {
-                red.w2[i * (OCULTAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradSalidas[i] * resAnt.ocultas[j];
-            }
+            for (let j = 0; j < OCULTAS_RED; j++) red.w2[i * (OCULTAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradSalidas[i] * resAnt.ocultas[j];
         }
-
         for (let i = 0; i < OCULTAS_RED; i++) {
             red.w1[i * (ENTRADAS_RED + 1)] += TASA_APRENDIZAJE * gradOcultas[i];
-            for (let j = 0; j < ENTRADAS_RED; j++) {
-                red.w1[i * (ENTRADAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradOcultas[i] * exp.estado[j];
-            }
+            for (let j = 0; j < ENTRADAS_RED; j++) red.w1[i * (ENTRADAS_RED + 1) + j + 1] += TASA_APRENDIZAJE * gradOcultas[i] * exp.estado[j];
         }
     }
 }
@@ -2030,139 +1444,52 @@ let partidasEntrenadas = Number(localStorage.getItem("partidasEntrenadasRed")) |
 let temporizadorDecisionIA = 0;
 let ultimoEstadoIA = null;
 let ultimaAccionIA = null;
+let accionActualRaton = ACCIONES_IA[0];
 let memoria = [];
 
 function obtenerEstadoRed(rx, ry, gx, gy) {
-    return [
-        rx / canvas.width,
-        ry / canvas.height,
-        gx / canvas.width,
-        gy / canvas.height,
-        (gx - rx) / canvas.width,
-        (gy - ry) / canvas.height
-    ];
-}
-
-function actualizarRaton(dt, f) {
-    if (ratonAturdidoTimer > 0) return;
-
-    if (habilidadActivaTipo === "magnet") {
-        const dx = (gato.x + gato.w / 2) - (raton.x + raton.w / 2);
-        const dy = (gato.y + gato.h / 2) - (raton.y + raton.h / 2);
-        const dist = Math.hypot(dx, dy) || 1;
-        raton.x += (dx / dist) * 3.2 * f;
-        raton.y += (dy / dist) * 3.2 * f;
-    }
-
-    const dif = DIFICULTADES[dificultad - 1];
-    temporizadorDecisionIA += dt;
-
-    if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
-        temporizadorDecisionIA = 0;
-        const estadoActual = obtenerEstadoRed(raton.x, raton.y, gato.x, gato.y);
-
-        if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-            const recompensa = PREMIO_VIVO;
-            memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa, estadoNuevo: estadoActual });
-            if (memoria.length > MEMORIA_MAX) memoria.shift();
-
-            if (memoria.length >= TAMANO_LOTE) {
-                const lote = [];
-                for (let i = 0; i < TAMANO_LOTE; i++) {
-                    lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
-                }
-                entrenarLote(lote, redRaton);
-            }
-        }
-
-        const epsilon = Math.max(0.05, 0.3 - partidasEntrenadas * 0.001);
-        let accionElegida = 0;
-        const res = propagarRed(estadoActual, redRaton);
-
-        if (Math.random() < epsilon) {
-            accionElegida = Math.floor(Math.random() * SALIDAS_RED);
-        } else {
-            let mejorQ = res.salidas[0];
-            for (let i = 1; i < SALIDAS_RED; i++) {
-                if (res.salidas[i] > mejorQ) {
-                    mejorQ = res.salidas[i];
-                    accionElegida = i;
-                }
-            }
-        }
-
-        raton.accionActual = ACCIONES_IA[accionElegida];
-        ultimoEstadoIA = estadoActual;
-        ultimaAccionIA = accionElegida;
-    }
-
-    if (!raton.accionActual) raton.accionActual = ACCIONES_IA[0];
-    const mov = raton.accionActual;
-    const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-    let vel = (2.6 + nivel * 0.25 + nivelAprendizaje * 0.012) * dif.factorRaton;
-    vel = Math.min(vel, velocidadGato * 1.05);
-
-    raton.x = Math.max(0, Math.min(canvas.width - raton.w, raton.x + mov.dx * vel * f));
-    raton.y = Math.max(0, Math.min(canvas.height - raton.h, raton.y + mov.dy * vel * f));
+    return [rx / ANCHO_JUEGO, ry / ALTO_JUEGO, gx / ANCHO_JUEGO, gy / ALTO_JUEGO, (gx - rx) / ANCHO_JUEGO, (gy - ry) / ALTO_JUEGO];
 }
 
 function entrenarIAAcelerado() {
     const numPartidas = 50;
     let capturasSim = 0;
-
     for (let p = 0; p < numPartidas; p++) {
-        let simGato = { x: Math.random() * (canvas.width - 35), y: Math.random() * (canvas.height - 35) };
-        let simRaton = { x: Math.random() * (canvas.width - 28), y: Math.random() * (canvas.height - 28) };
-        let pasosPartida = 150;
-
-        for (let s = 0; s < pasosPartida; s++) {
+        let simGato = { x: Math.random() * (ANCHO_JUEGO - 35), y: Math.random() * (ALTO_JUEGO - 35) };
+        let simRaton = { x: Math.random() * (ANCHO_JUEGO - 28), y: Math.random() * (ALTO_JUEGO - 28) };
+        for (let s = 0; s < 150; s++) {
             const estado = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
             const res = propagarRed(estado, redRaton);
-
             let accion = 0;
-            if (Math.random() < 0.2) {
-                accion = Math.floor(Math.random() * SALIDAS_RED);
-            } else {
+            if (Math.random() < 0.2) accion = Math.floor(Math.random() * SALIDAS_RED);
+            else {
                 let maxQ = res.salidas[0];
-                for (let i = 1; i < SALIDAS_RED; i++) {
-                    if (res.salidas[i] > maxQ) { maxQ = res.salidas[i]; accion = i; }
-                }
+                for (let i = 1; i < SALIDAS_RED; i++) if (res.salidas[i] > maxQ) { maxQ = res.salidas[i]; accion = i; }
             }
-
             const mov = ACCIONES_IA[accion];
-            simRaton.x = Math.max(0, Math.min(canvas.width - 28, simRaton.x + mov.dx * 4.5));
-            simRaton.y = Math.max(0, Math.min(canvas.height - 28, simRaton.y + mov.dy * 4.5));
-
+            simRaton.x = Math.max(0, Math.min(ANCHO_JUEGO - 28, simRaton.x + mov.dx * 4.5));
+            simRaton.y = Math.max(0, Math.min(ALTO_JUEGO - 28, simRaton.y + mov.dy * 4.5));
             const dx = simRaton.x - simGato.x;
             const dy = simRaton.y - simGato.y;
             const dist = Math.hypot(dx, dy) || 1;
-            simGato.x = Math.max(0, Math.min(canvas.width - 35, simGato.x + (dx / dist) * 4.8));
-            simGato.y = Math.max(0, Math.min(canvas.height - 35, simGato.y + (dy / dist) * 4.8));
-
+            simGato.x = Math.max(0, Math.min(ANCHO_JUEGO - 35, simGato.x + (dx / dist) * 4.8));
+            simGato.y = Math.max(0, Math.min(ALTO_JUEGO - 35, simGato.y + (dy / dist) * 4.8));
             const distDespues = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
             const estadoNuevo = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
-
-            let recompensa = PREMIO_VIVO;
-            if (distDespues < RADIO_CAPTURA) {
-                recompensa = CASTIGO_CAPTURA_RED;
+            if (distDespues < 34) {
                 capturasSim++;
-                memoria.push({ estado, accion, recompensa, estadoNuevo });
+                memoria.push({ estado, accion, recompensa: CASTIGO_CAPTURA_RED, estadoNuevo });
                 break;
             }
-
-            memoria.push({ estado, accion, recompensa, estadoNuevo });
+            memoria.push({ estado, accion, recompensa: PREMIO_VIVO, estadoNuevo });
             if (memoria.length > MEMORIA_MAX) memoria.shift();
         }
-
         if (memoria.length >= TAMANO_LOTE) {
             const lote = [];
-            for (let i = 0; i < TAMANO_LOTE; i++) {
-                lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
-            }
+            for (let i = 0; i < TAMANO_LOTE; i++) lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
             entrenarLote(lote, redRaton);
         }
     }
-
     partidasEntrenadas += numPartidas;
     experienciaRaton += Math.floor(capturasSim / 2) + 5;
     guardarRed();
@@ -2170,399 +1497,6 @@ function entrenarIAAcelerado() {
     actualizarNivelVisualIA();
     sonar("nivel");
     mostrarLogro(`🧠 ¡Red Neuronal entrenada (${partidasEntrenadas} partidas)!`);
-}
-
-function revisarColision() {
-    const distancia = Math.hypot(
-        (gato.x + gato.w / 2) - (raton.x + raton.w / 2),
-        (gato.y + gato.h / 2) - (raton.y + raton.h / 2)
-    );
-    if (distancia >= RADIO_CAPTURA) return;
-
-    if (modoJefeFacilier) {
-        terminarDueloFacilier(false);
-        return;
-    }
-
-    if (modoMulti) {
-        if (esAnfitrionMulti && juegoIniciado) {
-            ganadoraMulti = "gato";
-            nube.actualizarSala(salaId, { estado: "fin", ganador: "gato", tiempo: Math.max(0, Math.ceil(tiempo)) }).catch(() => {});
-            terminarJuegoMulti("gato");
-        }
-        return;
-    }
-
-    const dif = DIFICULTADES[dificultad - 1];
-
-    if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-        const estadoActual = obtenerEstadoRed(raton.x, raton.y, gato.x, gato.y);
-        memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: CASTIGO_CAPTURA_RED, estadoNuevo: estadoActual });
-        if (memoria.length > MEMORIA_MAX) memoria.shift();
-
-        if (memoria.length >= TAMANO_LOTE) {
-            const lote = [];
-            for (let i = 0; i < TAMANO_LOTE; i++) {
-                lote.push(memoria[Math.floor(Math.random() * memoria.length)]);
-            }
-            entrenarLote(lote, redRaton);
-            guardarRed();
-        }
-        ultimoEstadoIA = null;
-        ultimaAccionIA = null;
-    }
-
-    const monedasGanadas = Math.round(dif.monedasPorCaptura * bonusMonedasSkin(skinActual));
-    const skinObj = SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
-    const rx = raton.x + raton.w / 2;
-    const ry = raton.y + raton.h / 2;
-
-    generarExplosionParticulas(rx, ry, skinObj.skillColor || "#fbbf24", 18, ["✨", "💥"]);
-    generarOndaChoque(rx, ry, skinObj.skillColor || "#fbbf24", 75);
-    agregarTextoFlotante(rx, ry - 12, `+${monedasGanadas} 🪙`, "#fbbf24");
-    sacudidaPantalla = 4;
-
-    if (cooldownHabilidad > 0) {
-        cooldownHabilidad = Math.max(0, cooldownHabilidad - 0.6);
-    }
-
-    puntos++;
-    capturasTotales++;
-    monedas += monedasGanadas;
-    monedasPartida += monedasGanadas;
-    experienciaRaton++;
-
-    guardar("monedas", monedas);
-    guardar("capturasTotales", capturasTotales);
-    guardar("experienciaRaton", experienciaRaton);
-
-    const nivelNuevo = Math.floor(puntos / CAPTURAS_POR_NIVEL) + 1;
-    if (nivelNuevo > nivel) {
-        nivel = nivelNuevo;
-        tiempo += BONUS_TIEMPO_NIVEL;
-        mostrarLogro(`¡Nivel ${nivel}! +${BONUS_TIEMPO_NIVEL}s`);
-        sonar("nivel");
-    } else {
-        sonar("captura");
-    }
-
-    actualizarMarcador();
-    actualizarNivelVisualIA();
-    reaparecerRaton();
-}
-
-function actualizarTiempo(dt) {
-    if (cooldownHabilidad > 0) {
-        cooldownHabilidad = Math.max(0, cooldownHabilidad - dt);
-        actualizarBotonHabilidad();
-    }
-    if (habilidadActivaTimer > 0) {
-        habilidadActivaTimer = Math.max(0, habilidadActivaTimer - dt);
-        if (habilidadActivaTimer <= 0) habilidadActivaTipo = null;
-        actualizarBotonHabilidad();
-    }
-    if (ratonAturdidoTimer > 0) {
-        ratonAturdidoTimer = Math.max(0, ratonAturdidoTimer - dt);
-    }
-
-    if (modoJefeFacilier) {
-        tiempo -= dt;
-        const segundos = Math.max(0, Math.ceil(tiempo));
-        if (segundos !== ultimoSegundoMostrado) {
-            ultimoSegundoMostrado = segundos;
-            document.getElementById("tiempo-valor").innerText = segundos;
-        }
-        if (tiempo <= 0 && juegoIniciado) {
-            terminarDueloFacilier(true);
-        }
-        return;
-    }
-
-    if (modoMulti) {
-        if (esAnfitrionMulti) {
-            tiempo -= dt;
-            const segundos = Math.max(0, Math.ceil(tiempo));
-            if (segundos !== ultimoSegundoMostrado) {
-                ultimoSegundoMostrado = segundos;
-                document.getElementById("tiempo-valor").innerText = segundos;
-            }
-            if (tiempo <= 0 && juegoIniciado) {
-                ganadoraMulti = "raton";
-                nube.actualizarSala(salaId, { estado: "fin", ganador: "raton", tiempo: 0 }).catch(() => {});
-                terminarJuegoMulti("raton");
-            }
-        } else {
-            const segundos = Math.max(0, Math.ceil(tiempo));
-            if (segundos !== ultimoSegundoMostrado) {
-                ultimoSegundoMostrado = segundos;
-                document.getElementById("tiempo-valor").innerText = segundos;
-            }
-        }
-        return;
-    }
-
-    tiempo -= dt;
-    const segundos = Math.max(0, Math.ceil(tiempo));
-    if (segundos !== ultimoSegundoMostrado) {
-        ultimoSegundoMostrado = segundos;
-        document.getElementById("tiempo-valor").innerText = segundos;
-    }
-
-    if (tiempo <= 0) {
-        terminarJuego();
-    }
-}
-
-function gameLoop(timestamp) {
-    if (!juegoIniciado) return;
-    sincronizarMusica();
-
-    if (pausado && !modoMulti && !modoJefeFacilier) {
-        ultimoTimestamp = null;
-        dibujar();
-        animacionId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
-    if (ultimoTimestamp === null) ultimoTimestamp = timestamp;
-    const dt = Math.min((timestamp - ultimoTimestamp) / 1000, 0.1);
-    ultimoTimestamp = timestamp;
-    const f = dt * 60;
-
-    if (modoJefeFacilier) {
-        actualizarRatonJugadorVudu(f);
-        actualizarJefeFacilier(f);
-        revisarColision();
-    } else if (modoMulti) {
-        if (rolMulti === "gato") {
-            actualizarGato(f);
-            raton.x += (destinoRemoto.x - raton.x) * Math.min(1, 0.45 * f);
-            raton.y += (destinoRemoto.y - raton.y) * Math.min(1, 0.45 * f);
-        } else {
-            actualizarRatonJugador(f);
-            gato.x += (destinoRemoto.x - gato.x) * Math.min(1, 0.45 * f);
-            gato.y += (destinoRemoto.y - gato.y) * Math.min(1, 0.45 * f);
-        }
-        if (esAnfitrionMulti) {
-            revisarColision();
-        }
-        enviarEstadoMulti();
-    } else {
-        actualizarGato(f);
-        actualizarRaton(dt, f);
-        revisarColision();
-    }
-
-    actualizarEfectosVisuales(dt, f);
-    dibujar();
-    actualizarTiempo(dt);
-
-    if (juegoIniciado) {
-        animacionId = requestAnimationFrame(gameLoop);
-    }
-}
-
-function dibujarSombreroElegante(x, y) {
-    ctx.save();
-    ctx.fillStyle = "#181818";
-    ctx.fillRect(x + 2, y - 6, 36, 5);
-    ctx.fillRect(x + 9, y - 22, 22, 17);
-    ctx.fillStyle = "gold";
-    ctx.fillRect(x + 9, y - 10, 22, 3);
-    ctx.fillStyle = "rgba(255,255,255,0.25)";
-    ctx.fillRect(x + 12, y - 20, 3, 12);
-    ctx.restore();
-}
-
-function dibujarEfectoFacilier(x, y) {
-    const cx = x + 18;
-    const cy = y + 18;
-    const t = Date.now() * 0.005;
-
-    ctx.save();
-    const grad = ctx.createRadialGradient(cx, cy, 6, cx, cy, 48);
-    grad.addColorStop(0, "rgba(168, 85, 247, 0.48)");
-    grad.addColorStop(0.65, "rgba(34, 197, 94, 0.22)");
-    grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 48, 0, Math.PI * 2);
-    ctx.fill();
-
-    const palos = ["♠", "♦", "♣", "♥"];
-    for (let i = 0; i < 4; i++) {
-        const ang = t + (i * Math.PI) / 2;
-        const cardX = cx + Math.cos(ang) * 34;
-        const cardY = cy + Math.sin(ang) * 34 + Math.sin(t * 2 + i) * 3;
-        ctx.save();
-        ctx.translate(cardX, cardY);
-        ctx.rotate(ang + Math.PI / 2);
-        ctx.fillStyle = "#1e1b4b";
-        ctx.strokeStyle = "#c084fc";
-        ctx.lineWidth = 1.4;
-        ctx.fillRect(-5, -8, 10, 16);
-        ctx.strokeRect(-5, -8, 10, 16);
-        ctx.fillStyle = i % 2 === 0 ? "#34d399" : "#f472b6";
-        ctx.font = "bold 9px monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(palos[i], 0, 0);
-        ctx.restore();
-    }
-
-    const hatY = y - 6 + Math.sin(t * 1.5) * 1.5;
-    ctx.fillStyle = "#141418";
-    ctx.strokeStyle = "#a855f7";
-    ctx.lineWidth = 1.3;
-    ctx.fillRect(x + 1, hatY, 38, 5);
-    ctx.strokeRect(x + 1, hatY, 38, 5);
-    ctx.fillRect(x + 9, hatY - 18, 22, 18);
-    ctx.strokeRect(x + 9, hatY - 18, 22, 18);
-    ctx.fillStyle = "#9333ea";
-    ctx.fillRect(x + 9, hatY - 5, 22, 4);
-    ctx.fillStyle = "#22c55e";
-    ctx.beginPath();
-    ctx.arc(x + 20, hatY - 3, 2.4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-}
-
-function dibujarAuraPersonajeTop(skin, x, y) {
-    if (!skin) return;
-    const cx = x + 18;
-    const cy = y + 18;
-    const t = Date.now() * 0.006;
-
-    if (skin.sombrero && !skin.facilier) {
-        ctx.save();
-        const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 42);
-        grad.addColorStop(0, "rgba(239, 68, 68, 0.5)");
-        grad.addColorStop(0.7, "rgba(245, 158, 11, 0.22)");
-        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 42 + Math.sin(t * 2) * 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    } else if (skin.emoji === "tate") {
-        ctx.save();
-        const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 38);
-        grad.addColorStop(0, "rgba(250, 204, 21, 0.45)");
-        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 38 + Math.sin(t * 2) * 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    }
-}
-
-function dibujarGato() {
-    const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
-    const skin = SKINS.find((s) => s.emoji === skinId);
-    const recurso = skin && skin.archivoBase ? cacheImagenesSkins[skin.archivoBase] : null;
-
-    dibujarAuraPersonajeTop(skin, gato.x, gato.y);
-
-    if (skin && skin.facilier) {
-        dibujarEfectoFacilier(gato.x, gato.y);
-    }
-
-    if (recurso && recurso.complete && recurso.naturalWidth > 0) {
-        ctx.save();
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(recurso, gato.x - 6, gato.y - 6, 48, 48);
-        ctx.restore();
-        if (skin.sombrero) {
-            dibujarSombreroElegante(gato.x, gato.y);
-        }
-    } else {
-        ctx.fillText((skin && skin.icono) || skinId || "🐱", gato.x, gato.y + 35);
-    }
-}
-
-function dibujar() {
-    ctx.save();
-    if (sacudidaPantalla > 0) {
-        const sx = (Math.random() - 0.5) * sacudidaPantalla;
-        const sy = (Math.random() - 0.5) * sacudidaPantalla;
-        ctx.translate(sx, sy);
-    }
-
-    ctx.fillStyle = modoJefeFacilier
-        ? "#180826"
-        : (modoMulti ? "#0b1b3a" : FONDOS[(nivel - 1) % FONDOS.length]);
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    dibujarEfectosFondo();
-
-    if (modoJefeFacilier) {
-        const progresoVudu = Math.max(0, tiempo / DURACION_PARTIDA);
-        ctx.fillStyle = "#2e1065";
-        ctx.fillRect(0, 0, canvas.width, 8);
-        ctx.fillStyle = tiempo <= 10 ? "#ef4444" : "#a855f7";
-        ctx.fillRect(0, 0, canvas.width * progresoVudu, 8);
-    } else if (modoMulti) {
-        const progresoTiempo = Math.max(0, tiempo / DURACION_PARTIDA);
-        ctx.fillStyle = "#333333";
-        ctx.fillRect(0, 0, canvas.width, 8);
-        ctx.fillStyle = tiempo <= 10 ? "#ff4444" : "#4caf50";
-        ctx.fillRect(0, 0, canvas.width * progresoTiempo, 8);
-    } else {
-        const progreso = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
-        ctx.fillStyle = "#333333";
-        ctx.fillRect(0, 0, canvas.width, 8);
-        ctx.fillStyle = "gold";
-        ctx.fillRect(0, 0, canvas.width * progreso, 8);
-    }
-
-    ctx.font = "40px Arial";
-    dibujarGato();
-
-    const emojiRaton = (modoMulti || modoJefeFacilier)
-        ? "🐭"
-        : RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length];
-    ctx.fillText(emojiRaton, raton.x, raton.y + 30);
-
-    if (ratonAturdidoTimer > 0) {
-        ctx.font = "16px Arial";
-        const t = Date.now() * 0.01;
-        ctx.fillText("💫", raton.x + Math.cos(t) * 14, raton.y - 2);
-    }
-
-    if (modoJefeFacilier) {
-        ctx.font = "10px 'Press Start 2P', Arial";
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#4ade80";
-        ctx.fillText("TÚ", raton.x + raton.w / 2, Math.max(20, raton.y - 6));
-        ctx.fillStyle = "#c084fc";
-        ctx.fillText("DR. FACILIER", gato.x + gato.w / 2, Math.max(20, gato.y - 26));
-        ctx.textAlign = "left";
-    } else if (modoMulti) {
-        ctx.font = "10px 'Press Start 2P', Arial";
-        ctx.fillStyle = "gold";
-        ctx.textAlign = "center";
-        if (rolMulti === "gato") {
-            ctx.fillText("TÚ", gato.x + gato.w / 2, Math.max(20, gato.y - 6));
-        } else {
-            ctx.fillText("TÚ", raton.x + raton.w / 2, Math.max(20, raton.y - 6));
-        }
-        ctx.textAlign = "left";
-    }
-
-    dibujarEfectosFrente();
-
-    if (pausado && !modoMulti && !modoJefeFacilier) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        ctx.font = "24px 'Press Start 2P', Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("PAUSA", canvas.width / 2, canvas.height / 2);
-        ctx.textAlign = "left";
-    }
-
-    ctx.restore();
 }
 
 // --- CONTROLES ---
@@ -2615,51 +1549,30 @@ const RETRASO_ACIERTO = 700;
 const RETRASO_FALLO = 2400;
 
 const PREGUNTAS = [
-    { pregunta: "¿Cuántas horas al día duerme, en promedio, un gato adulto?",
-      opciones: ["De 3 a 5 horas", "Unas 8 horas", "De 12 a 16 horas", "Casi 22 horas"], correcta: 2 },
-    { pregunta: "¿Qué diosa del antiguo Egipto se representaba con cabeza de gata?",
-      opciones: ["Bastet", "Hathor", "Isis", "Neftis"], correcta: 0 },
-    { pregunta: "En Japón, ¿cómo se llama el gato de la suerte que levanta una pata?",
-      opciones: ["Maneki-neko", "Daruma", "Tanuki", "Kitsune"], correcta: 0 },
-    { pregunta: "¿Cómo se llama el gato de sonrisa gigante que aparece y desaparece en «Alicia en el país de las maravillas»?",
-      opciones: ["El gato de Cheshire", "Garfield", "El gato con botas", "Félix"], correcta: 0 },
-    { pregunta: "¿Cómo se llama el gesto del gato de presionar con las patas delanteras, una y otra, sobre una superficie blanda?",
-      opciones: ["Amasar", "Rasguñar", "Marcar", "Cazar"], correcta: 0 },
-    { pregunta: "¿Qué sabor NO pueden percibir los gatos?",
-      opciones: ["Dulce", "Salado", "Amargo", "Ácido"], correcta: 0 },
-    { pregunta: "Si un gato se acerca a ti con la cola levantada, ¿qué suele significar?",
-      opciones: ["Que te saluda con confianza", "Que quiere pelear", "Que tiene mucho frío", "Que se va a dormir"], correcta: 0 },
-    { pregunta: "¿Qué famoso experimento mental de la física usa a un gato dentro de una caja?",
-      opciones: ["El gato de Schrödinger", "El péndulo de Foucault", "La paradoja de Zenón", "La rueda de Faraday"], correcta: 0 },
-    { pregunta: "¿De qué animal salvaje descienden los gatos domésticos?",
-      opciones: ["Del gato montés (Felis silvestris lybica)", "Del lince ibérico", "Del leopardo", "Del tigre"], correcta: 0 },
-    { pregunta: "¿Qué gato naranja de las tiras cómicas es famoso por amar la lasaña?",
-      opciones: ["Garfield", "Tom", "Silvestre", "Félix"], correcta: 0 },
-    { pregunta: "¿De qué color es la nariz de Tate?",
-      opciones: ["Rosada", "Negra", "Azul", "Verde"], correcta: 0 }
+    { pregunta: "¿Cuántas horas al día duerme, en promedio, un gato adulto?", opciones: ["De 3 a 5 horas", "Unas 8 horas", "De 12 a 16 horas", "Casi 22 horas"], correcta: 2 },
+    { pregunta: "¿Qué diosa del antiguo Egipto se representaba con cabeza de gata?", opciones: ["Bastet", "Hathor", "Isis", "Neftis"], correcta: 0 },
+    { pregunta: "En Japón, ¿cómo se llama el gato de la suerte que levanta una pata?", opciones: ["Maneki-neko", "Daruma", "Tanuki", "Kitsune"], correcta: 0 },
+    { pregunta: "¿Cómo se llama el gato de sonrisa gigante que aparece en «Alicia en el país de las maravillas»?", opciones: ["El gato de Cheshire", "Garfield", "El gato con botas", "Félix"], correcta: 0 },
+    { pregunta: "¿Cómo se llama el gesto del gato de presionar con las patas delanteras sobre una superficie blanda?", opciones: ["Amasar", "Rasguñar", "Marcar", "Cazar"], correcta: 0 },
+    { pregunta: "¿Qué sabor NO pueden percibir los gatos?", opciones: ["Dulce", "Salado", "Amargo", "Ácido"], correcta: 0 },
+    { pregunta: "Si un gato se acerca a ti con la cola levantada, ¿qué suele significar?", opciones: ["Que te saluda con confianza", "Que quiere pelear", "Que tiene mucho frío", "Que se va a dormir"], correcta: 0 },
+    { pregunta: "¿Qué famoso experimento mental de la física usa a un gato dentro de una caja?", opciones: ["El gato de Schrödinger", "El péndulo de Foucault", "La paradoja de Zenón", "La rueda de Faraday"], correcta: 0 },
+    { pregunta: "¿De qué animal salvaje descienden los gatos domésticos?", opciones: ["Del gato montés (Felis silvestris lybica)", "Del lince ibérico", "Del leopardo", "Del tigre"], correcta: 0 },
+    { pregunta: "¿Qué gato naranja de las tiras cómicas es famoso por amar la lasaña?", opciones: ["Garfield", "Tom", "Silvestre", "Félix"], correcta: 0 },
+    { pregunta: "¿De qué color es la nariz de Tate?", opciones: ["Rosada", "Negra", "Azul", "Verde"], correcta: 0 }
 ];
 
 const PREGUNTAS_INFIERNO = [
-    { pregunta: "¿Cuántos músculos independientes tiene un gato en CADA oreja?",
-      opciones: ["32 músculos", "12 músculos", "18 músculos", "44 músculos"], correcta: 0 },
-    { pregunta: "¿Cuántos huesos tiene en total el esqueleto de un gato adulto promedio?",
-      opciones: ["230 a 244 huesos", "206 huesos", "185 huesos", "310 huesos"], correcta: 0 },
-    { pregunta: "¿Cómo se llama el órgano en el paladar del gato que analiza feromonas (respuesta Flehmen)?",
-      opciones: ["Órgano de Jacobson (vomeronasal)", "Órgano de Corti", "Glándula de Meibomio", "Bulbo de Krause"], correcta: 0 },
-    { pregunta: "¿Cómo se llamaba la primera y única gata en viajar al espacio exterior (en 1963)?",
-      opciones: ["Félicette", "Laika", "Belka", "Miss Baker"], correcta: 0 },
-    { pregunta: "¿A qué frecuencia (en Hz) ronronea un gato para estimular la regeneración ósea?",
-      opciones: ["Entre 25 y 150 Hz", "Entre 5 y 10 Hz", "Entre 400 y 600 Hz", "Más de 1.000 Hz"], correcta: 0 },
-    { pregunta: "¿Cuál es la velocidad máxima que puede alcanzar un gato doméstico en carrera corta?",
-      opciones: ["Unos 48 km/h", "Unos 22 km/h", "Unos 75 km/h", "Unos 95 km/h"], correcta: 0 },
-    { pregunta: "¿Cuántos dedos en total tiene normalmente un gato (sumando patas delanteras y traseras)?",
-      opciones: ["18 dedos (5 adelante, 4 atrás)", "20 dedos (5 en cada pata)", "16 dedos (4 en cada pata)", "22 dedos"], correcta: 0 },
-    { pregunta: "¿Qué estructura reflectante detrás de la retina hace que los ojos de los gatos brillen de noche?",
-      opciones: ["Tapetum lucidum", "Fóvea centralis", "Córnea vítrea", "Humor acuoso"], correcta: 0 },
-    { pregunta: "En Gato Cazador, ¿cuántas entradas y neuronas ocultas tiene la Red Neuronal del ratón?",
-      opciones: ["6 entradas y 24 ocultas", "4 entradas y 12 ocultas", "8 entradas y 32 ocultas", "10 entradas y 16 ocultas"], correcta: 0 },
-    { pregunta: "¿Qué gato fue alcalde honorario de Talkeetna (Alaska) durante 20 años?",
-      opciones: ["Stubbs", "Tama", "Larry", "Hank"], correcta: 0 }
+    { pregunta: "¿Cuántos músculos independientes tiene un gato en CADA oreja?", opciones: ["32 músculos", "12 músculos", "18 músculos", "44 músculos"], correcta: 0 },
+    { pregunta: "¿Cuántos huesos tiene en total el esqueleto de un gato adulto promedio?", opciones: ["230 a 244 huesos", "206 huesos", "185 huesos", "310 huesos"], correcta: 0 },
+    { pregunta: "¿Cómo se llama el órgano en el paladar del gato que analiza feromonas (respuesta Flehmen)?", opciones: ["Órgano de Jacobson (vomeronasal)", "Órgano de Corti", "Glándula de Meibomio", "Bulbo de Krause"], correcta: 0 },
+    { pregunta: "¿Cómo se llamaba la primera y única gata en viajar al espacio exterior (en 1963)?", opciones: ["Félicette", "Laika", "Belka", "Miss Baker"], correcta: 0 },
+    { pregunta: "¿A qué frecuencia (en Hz) ronronea un gato para estimular la regeneración ósea?", opciones: ["Entre 25 y 150 Hz", "Entre 5 y 10 Hz", "Entre 400 y 600 Hz", "Más de 1.000 Hz"], correcta: 0 },
+    { pregunta: "¿Cuál es la velocidad máxima que puede alcanzar un gato doméstico en carrera corta?", opciones: ["Unos 48 km/h", "Unos 22 km/h", "Unos 75 km/h", "Unos 95 km/h"], correcta: 0 },
+    { pregunta: "¿Cuántos dedos en total tiene normalmente un gato (sumando patas delanteras y traseras)?", opciones: ["18 dedos (5 adelante, 4 atrás)", "20 dedos (5 en cada pata)", "16 dedos (4 en cada pata)", "22 dedos"], correcta: 0 },
+    { pregunta: "¿Qué estructura reflectante detrás de la retina hace que los ojos de los gatos brillen de noche?", opciones: ["Tapetum lucidum", "Fóvea centralis", "Córnea vítrea", "Humor acuoso"], correcta: 0 },
+    { pregunta: "En Gato Cazador, ¿cuántas entradas y neuronas ocultas tiene la Red Neuronal del ratón?", opciones: ["6 entradas y 24 ocultas", "4 entradas y 12 ocultas", "8 entradas y 32 ocultas", "10 entradas y 16 ocultas"], correcta: 0 },
+    { pregunta: "¿Qué gato fue alcalde honorario de Talkeetna (Alaska) durante 20 años?", opciones: ["Stubbs", "Tama", "Larry", "Hank"], correcta: 0 }
 ];
 
 let patronEntrada = [];
@@ -2719,11 +1632,8 @@ function registrarPatron(direccion) {
 
     if (patronEntrada.length === PATRON_INFIERNO.length && patronEntrada.every((d, i) => d === PATRON_INFIERNO[i])) {
         patronEntrada = [];
-        if (skinsCompradas.includes("tate_sombrero")) {
-            mostrarLogro("🎩 Ya tienes a Tate con Sombrero");
-        } else {
-            intentarRitualInfierno();
-        }
+        if (skinsCompradas.includes("tate_sombrero")) mostrarLogro("🎩 Ya tienes a Tate con Sombrero");
+        else intentarRitualInfierno();
         return;
     }
 
@@ -2745,7 +1655,7 @@ function abrirQuiz(modo) {
     const cajaFoto = document.getElementById("quiz-foto-tate");
     const imgFoto = document.getElementById("quiz-img-tate");
     if (cajaFoto && imgFoto) {
-        imgFoto.src = cacheDataUrlSkins["cat.png"] || "cat.png";
+        imgFoto.src = cacheDataUrlSkins["tate.png"] || "tate.png";
         cajaFoto.style.display = "block";
     }
 
@@ -2890,26 +1800,6 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-function posicionEnCanvas(e) {
-    const caja = canvas.getBoundingClientRect();
-    toque.x = (e.clientX - caja.left) * (canvas.width / caja.width);
-    toque.y = (e.clientY - caja.top) * (canvas.height / caja.height);
-}
-
-canvas.addEventListener("pointerdown", (e) => {
-    if (!juegoIniciado) return;
-    if (pausado && !modoMulti && !modoJefeFacilier) { pausado = false; return; }
-    e.preventDefault();
-    toque.activo = true;
-    posicionEnCanvas(e);
-});
-canvas.addEventListener("pointermove", (e) => {
-    if (toque.activo) posicionEnCanvas(e);
-});
-["pointerup", "pointercancel", "pointerleave"].forEach((tipo) => {
-    canvas.addEventListener(tipo, () => { toque.activo = false; });
-});
-
 // ============================================================
 //  CUENTAS + MULTIJUGADOR FIRESTORE (salas1v1 + subcolección pos)
 // ============================================================
@@ -2930,10 +1820,7 @@ let nubeConectada = false;
 let avisoPermisoMostrado = false;
 
 const nube = {
-    listo: false,
-    auth: null,
-    db: null,
-    f: null,
+    listo: false, auth: null, db: null, f: null,
     async iniciar() {
         if (this.listo) return;
         const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
@@ -2950,12 +1837,7 @@ const nube = {
     },
     async asegurarAuthParaSala() {
         if (!this.auth.currentUser && this.f.signInAnonymously) {
-            try {
-                await this.f.signInAnonymously(this.auth);
-            } catch (e) {
-                console.error("Error auth anónima:", e);
-                mostrarLogro("Error auth Firebase: " + (e.code || e.message));
-            }
+            try { await this.f.signInAnonymously(this.auth); } catch (e) {}
         }
     },
     alCambiarSesion(funcion) { return this.f.onAuthStateChanged(this.auth, funcion); },
@@ -2981,18 +1863,14 @@ const nube = {
         return snap.exists() ? snap.data() : null;
     },
     async actualizarSala(codigo, datos) {
-        if (!codigo) return;
-        await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos, { merge: true });
+        if (codigo) await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos, { merge: true });
     },
     async escribirPosicion(codigo, rol, x, y) {
-        if (!codigo || !rol) return;
-        await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", rol), { x: x, y: y });
+        if (codigo && rol) await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", rol), { x: x, y: y });
     },
     escucharPosicion(codigo, rolRival, callback) {
         return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo, "pos", rolRival), (snap) => {
             if (snap.exists()) callback(snap.data());
-        }, (err) => {
-            console.error("Error leyendo posición rival:", err);
         });
     },
     async borrarSala(codigo) {
@@ -3006,14 +1884,10 @@ const nube = {
     escucharSala(codigo, callback) {
         return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo), (snap) => {
             callback(snap.exists() ? snap.data() : null);
-        }, (err) => {
-            console.error("Error escuchando sala:", err);
-            mostrarLogro("Error de red en la sala");
         });
     }
 };
 
-// --- LÓGICA DE SALAS 1v1 ---
 function abrirMultijugador() {
     if (!FIREBASE_ACTIVO) {
         sonar("error");
@@ -3034,136 +1908,79 @@ function generarCodigoSala() {
 }
 
 function limpiarSalaMulti() {
-    if (desuscribirSala) {
-        desuscribirSala();
-        desuscribirSala = null;
-    }
-    if (desuscribirRival) {
-        desuscribirRival();
-        desuscribirRival = null;
-    }
+    if (desuscribirSala) { desuscribirSala(); desuscribirSala = null; }
+    if (desuscribirRival) { desuscribirRival(); desuscribirRival = null; }
     salaId = null;
     enFlujoMulti = false;
 }
 
 async function crearSalaMulti() {
     const msg = document.getElementById("multi-mensaje");
-    if (!nube.listo && !(await conectarNube())) {
-        msg.textContent = "Sin conexión con el servidor.";
-        return;
-    }
+    if (!nube.listo && !(await conectarNube())) { msg.textContent = "Sin conexión con el servidor."; return; }
     msg.textContent = "Creando sala...";
     enFlujoMulti = true;
     await nube.asegurarAuthParaSala();
 
     const codigo = generarCodigoSala();
-    const datosIniciales = {
-        estado: "esperando",
-        rolHost: "gato",
-        skinHost: skinActual,
-        skinGuest: "🐱",
-        tiempo: DURACION_PARTIDA,
-        ganador: null
-    };
-
     try {
-        await nube.crearSala(codigo, datosIniciales);
+        await nube.crearSala(codigo, { estado: "esperando", rolHost: "gato", skinHost: skinActual, skinGuest: "🐱", tiempo: DURACION_PARTIDA, ganador: null });
         salaId = codigo;
         esAnfitrionMulti = true;
         rolMulti = null;
-
         document.getElementById("sala-codigo-display").textContent = codigo;
         document.getElementById("sala-rol-texto").textContent = "Tu rol: 🎲 Aleatorio al empezar";
         document.getElementById("sala-estado-texto").textContent = "Esperando a que entre tu rival...";
         document.getElementById("btn-iniciar-multi").style.display = "none";
         cambiarPantalla("menu-sala");
-
         suscribirSala(codigo);
-    } catch (e) {
-        console.error(e);
-        msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
-            : "Error: " + (e.message || "no se pudo crear");
-    }
+    } catch (e) { msg.textContent = "Error al crear sala."; }
 }
 
 async function unirseSalaMulti() {
     const msg = document.getElementById("multi-mensaje");
     const codigo = document.getElementById("multi-codigo-input").value.trim().toUpperCase();
-    if (codigo.length !== 6) {
-        msg.textContent = "Escribe el código de 6 caracteres.";
-        return;
-    }
-    if (!nube.listo && !(await conectarNube())) {
-        msg.textContent = "Sin conexión con el servidor.";
-        return;
-    }
+    if (codigo.length !== 6) { msg.textContent = "Escribe el código de 6 caracteres."; return; }
+    if (!nube.listo && !(await conectarNube())) { msg.textContent = "Sin conexión."; return; }
     msg.textContent = "Buscando sala...";
     enFlujoMulti = true;
     await nube.asegurarAuthParaSala();
 
     try {
         const datos = await nube.leerSala(codigo);
-        if (!datos) {
-            msg.textContent = "Esa sala no existe.";
-            return;
-        }
-        if (datos.estado !== "esperando") {
-            msg.textContent = "La sala ya está llena o en partida.";
-            return;
-        }
-
+        if (!datos) { msg.textContent = "Esa sala no existe."; return; }
+        if (datos.estado !== "esperando") { msg.textContent = "La sala ya está llena."; return; }
         await nube.actualizarSala(codigo, { estado: "listo", skinGuest: skinActual });
         salaId = codigo;
         esAnfitrionMulti = false;
         rolMulti = null;
-
         document.getElementById("sala-codigo-display").textContent = codigo;
         document.getElementById("sala-rol-texto").textContent = "Tu rol: 🎲 Aleatorio al empezar";
         document.getElementById("sala-estado-texto").textContent = "¡Conectado! Esperando inicio...";
         document.getElementById("btn-iniciar-multi").style.display = "none";
         cambiarPantalla("menu-sala");
-
         suscribirSala(codigo);
-    } catch (e) {
-        console.error(e);
-        msg.textContent = e && e.code === "permission-denied"
-            ? "Firebase bloqueó 'salas1v1': revisa Reglas de Firestore."
-            : "Error al entrar en la sala.";
-    }
+    } catch (e) { msg.textContent = "Error al entrar en la sala."; }
 }
 
 function suscribirSala(codigo) {
     if (desuscribirSala) desuscribirSala();
     desuscribirSala = nube.escucharSala(codigo, (datos) => {
         if (!datos) {
-            if (pantallaActual === "menu-sala" || juegoIniciado) {
-                mostrarLogro("El otro jugador cerró la sala");
-                volverMenu();
-            }
+            if (pantallaActual === "menu-sala" || juegoIniciado) { mostrarLogro("El otro jugador cerró la sala"); volverMenu(); }
             return;
         }
-
         if (pantallaActual === "menu-sala") {
             if (datos.estado === "listo" && esAnfitrionMulti) {
                 document.getElementById("sala-estado-texto").textContent = "¡Rival conectado y listo!";
                 document.getElementById("btn-iniciar-multi").style.display = "inline-block";
                 sonar("equipar");
             }
-            if (datos.estado === "jugando") {
-                iniciarJuegoMultiLocal(datos);
-            }
+            if (datos.estado === "jugando") iniciarJuegoMultiLocal(datos);
             return;
         }
-
         if (juegoIniciado && modoMulti) {
-            if (datos.estado === "fin") {
-                terminarJuegoMulti(datos.ganador || "raton");
-                return;
-            }
-            if (!esAnfitrionMulti && typeof datos.tiempo === "number") {
-                tiempo = datos.tiempo;
-            }
+            if (datos.estado === "fin") { terminarJuegoMulti(datos.ganador || "raton"); return; }
+            if (!esAnfitrionMulti && typeof datos.tiempo === "number") tiempo = datos.tiempo;
         }
     });
 }
@@ -3172,40 +1989,20 @@ async function lanzarPartidaMulti() {
     if (!salaId || !esAnfitrionMulti) return;
     const hostEsGato = Math.random() < 0.5;
     const rolHost = hostEsGato ? "gato" : "raton";
-
     const datosActuales = await nube.leerSala(salaId);
     const skinGatoElegida = hostEsGato ? (datosActuales.skinHost || "🐱") : (datosActuales.skinGuest || "🐱");
 
     await Promise.all([
         nube.escribirPosicion(salaId, "gato", 480, 200),
         nube.escribirPosicion(salaId, "raton", 100, 200),
-        nube.actualizarSala(salaId, {
-            estado: "jugando",
-            rolHost: rolHost,
-            skinGato: skinGatoElegida,
-            tiempo: DURACION_PARTIDA,
-            ganador: null
-        })
+        nube.actualizarSala(salaId, { estado: "jugando", rolHost: rolHost, skinGato: skinGatoElegida, tiempo: DURACION_PARTIDA, ganador: null })
     ]);
 }
 
 function iniciarJuegoMultiLocal(datos) {
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
-    if (desuscribirRival) {
-        desuscribirRival();
-        desuscribirRival = null;
-    }
-
+    if (desuscribirRival) { desuscribirRival(); desuscribirRival = null; }
     const rolHost = datos.rolHost || "gato";
-    if (esAnfitrionMulti) {
-        rolMulti = rolHost;
-    } else {
-        rolMulti = rolHost === "gato" ? "raton" : "gato";
-    }
-
+    rolMulti = esAnfitrionMulti ? rolHost : (rolHost === "gato" ? "raton" : "gato");
     const rolRival = rolMulti === "gato" ? "raton" : "gato";
 
     skinGatoSala = datos.skinGato || "🐱";
@@ -3216,24 +2013,12 @@ function iniciarJuegoMultiLocal(datos) {
     toque.activo = false;
     tiempo = DURACION_PARTIDA;
     puntos = 0;
-    ultimoTimestamp = null;
     ultimoSegundoMostrado = null;
     ultimaPosEnviada = { x: -1, y: -1 };
     ultimoSegundoEnviado = -1;
-    errorSyncMostrado = false;
-
-    particulas = [];
-    ondasChoque = [];
-    estelaGato = [];
-    textosFlotantes = [];
     cooldownHabilidad = 0;
     habilidadActivaTipo = null;
     habilidadActivaTimer = 0;
-
-    gato.x = 480;
-    gato.y = 200;
-    raton.x = 100;
-    raton.y = 200;
     destinoRemoto = rolMulti === "gato" ? { x: 100, y: 200 } : { x: 480, y: 200 };
 
     desuscribirRival = nube.escucharPosicion(salaId, rolRival, (pos) => {
@@ -3244,7 +2029,6 @@ function iniciarJuegoMultiLocal(datos) {
     });
 
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
-
     const elRol = document.getElementById("marcador-rol");
     elRol.style.display = "";
     elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 GATO (¡Atrápalo!)" : "Rol: 🐭 RATÓN (¡Huye 60s!)";
@@ -3256,44 +2040,32 @@ function iniciarJuegoMultiLocal(datos) {
 
     actualizarBotonHabilidad();
     cambiarPantalla("zona-juego");
+    iniciarMotorPhaser();
     sincronizarMusica();
     sonar("nivel");
-    mostrarLogro(rolMulti === "gato" ? "🎲 ¡Eres el GATO! Atrapa al ratón." : "🎲 ¡Eres el RATÓN! Sobrevive 1 minuto.");
-    animacionId = requestAnimationFrame(gameLoop);
 }
 
 function enviarEstadoMulti() {
-    if (!salaId || !nube.listo || !juegoIniciado) return;
+    if (!salaId || !nube.listo || !juegoIniciado || !escenaActiva) return;
     const ahora = Date.now();
     if (ahora - ultimaSyncRed < 55) return;
-
     let envioAlgo = false;
 
     if (rolMulti === "gato") {
-        const gx = Math.round(gato.x);
-        const gy = Math.round(gato.y);
+        const gx = Math.round(escenaActiva.gatoContainer.x);
+        const gy = Math.round(escenaActiva.gatoContainer.y);
         if (gx !== ultimaPosEnviada.x || gy !== ultimaPosEnviada.y) {
             ultimaPosEnviada = { x: gx, y: gy };
             envioAlgo = true;
-            nube.escribirPosicion(salaId, "gato", gx, gy).catch((err) => {
-                if (!errorSyncMostrado) {
-                    errorSyncMostrado = true;
-                    mostrarLogro("Error sync gato: " + (err.code || err.message));
-                }
-            });
+            nube.escribirPosicion(salaId, "gato", gx, gy).catch(() => {});
         }
     } else if (rolMulti === "raton") {
-        const rx = Math.round(raton.x);
-        const ry = Math.round(raton.y);
+        const rx = Math.round(escenaActiva.ratonContainer.x);
+        const ry = Math.round(escenaActiva.ratonContainer.y);
         if (rx !== ultimaPosEnviada.x || ry !== ultimaPosEnviada.y) {
             ultimaPosEnviada = { x: rx, y: ry };
             envioAlgo = true;
-            nube.escribirPosicion(salaId, "raton", rx, ry).catch((err) => {
-                if (!errorSyncMostrado) {
-                    errorSyncMostrado = true;
-                    mostrarLogro("Error sync raton: " + (err.code || err.message));
-                }
-            });
+            nube.escribirPosicion(salaId, "raton", rx, ry).catch(() => {});
         }
     }
 
@@ -3305,16 +2077,13 @@ function enviarEstadoMulti() {
             nube.actualizarSala(salaId, { tiempo: segActual }).catch(() => {});
         }
     }
-
     if (envioAlgo) ultimaSyncRed = ahora;
 }
 
 async function salirSalaMulti() {
     const codigo = salaId;
     limpiarSalaMulti();
-    if (codigo && nube.listo) {
-        nube.borrarSala(codigo).catch(() => {});
-    }
+    if (codigo && nube.listo) nube.borrarSala(codigo).catch(() => {});
     volverMenu();
 }
 
@@ -3322,15 +2091,9 @@ function terminarJuegoMulti(ganador) {
     if (!juegoIniciado && ganadoraMulti === ganador) return;
     ganadoraMulti = ganador;
     juegoIniciado = false;
-    if (animacionId !== null) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
     const codigo = salaId;
     limpiarSalaMulti();
-    if (codigo && esAnfitrionMulti && nube.listo) {
-        setTimeout(() => nube.borrarSala(codigo).catch(() => {}), 1500);
-    }
+    if (codigo && esAnfitrionMulti && nube.listo) setTimeout(() => nube.borrarSala(codigo).catch(() => {}), 1500);
 
     sincronizarMusica();
     const yoGane = (ganador === rolMulti);
@@ -3345,10 +2108,7 @@ function terminarJuegoMulti(ganador) {
     cambiarPantalla("fin-juego");
 
     document.getElementById("fin-titulo").innerText = yoGane ? "🏆 ¡GANASTE! (+50 🪙)" : "💀 ¡PERDISTE!";
-    document.getElementById("fin-subtitulo").innerText = ganador === "gato"
-        ? "🐱 El Gato atrapó al Ratón."
-        : "🐭 El Ratón sobrevivió 1 minuto completo.";
-
+    document.getElementById("fin-subtitulo").innerText = ganador === "gato" ? "🐱 El Gato atrapó al Ratón." : "🐭 El Ratón sobrevivió 1 minuto completo.";
     document.getElementById("fin-puntos-linea").style.display = "none";
     document.getElementById("fin-monedas-linea").style.display = "none";
     document.getElementById("fin-record-linea").style.display = "none";
@@ -3359,48 +2119,25 @@ function terminarJuegoMulti(ganador) {
 // --- Progreso <-> nube ---
 function datosDeProgreso() {
     return {
-        nombre: sesion.nombre,
-        monedas: monedas,
-        record: record,
-        capturasTotales: capturasTotales,
-        victorias1v1: victorias1v1,
-        misionesReclamadas: { ...misionesReclamadas },
-        skinsCompradas: skinsCompradas.slice(),
-        nivelesSkins: { ...nivelesSkins },
-        skin: skinActual,
-        experienciaRaton: experienciaRaton,
-        dificultad: dificultad,
+        nombre: sesion.nombre, monedas, record, capturasTotales, victorias1v1,
+        misionesReclamadas: { ...misionesReclamadas }, skinsCompradas: skinsCompradas.slice(),
+        nivelesSkins: { ...nivelesSkins }, skin: skinActual, experienciaRaton, dificultad,
         actualizado: leerNumero("actualizado") || Date.now()
     };
 }
-
 function programarSubidaNube() {
     if (!sesion || !nube.listo) return;
     clearTimeout(temporizadorNube);
     temporizadorNube = setTimeout(subirProgreso, RETRASO_SUBIDA_NUBE);
 }
-
 async function subirProgreso() {
     clearTimeout(temporizadorNube);
     if (!sesion || !nube.listo) return false;
-    try {
-        await nube.escribir(sesion.uid, datosDeProgreso());
-        return true;
-    } catch (e) {
-        if (e && e.code === "permission-denied" && !avisoPermisoMostrado) {
-            avisoPermisoMostrado = true;
-            mostrarLogro("La nube rechazó guardar: revisa las reglas de Firestore");
-        }
-        return false;
-    }
+    try { await nube.escribir(sesion.uid, datosDeProgreso()); return true; } catch (e) { return false; }
 }
-
 function recargarProgreso() {
-    record = leerNumero("record");
-    monedas = leerNumero("monedas");
-    capturasTotales = leerNumero("capturasTotales");
-    victorias1v1 = leerNumero("victorias1v1");
-    misionesReclamadas = leerObjeto("misionesReclamadas", {});
+    record = leerNumero("record"); monedas = leerNumero("monedas"); capturasTotales = leerNumero("capturasTotales");
+    victorias1v1 = leerNumero("victorias1v1"); misionesReclamadas = leerObjeto("misionesReclamadas", {});
     experienciaRaton = leerNumero("experienciaRaton");
     dificultad = Math.min(3, Math.max(1, leerNumero("dificultad") || 1));
     velocidadGato = DIFICULTADES[dificultad - 1].velGato;
@@ -3409,25 +2146,13 @@ function recargarProgreso() {
     nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
     skinActual = leerTexto("skin", "🐱");
     if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
-    actualizarTextoDificultad();
-    actualizarNivelVisualIA();
-    construirTienda();
-    actualizarBotonesTienda();
+    actualizarTextoDificultad(); actualizarNivelVisualIA(); construirTienda(); actualizarBotonesTienda();
 }
-
 async function bajarProgreso() {
     recargarProgreso();
     let datos = null;
-    try {
-        datos = await nube.leer(sesion.uid);
-    } catch (e) {
-        mostrarLogro("Sin conexión: se usa el progreso de este dispositivo");
-        return false;
-    }
-    if (!datos || leerNumero("actualizado") > Number(datos.actualizado || 0)) {
-        await subirProgreso();
-        return true;
-    }
+    try { datos = await nube.leer(sesion.uid); } catch (e) { return false; }
+    if (!datos || leerNumero("actualizado") > Number(datos.actualizado || 0)) { await subirProgreso(); return true; }
     guardarLocal("monedas", Math.max(0, Number(datos.monedas) || 0));
     guardarLocal("record", Math.max(0, Number(datos.record) || 0));
     guardarLocal("capturasTotales", Math.max(0, Number(datos.capturasTotales) || 0));
@@ -3435,69 +2160,34 @@ async function bajarProgreso() {
     guardarLocal("experienciaRaton", Math.max(0, Number(datos.experienciaRaton) || 0));
     guardarLocal("dificultad", Math.min(3, Math.max(1, Number(datos.dificultad) || 1)));
     guardarLocal("skin", typeof datos.skin === "string" ? datos.skin : "🐱");
-    const lista = Array.isArray(datos.skinsCompradas) ? datos.skinsCompradas.filter((s) => typeof s === "string") : ["🐱"];
-    guardarLocal("skinsCompradas", JSON.stringify(lista));
-    const niveles = datos.nivelesSkins && typeof datos.nivelesSkins === "object" ? datos.nivelesSkins : { "🐱": 1 };
-    guardarLocal("nivelesSkins", JSON.stringify(niveles));
-    const reclamadas = datos.misionesReclamadas && typeof datos.misionesReclamadas === "object" ? datos.misionesReclamadas : {};
-    guardarLocal("misionesReclamadas", JSON.stringify(reclamadas));
+    guardarLocal("skinsCompradas", JSON.stringify(Array.isArray(datos.skinsCompradas) ? datos.skinsCompradas : ["🐱"]));
+    guardarLocal("nivelesSkins", JSON.stringify(datos.nivelesSkins || { "🐱": 1 }));
+    guardarLocal("misionesReclamadas", JSON.stringify(datos.misionesReclamadas || {}));
     guardarLocal("actualizado", Number(datos.actualizado) || 0);
     recargarProgreso();
     return true;
 }
 
-// --- Pantalla de login integrada en el tablero ---
 function mensajeLogin(texto, esError) {
-    const elemento = document.getElementById("login-mensaje");
-    if (!elemento) return;
-    elemento.textContent = texto;
-    elemento.style.color = esError ? "var(--accent-red)" : "var(--accent-cyan)";
+    const el = document.getElementById("login-mensaje");
+    if (el) { el.textContent = texto; el.style.color = esError ? "var(--accent-red)" : "var(--accent-cyan)"; }
 }
-
-function bloquearLogin(bloqueado) {
-    ["btn-entrar", "btn-crear"].forEach((id) => {
-        const boton = document.getElementById(id);
-        if (boton) boton.disabled = bloqueado;
-    });
+function bloquearLogin(b) {
+    ["btn-entrar", "btn-crear"].forEach((id) => { const btn = document.getElementById(id); if (btn) btn.disabled = b; });
 }
-
-function nombreDesdeEmail(email) {
-    return String(email || "").split("@")[0];
-}
-
 function leerFormularioLogin() {
     const nombre = document.getElementById("login-nombre").value.trim().toLowerCase();
     const clave = document.getElementById("login-clave").value;
-    if (!/^[a-z0-9_.-]{3,20}$/.test(nombre)) {
-        mensajeLogin("Nombre: de 3 a 20 letras o números (sin espacios ni tildes)", true);
-        return null;
-    }
-    if (clave.length < 6) {
-        mensajeLogin("La contraseña necesita al menos 6 caracteres", true);
-        return null;
-    }
-    return { nombre: nombre, clave: clave, email: `${nombre}@${DOMINIO_CUENTAS}` };
+    if (!/^[a-z0-9_.-]{3,20}$/.test(nombre)) { mensajeLogin("Nombre: de 3 a 20 letras o números", true); return null; }
+    if (clave.length < 6) { mensajeLogin("La contraseña necesita al menos 6 caracteres", true); return null; }
+    return { nombre, clave, email: `${nombre}@${DOMINIO_CUENTAS}` };
 }
-
-function textoError(e) {
-    const codigo = (e && e.code) || "";
-    if (codigo === "auth/email-already-in-use") return "Ese nombre ya existe. Prueba otro, o pulsa Entrar si es tuyo";
-    if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(codigo)) return "Nombre o contraseña incorrectos";
-    if (codigo === "auth/weak-password") return "La contraseña necesita al menos 6 caracteres";
-    if (codigo === "auth/network-request-failed") return "Sin conexión a internet";
-    if (codigo === "auth/too-many-requests") return "Demasiados intentos. Espera un momento";
-    if (codigo === "auth/operation-not-allowed") return "En Firebase falta activar el acceso con correo y contraseña";
-    if (codigo.startsWith("auth/") && codigo.includes("api-key")) return "La configuración de Firebase no es válida";
-    return "No se pudo completar" + (codigo ? " (" + codigo + ")" : "");
-}
-
 function actualizarSesionUI() {
     const estado = document.getElementById("sesion-estado");
     const badge = document.getElementById("estado-cuenta-badge");
     const form = document.getElementById("form-cuenta-integrado");
     const panelActiva = document.getElementById("panel-cuenta-activa");
     if (!estado) return;
-
     if (!FIREBASE_ACTIVO) {
         if (badge) badge.textContent = "ESTADO: LOCAL";
         estado.textContent = "Modo local activo en este navegador.";
@@ -3505,26 +2195,18 @@ function actualizarSesionUI() {
         if (panelActiva) panelActiva.style.display = "none";
         return;
     }
-
     if (sesion) {
-        if (badge) {
-            badge.textContent = "ESTADO: EN NUBE";
-            badge.style.color = "var(--accent-cyan)";
-        }
+        if (badge) { badge.textContent = "ESTADO: EN NUBE"; badge.style.color = "var(--accent-cyan)"; }
         estado.innerHTML = `Cazador conectado: <strong style="color:#fff;">${sesion.nombre.toUpperCase()}</strong>`;
         if (form) form.style.display = "none";
         if (panelActiva) panelActiva.style.display = "block";
     } else {
-        if (badge) {
-            badge.textContent = "ESTADO: LOCAL";
-            badge.style.color = "var(--accent-green)";
-        }
+        if (badge) { badge.textContent = "ESTADO: LOCAL"; badge.style.color = "var(--accent-green)"; }
         estado.textContent = "Guarda tu progreso en la nube y sincroniza tus monedas y récords.";
         if (form) form.style.display = "block";
         if (panelActiva) panelActiva.style.display = "none";
     }
 }
-
 function entrarAlMenu() {
     const clave = document.getElementById("login-clave");
     if (clave) clave.value = "";
@@ -3534,116 +2216,65 @@ function entrarAlMenu() {
     actualizarSesionUI();
     actualizarNivelVisualIA();
 }
-
 async function conectarNube() {
     if (nubeConectada) return true;
-    try {
-        await nube.iniciar();
-        nube.alCambiarSesion(alCambiarSesion);
-        nubeConectada = true;
-        return true;
-    } catch (e) { return false; }
+    try { await nube.iniciar(); nube.alCambiarSesion(alCambiarSesion); nubeConectada = true; return true; } catch (e) { return false; }
 }
-
 async function activarSesion(usuario) {
-    sesion = { uid: usuario.uid, nombre: nombreDesdeEmail(usuario.email) };
+    sesion = { uid: usuario.uid, nombre: String(usuario.email || "").split("@")[0] };
     return await bajarProgreso();
 }
-
 async function crearCuenta() {
-    const formulario = leerFormularioLogin();
-    if (!formulario) return;
-    accionEnCurso = true;
-    bloquearLogin(true);
-    mensajeLogin("Creando cuenta...", false);
+    const f = leerFormularioLogin();
+    if (!f) return;
+    accionEnCurso = true; bloquearLogin(true); mensajeLogin("Creando cuenta...", false);
     try {
-        if (!(await conectarNube())) {
-            mensajeLogin("Sin conexión con el servidor. Puedes jugar sin cuenta.", true);
-            return;
-        }
-        const usuario = await nube.registrar(formulario.email, formulario.clave);
-        sesion = { uid: usuario.uid, nombre: formulario.nombre };
-        guardarLocal("monedas", monedas);
-        guardarLocal("record", record);
-        guardarLocal("capturasTotales", capturasTotales);
-        guardarLocal("victorias1v1", victorias1v1);
+        if (!(await conectarNube())) { mensajeLogin("Sin conexión.", true); return; }
+        const usuario = await nube.registrar(f.email, f.clave);
+        sesion = { uid: usuario.uid, nombre: f.nombre };
+        guardarLocal("monedas", monedas); guardarLocal("record", record);
+        guardarLocal("capturasTotales", capturasTotales); guardarLocal("victorias1v1", victorias1v1);
         guardarLocal("misionesReclamadas", JSON.stringify(misionesReclamadas));
-        guardarLocal("skin", skinActual);
-        guardarLocal("skinsCompradas", JSON.stringify(skinsCompradas));
+        guardarLocal("skin", skinActual); guardarLocal("skinsCompradas", JSON.stringify(skinsCompradas));
         guardarLocal("nivelesSkins", JSON.stringify(nivelesSkins));
-        guardarLocal("experienciaRaton", experienciaRaton);
-        guardarLocal("dificultad", dificultad);
+        guardarLocal("experienciaRaton", experienciaRaton); guardarLocal("dificultad", dificultad);
         guardarLocal("actualizado", Date.now());
         await subirProgreso();
         entrarAlMenu();
-        mostrarLogro("¡Cuenta creada! Bienvenido, " + formulario.nombre);
-    } catch (e) {
-        mensajeLogin(textoError(e), true);
-    } finally {
-        accionEnCurso = false;
-        bloquearLogin(false);
-    }
+        mostrarLogro("¡Cuenta creada! Bienvenido, " + f.nombre);
+    } catch (e) { mensajeLogin("Error al crear cuenta.", true); }
+    finally { accionEnCurso = false; bloquearLogin(false); }
 }
-
 async function iniciarSesion() {
-    const formulario = leerFormularioLogin();
-    if (!formulario) return;
-    accionEnCurso = true;
-    bloquearLogin(true);
-    mensajeLogin("Entrando...", false);
+    const f = leerFormularioLogin();
+    if (!f) return;
+    accionEnCurso = true; bloquearLogin(true); mensajeLogin("Entrando...", false);
     try {
-        if (!(await conectarNube())) {
-            mensajeLogin("Sin conexión con el servidor. Puedes jugar sin cuenta.", true);
-            return;
-        }
-        const usuario = await nube.entrar(formulario.email, formulario.clave);
-        const enLinea = await activarSesion(usuario);
+        if (!(await conectarNube())) { mensajeLogin("Sin conexión.", true); return; }
+        const usuario = await nube.entrar(f.email, f.clave);
+        await activarSesion(usuario);
         entrarAlMenu();
-        if (enLinea) mostrarLogro("Bienvenido de nuevo, " + sesion.nombre);
-    } catch (e) {
-        mensajeLogin(textoError(e), true);
-    } finally {
-        accionEnCurso = false;
-        bloquearLogin(false);
-    }
+        mostrarLogro("Bienvenido de nuevo, " + sesion.nombre);
+    } catch (e) { mensajeLogin("Nombre o contraseña incorrectos.", true); }
+    finally { accionEnCurso = false; bloquearLogin(false); }
 }
-
 async function cerrarSesion() {
     accionEnCurso = true;
-    try {
-        await subirProgreso();
-        await nube.salir();
-    } catch (e) {}
-    sesion = null;
-    accionEnCurso = false;
-    guardar("invitado", "0");
-    recargarProgreso();
-    actualizarSesionUI();
-    mostrarLogro("Sesión cerrada");
+    try { await subirProgreso(); await nube.salir(); } catch (e) {}
+    sesion = null; accionEnCurso = false; recargarProgreso(); actualizarSesionUI(); mostrarLogro("Sesión cerrada");
 }
-
 function alCambiarSesion(usuario) {
     if (accionEnCurso || juegoIniciado || enFlujoMulti) return;
     if (usuario && !usuario.isAnonymous) {
         if (sesion && sesion.uid === usuario.uid) return;
         activarSesion(usuario).then(entrarAlMenu);
-    } else {
-        if (sesion) {
-            sesion = null;
-            recargarProgreso();
-        }
-        actualizarSesionUI();
+    } else if (sesion) {
+        sesion = null; recargarProgreso(); actualizarSesionUI();
     }
 }
+async function prepararNube() { if (FIREBASE_ACTIVO) await conectarNube(); }
 
-async function prepararNube() {
-    if (!FIREBASE_ACTIVO) return;
-    await conectarNube();
-}
-
-["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, () => {
-    prepararAudio();
-}));
+["pointerdown", "keydown"].forEach((tipo) => window.addEventListener(tipo, () => prepararAudio()));
 
 cargarImagenTate();
 construirTienda();
