@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GATO CAZADOR · PHASER 3 EDITION</title>
+    <title>GATO CAZADOR · MUNDO ABIERTO PHASER 3</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -457,7 +457,7 @@
             <img id="brand-tate-img" src="tate.png" alt="Tate" class="brand-logo" onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
             <span id="brand-fallback" style="display:none;">🐱</span>
             <span>GATO CAZADOR</span>
-            <span class="phaser-tag">PHASER 3</span>
+            <span class="phaser-tag">MUNDO ABIERTO</span>
         </div>
         <nav class="nav-links">
             <button id="nav-inicio" class="nav-link-btn active" onclick="volverMenu()">INICIO</button>
@@ -479,8 +479,8 @@
                     <span style="font-size:0.75rem; color:var(--text-muted);" id="resumen-ajustes"></span>
                 </div>
 
-                <h1 style="margin:12px 0 6px; font-size:1.6rem; font-weight:800;">Centro de Caza · Arcade Physics</h1>
-                <p style="margin:0; color:var(--text-muted); font-size:0.86rem;">Empuja cajas, vigila los túneles de ratón y desata poderes anime con físicas reales.</p>
+                <h1 style="margin:12px 0 6px; font-size:1.6rem; font-weight:800;">Mundo Abierto · 4 Zonas</h1>
+                <p style="margin:0; color:var(--text-muted); font-size:0.86rem;">Explora 4 habitaciones conectadas, esquiva al Perro Guardián, come Peces Dorados para activar el Modo Furia y usa portales.</p>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -499,7 +499,7 @@
                 </div>
 
                 <div style="margin-top:10px;">
-                    <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ JUGAR PARTIDA (60s)</button>
+                    <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ EXPLORAR MUNDO (75s)</button>
                     <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                         <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y NIVELES</button>
@@ -558,7 +558,7 @@
 
         <section id="menu-multi" class="panel-sub" style="display:none;">
             <h2 style="margin-top:0;">⚔️ DUELO 1v1 ONLINE</h2>
-            <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 60 segundos.</p>
+            <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 75 segundos.</p>
             <button class="tactical-btn btn-gold" onclick="crearSalaMulti()">➕ CREAR SALA NUEVA</button>
             <div style="margin:14px 0; border-top:1px solid var(--border-color); padding-top:12px;">
                 <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
@@ -606,24 +606,24 @@
                 <span id="marcador-puntos">Puntos: <strong id="puntos-valor" style="color:var(--accent-cyan);">0</strong></span>
                 <span id="marcador-monedas">🪙 <strong id="monedas-valor" style="color:var(--accent-gold-light);">0</strong></span>
                 <span id="marcador-nivel">Nivel: <strong id="nivel-valor">1</strong></span>
-                <span>⏱️ <strong id="tiempo-valor" style="color:#f87171;">60</strong>s</span>
+                <span>⏱️ <strong id="tiempo-valor" style="color:#f87171;">75</strong>s</span>
                 <button class="nav-link-btn" style="padding:4px 8px; border-color:var(--border-color);" onclick="volverMenu()">SALIR</button>
             </div>
             <div id="phaser-contenedor"></div>
             <div id="contenedor-habilidad" class="barra-habilidad">
                 <button id="btn-habilidad" onclick="activarHabilidadEspecial()">⚡ HABILIDAD ESPECIAL [ESPACIO]</button>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas/WASD · ESPACIO: Poder Anime · P: Pausa | 🕳️ Túneles azules: solo el Ratón cruza</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas/WASD · ESPACIO: Poder Anime · P: Pausa | 🐟 Pez Dorado = Modo Furia (Caza al Perro) | 🌀 Portales cruzables</p>
         </section>
 
         <section id="fin-juego" class="panel-sub" style="display:none;">
-            <h2 id="fin-titulo" style="margin-top:0; color:var(--accent-gold-light);">¡TIEMPO AGOTADO!</h2>
+            <h2 id="fin-titulo" style="margin-top:0; color:var(--accent-gold-light);">¡PARTIDA TERMINADA!</h2>
             <p id="fin-subtitulo" style="color:var(--text-muted);"></p>
             <p id="fin-puntos-linea">Puntos conseguidos: <strong id="puntos-finales" style="color:var(--accent-cyan);">0</strong></p>
             <p id="fin-monedas-linea">Gatomonedas ganadas: <strong id="monedas-partida" style="color:var(--accent-gold-light);">0</strong> 🪙</p>
             <p id="fin-record-linea">Récord actual: <strong id="record-final">0</strong></p>
             <p id="mensaje-record" style="display:none; color:var(--accent-green); font-weight:800;">🎉 ¡NUEVO RÉCORD PERSONAL!</p>
-            <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 JUGAR DE NUEVO</button>
+            <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 EXPLORAR DE NUEVO</button>
             <button class="tactical-btn" onclick="volverMenu()">🏠 MENÚ PRINCIPAL</button>
         </section>
     </main>
@@ -631,29 +631,31 @@
     <div id="toast-logro"></div>
 
 <script>
-const ANCHO_JUEGO = 600;
-const ALTO_JUEGO = 400;
+const ANCHO_CAMARA = 600;
+const ALTO_CAMARA = 400;
+const ANCHO_MUNDO = 1800;
+const ALTO_MUNDO = 1200;
 
-const DURACION_PARTIDA = 60;
+const DURACION_PARTIDA = 75;
 const CAPTURAS_POR_NIVEL = 5;
 const NIVELES_POR_RATON = 2;
-const BONUS_TIEMPO_NIVEL = 4;
-const DISTANCIA_MIN_APARICION = 135;
+const BONUS_TIEMPO_NIVEL = 6;
+const DISTANCIA_MIN_APARICION = 240;
 const MAX_NIVEL_MEJORA = 5;
 const TOPE_APRENDIZAJE = 250;
 
-const VELOCIDAD_GATO_1V1 = 325;
-const VELOCIDAD_RATON_1V1 = 345;
-const VELOCIDAD_RATON_JUGADOR_VUDU = 350;
-const VELOCIDAD_JEFE_FACILIER_BASE = 265;
+const VELOCIDAD_GATO_1V1 = 335;
+const VELOCIDAD_RATON_1V1 = 355;
+const VELOCIDAD_RATON_JUGADOR_VUDU = 355;
+const VELOCIDAD_JEFE_FACILIER_BASE = 275;
 
 const FONDOS_HEX = [0x0d1322, 0x111827, 0x17153b, 0x092635, 0x1e1b4b];
 const RATONES = ["🐭", "🐀", "🐹", "🐿️"];
 
 const DIFICULTADES = [
-    { nombre: "Fácil", velGato: 315, factorRaton: 0.78, monedasPorCaptura: 5 },
-    { nombre: "Normal", velGato: 340, factorRaton: 0.92, monedasPorCaptura: 8 },
-    { nombre: "Difícil", velGato: 365, factorRaton: 1.05, monedasPorCaptura: 12 }
+    { nombre: "Fácil", velGato: 335, factorRaton: 0.78, monedasPorCaptura: 5 },
+    { nombre: "Normal", velGato: 360, factorRaton: 0.92, monedasPorCaptura: 8 },
+    { nombre: "Difícil", velGato: 385, factorRaton: 1.05, monedasPorCaptura: 12 }
 ];
 
 const SKINS = [
@@ -662,9 +664,9 @@ const SKINS = [
     { emoji: "🐯", nombre: "Tigre Bengala", precio: 280, velocidad: 1.12, costoMejora: 140, skillName: "Zarpa Feroz", skillType: "overdrive", skillCd: 6, skillColor: "#fb923c", skillHex: 0xfb923c, descripcion: "Depredador · Poder: Zarpa Feroz." },
     { emoji: "🦁", nombre: "León Dorado", precio: 550, velocidad: 1.18, costoMejora: 180, skillName: "Rugido Sísmico", skillType: "stun", skillCd: 8, skillColor: "#facc15", skillHex: 0xfacc15, descripcion: "Rey · Onda física que empuja cajas y aturde 2.5s." },
     { emoji: "🐆", nombre: "Guepardo Turbo", precio: 950, velocidad: 1.25, costoMejora: 220, skillName: "Velocidad Relámpago", skillType: "overdrive", skillCd: 6, skillColor: "#22d3ee", skillHex: 0x22d3ee, descripcion: "Velocista · Poder Anime: Dash supersónico." },
-    { emoji: "tate", archivoBase: "tate.png", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, skillName: "Destello Estelar", skillType: "blink", skillCd: 6.5, skillColor: "#fde047", skillHex: 0xfde047, descripcion: "Legendario · Cruza muros con teletransporte estelar." },
+    { emoji: "tate", archivoBase: "tate.png", icono: "⭐", nombre: "Tate", precio: 0, velocidad: 1.22, costoMejora: 200, secreta: true, skillName: "Destello Estelar", skillType: "blink", skillCd: 6.5, skillColor: "#fde047", skillHex: 0xfde047, descripcion: "Legendario · Teletransporte directo cerca del ratón." },
     { emoji: "tate_sombrero", archivoBase: "tate.png", icono: "🎩", nombre: "Tate del Infierno", precio: 0, velocidad: 1.32, costoMejora: 300, secreta: true, sombrero: true, skillName: "Dominio Infernal", skillType: "magnet", skillCd: 7.5, skillColor: "#ef4444", skillHex: 0xef4444, descripcion: "Infernal · Vórtice gravitacional que atrae ratón y cajas." },
-    { emoji: "tate_facilier", archivoBase: "tate.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, skillName: "Pacto de Sombras", skillType: "voodoo", skillCd: 7.5, skillColor: "#c084fc", skillHex: 0xc084fc, descripcion: "Maestro Vudú · Invoca y lanza por los aires al ratón." }
+    { emoji: "tate_facilier", archivoBase: "tate.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, skillName: "Pacto de Sombras", skillType: "voodoo", skillCd: 7.5, skillColor: "#c084fc", skillHex: 0xc084fc, descripcion: "Maestro Vudú · Invoca y aturde al ratón." }
 ];
 
 const MISIONES = [
@@ -767,13 +769,17 @@ let destinoRemoto = { x: 100, y: 200 };
 let ultimaPosEnviada = { x: -1, y: -1 };
 let ultimoSegundoEnviado = -1;
 let ultimaSyncRed = 0;
-let errorSyncMostrado = false;
 
 let cooldownHabilidad = 0;
 let habilidadActivaTipo = null;
 let habilidadActivaTimer = 0;
 let ratonAturdidoTimer = 0;
-let cooldownTunel = 0;
+
+let vidasGato = 3;
+let modoFuriaTimer = 0;
+let invulnerableTimer = 0;
+let perroAturdidoTimer = 0;
+let cooldownPortal = 0;
 
 const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
 const toque = { activo: false, x: 0, y: 0 };
@@ -872,8 +878,9 @@ function sincronizarMusica() {
         intervaloMusica = null;
     }
 }
-    // ============================================================
-//  MOTOR PHASER 3: ESCENA ARCADE, OBSTÁCULOS, TÚNELES Y ZOOM
+
+// ============================================================
+//  MOTOR PHASER 3: MUNDO ABIERTO (1800x1200) + CÁMARA + RADAR
 // ============================================================
 let phaserGame = null;
 let escenaActiva = null;
@@ -889,32 +896,32 @@ function crearTexturasPhaser(scene) {
     if (!scene.textures.exists("tex-muro")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
         g.fillStyle(0x1e293b, 1);
-        g.fillRoundedRect(0, 0, 32, 32, 6);
-        g.lineStyle(2, 0x38bdf8, 0.7);
-        g.strokeRoundedRect(1, 1, 30, 30, 6);
-        g.generateTexture("tex-muro", 32, 32);
+        g.fillRoundedRect(0, 0, 40, 40, 8);
+        g.lineStyle(2, 0x38bdf8, 0.75);
+        g.strokeRoundedRect(1, 1, 38, 38, 8);
+        g.generateTexture("tex-muro", 40, 40);
         g.destroy();
     }
     if (!scene.textures.exists("tex-caja")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
         g.fillStyle(0xd97706, 1);
-        g.fillRoundedRect(0, 0, 28, 28, 5);
-        g.lineStyle(2, 0xfde047, 0.9);
-        g.strokeRoundedRect(1, 1, 26, 26, 5);
-        g.lineBetween(4, 4, 24, 24);
-        g.lineBetween(24, 4, 4, 24);
-        g.generateTexture("tex-caja", 28, 28);
+        g.fillRoundedRect(0, 0, 32, 32, 6);
+        g.lineStyle(2, 0xfde047, 0.95);
+        g.strokeRoundedRect(1, 1, 30, 30, 6);
+        g.lineBetween(4, 4, 28, 28);
+        g.lineBetween(28, 4, 4, 28);
+        g.generateTexture("tex-caja", 32, 32);
         g.destroy();
     }
     if (!scene.textures.exists("tex-tunel")) {
         const g = scene.make.graphics({ x: 0, y: 0, add: false });
         g.fillStyle(0x020617, 1);
-        g.fillCircle(18, 18, 16);
-        g.lineStyle(3, 0x38bdf8, 0.95);
-        g.strokeCircle(18, 18, 15);
-        g.lineStyle(1.5, 0xa855f7, 0.8);
-        g.strokeCircle(18, 18, 9);
-        g.generateTexture("tex-tunel", 36, 36);
+        g.fillCircle(20, 20, 18);
+        g.lineStyle(3, 0xa855f7, 0.95);
+        g.strokeCircle(20, 20, 17);
+        g.lineStyle(2, 0x38bdf8, 0.85);
+        g.strokeCircle(20, 20, 10);
+        g.generateTexture("tex-tunel", 40, 40);
         g.destroy();
     }
 }
@@ -932,35 +939,46 @@ class EscenaGatoCazador extends Phaser.Scene {
         escenaActiva = this;
         crearTexturasPhaser(this);
 
-        this.fondoRect = this.add.rectangle(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, ANCHO_JUEGO, ALTO_JUEGO, FONDOS_HEX[0]);
-        this.gridGraphics = this.add.graphics();
-        this.dibujarCuadricula(0x38bdf8, 0.06);
+        const anchoActual = modoMulti ? ANCHO_CAMARA : ANCHO_MUNDO;
+        const altoActual = modoMulti ? ALTO_CAMARA : ALTO_MUNDO;
 
-        this.barraFondo = this.add.rectangle(ANCHO_JUEGO / 2, 4, ANCHO_JUEGO, 8, 0x1e293b).setDepth(30);
-        this.barraProgreso = this.add.rectangle(0, 4, ANCHO_JUEGO, 8, 0xfacc15).setOrigin(0, 0.5).setDepth(31);
+        this.physics.world.setBounds(0, 0, anchoActual, altoActual);
+        this.cameras.main.setBounds(0, 0, anchoActual, altoActual);
+
+        this.sueloGfx = this.add.graphics();
+        this.dibujarZonasMundo(anchoActual, altoActual);
+
+        // HUD fijo en pantalla
+        this.barraFondo = this.add.rectangle(ANCHO_CAMARA / 2, 4, ANCHO_CAMARA, 8, 0x1e293b).setScrollFactor(0).setDepth(40);
+        this.barraProgreso = this.add.rectangle(0, 4, ANCHO_CAMARA, 8, 0xfacc15).setOrigin(0, 0.5).setScrollFactor(0).setDepth(41);
+
+        this.textoVidas = this.add.text(12, 14, "❤️❤️❤️", { fontSize: "16px" }).setScrollFactor(0).setDepth(45);
+        this.textoZona = this.add.text(12, 36, "📍 LA COCINA", {
+            fontFamily: "'Press Start 2P', Arial",
+            fontSize: "9px",
+            color: "#38bdf8",
+            backgroundColor: "rgba(6,9,17,0.75)",
+            padding: { x: 6, y: 4 }
+        }).setScrollFactor(0).setDepth(45);
+
+        this.radarGfx = this.add.graphics().setScrollFactor(0).setDepth(45);
 
         // Grupos físicos
         this.muros = this.physics.add.staticGroup();
-        this.cajas = this.physics.add.group({
-            bounceX: 0.5,
-            bounceY: 0.5,
-            dragX: 380,
-            dragY: 380,
-            collideWorldBounds: true
-        });
+        this.cajas = this.physics.add.group({ bounceX: 0.5, bounceY: 0.5, dragX: 360, dragY: 360, collideWorldBounds: true });
+        this.peces = this.physics.add.group();
         this.tuneles = [];
 
-        // Emisor de partículas nativo
         this.emisor = this.add.particles(0, 0, "tex-particula", {
-            speed: { min: 60, max: 230 },
+            speed: { min: 70, max: 250 },
             scale: { start: 0.9, end: 0 },
             alpha: { start: 1, end: 0 },
             lifespan: 520,
             emitting: false
-        }).setDepth(25);
+        }).setDepth(30);
 
-        // Jugador Gato (Contenedor físico)
-        this.gatoContainer = this.add.container(300, 200).setDepth(15);
+        // Jugador Gato
+        this.gatoContainer = this.add.container(300, 280).setDepth(16);
         this.auraGfx = this.add.graphics();
         this.gatoContainer.add(this.auraGfx);
 
@@ -974,8 +992,8 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.physics.world.enable(this.gatoContainer);
         this.gatoContainer.body.setSize(32, 32).setOffset(-16, -16).setCollideWorldBounds(true).setBounce(0.25);
 
-        // Ratón (Contenedor físico)
-        this.ratonContainer = this.add.container(100, 100).setDepth(14);
+        // Ratón
+        this.ratonContainer = this.add.container(900, 600).setDepth(15);
         this.ratonTexto = this.add.text(0, 0, "🐭", { fontSize: "28px" }).setOrigin(0.5);
         this.stunTexto = this.add.text(0, -20, "💫", { fontSize: "15px" }).setOrigin(0.5).setVisible(false);
         this.etiquetaRaton = this.add.text(0, -24, "", { fontFamily: "'Press Start 2P', Arial", fontSize: "9px", color: "#4ade80" }).setOrigin(0.5);
@@ -983,20 +1001,46 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.physics.world.enable(this.ratonContainer);
         this.ratonContainer.body.setSize(24, 24).setOffset(-12, -12).setCollideWorldBounds(true).setBounce(0.35);
 
-        // Colisiones físicas reales
+        // Perro Guardián
+        this.perroContainer = this.add.container(1350, 850).setDepth(16);
+        this.perroAlerta = this.add.circle(0, 0, 140, 0xef4444, 0.06).setStrokeStyle(1.5, 0xef4444, 0.3);
+        this.perroTexto = this.add.text(0, 0, "🐕", { fontSize: "36px" }).setOrigin(0.5);
+        this.perroLabel = this.add.text(0, -26, "GUARDIÁN", { fontFamily: "'Press Start 2P', Arial", fontSize: "8px", color: "#f87171" }).setOrigin(0.5);
+        this.perroContainer.add([this.perroAlerta, this.perroTexto, this.perroLabel]);
+        this.physics.world.enable(this.perroContainer);
+        this.perroContainer.body.setSize(34, 34).setOffset(-17, -17).setCollideWorldBounds(true).setBounce(0.4);
+
+        // Colisiones físicas
         this.physics.add.collider(this.gatoContainer, this.muros);
         this.physics.add.collider(this.ratonContainer, this.muros);
+        this.physics.add.collider(this.perroContainer, this.muros);
         this.physics.add.collider(this.cajas, this.muros);
         this.physics.add.collider(this.cajas, this.cajas);
         this.physics.add.collider(this.gatoContainer, this.cajas);
         this.physics.add.collider(this.ratonContainer, this.cajas);
+        this.physics.add.collider(this.perroContainer, this.cajas);
 
-        // Captura al tocarse
+        // Overlaps
         this.physics.add.overlap(this.gatoContainer, this.ratonContainer, () => {
             if (juegoIniciado && !pausado) procesarCapturaPhaser();
         });
 
-        // Controles táctiles en Phaser
+        this.physics.add.overlap(this.gatoContainer, this.perroContainer, () => {
+            if (!juegoIniciado || pausado || modoMulti || modoJefeFacilier) return;
+            this.colisionConPerro();
+        });
+
+        this.physics.add.overlap(this.gatoContainer, this.peces, (gato, pez) => {
+            pez.destroy();
+            modoFuriaTimer = 7.0;
+            sonar("record");
+            this.efectoAnimeCamara("🐟 ¡MODO FURIA! CAZA AL PERRO", 0xfacc15, "#facc15");
+            this.time.delayedCall(9000, () => {
+                if (juegoIniciado && !modoMulti) this.generarPezPoder();
+            });
+        });
+
+        // Controles táctiles
         this.input.on("pointerdown", (pointer) => {
             if (!juegoIniciado) return;
             if (pausado && !modoMulti && !modoJefeFacilier) {
@@ -1006,38 +1050,55 @@ class EscenaGatoCazador extends Phaser.Scene {
                 return;
             }
             toque.activo = true;
-            toque.x = pointer.x;
-            toque.y = pointer.y;
+            toque.x = pointer.worldX;
+            toque.y = pointer.worldY;
         });
         this.input.on("pointermove", (pointer) => {
             if (toque.activo) {
-                toque.x = pointer.x;
-                toque.y = pointer.y;
+                toque.x = pointer.worldX;
+                toque.y = pointer.worldY;
             }
         });
         this.input.on("pointerup", () => { toque.activo = false; });
 
-        this.textoPausa = this.add.text(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, "PAUSA", {
+        this.textoPausa = this.add.text(ANCHO_CAMARA / 2, ALTO_CAMARA / 2, "PAUSA", {
             fontFamily: "'Press Start 2P', Arial",
             fontSize: "24px",
             color: "#ffffff",
-            backgroundColor: "rgba(0,0,0,0.75)",
+            backgroundColor: "rgba(0,0,0,0.8)",
             padding: { x: 20, y: 14 }
-        }).setOrigin(0.5).setDepth(50).setVisible(false);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(60).setVisible(false);
 
-        this.cameras.main.setBounds(0, 0, ANCHO_JUEGO, ALTO_JUEGO);
         this.configurarPartidaEnEscena();
     }
 
-    dibujarCuadricula(color, alpha) {
-        this.gridGraphics.clear();
-        this.gridGraphics.lineStyle(1, color, alpha);
-        for (let x = 0; x <= ANCHO_JUEGO; x += 40) {
-            this.gridGraphics.lineBetween(x, 0, x, ALTO_JUEGO);
+    dibujarZonasMundo(w, h) {
+        this.sueloGfx.clear();
+        if (modoMulti) {
+            this.sueloGfx.fillStyle(0x0b1b3a, 1);
+            this.sueloGfx.fillRect(0, 0, w, h);
+            return;
         }
-        for (let y = 0; y <= ALTO_JUEGO; y += 40) {
-            this.gridGraphics.lineBetween(0, y, ANCHO_JUEGO, y);
-        }
+        const mw = w / 2;
+        const mh = h / 2;
+        this.sueloGfx.fillStyle(0x0f172a, 1);
+        this.sueloGfx.fillRect(0, 0, mw, mh);
+
+        this.sueloGfx.fillStyle(0x062419, 1);
+        this.sueloGfx.fillRect(mw, 0, mw, mh);
+
+        this.sueloGfx.fillStyle(0x1e1528, 1);
+        this.sueloGfx.fillRect(0, mh, mw, mh);
+
+        this.sueloGfx.fillStyle(0x0c1e35, 1);
+        this.sueloGfx.fillRect(mw, mh, mw, mh);
+
+        this.sueloGfx.lineStyle(1, 0x38bdf8, 0.06);
+        for (let x = 0; x <= w; x += 60) this.sueloGfx.lineBetween(x, 0, x, h);
+        for (let y = 0; y <= h; y += 60) this.sueloGfx.lineBetween(0, y, w, y);
+
+        this.sueloGfx.lineStyle(3, 0x334155, 0.5);
+        this.sueloGfx.strokeRect(2, 2, w - 4, h - 4);
     }
 
     dibujarSombreroEnGfx(gfx) {
@@ -1049,48 +1110,59 @@ class EscenaGatoCazador extends Phaser.Scene {
         gfx.fillRect(-11, -28, 22, 3);
     }
 
-    construirArena(nivelMapa) {
+    construirMundoAbierto() {
         this.muros.clear(true, true);
         this.cajas.clear(true, true);
+        this.peces.clear(true, true);
         this.tuneles.forEach((t) => t.destroy());
         this.tuneles = [];
 
-        // En 1v1 online dejamos arena limpia para sincronización perfecta
         if (modoMulti) return;
 
-        // 2 Túneles en esquinas opuestas (solo el ratón puede usarlos)
-        const t1 = this.add.image(55, 65, "tex-tunel").setDepth(4);
-        const t2 = this.add.image(ANCHO_JUEGO - 55, ALTO_JUEGO - 65, "tex-tunel").setDepth(4);
-        t1.destino = t2;
-        t2.destino = t1;
-        this.tuneles.push(t1, t2);
+        // Paredes entre las 4 habitaciones dejando puertas abiertas
+        this.crearMuro(900, 140, 40, 220);
+        this.crearMuro(900, 600, 40, 320);
+        this.crearMuro(900, 1060, 40, 220);
 
-        const patron = (nivelMapa - 1) % 3;
-        if (patron === 0) {
-            // Dos pilares laterales y 3 cajas empujables en el centro
-            this.crearMuro(170, 125, 32, 96);
-            this.crearMuro(430, 275, 32, 96);
-            this.crearCaja(300, 120);
-            this.crearCaja(300, 280);
-            this.crearCaja(220, 200);
-        } else if (patron === 1) {
-            // Barreras horizontales y cajas
-            this.crearMuro(210, 110, 110, 28);
-            this.crearMuro(390, 290, 110, 28);
-            this.crearCaja(160, 250);
-            this.crearCaja(440, 150);
-            this.crearCaja(300, 200);
-        } else {
-            // Cuatro bloques simétricos y 4 cajas
-            this.crearMuro(170, 120, 64, 32);
-            this.crearMuro(430, 120, 64, 32);
-            this.crearMuro(170, 280, 64, 32);
-            this.crearMuro(430, 280, 64, 32);
-            this.crearCaja(300, 110);
-            this.crearCaja(300, 290);
-            this.crearCaja(210, 200);
-            this.crearCaja(390, 200);
-        }
+        this.crearMuro(220, 600, 360, 40);
+        this.crearMuro(680, 600, 220, 40);
+        this.crearMuro(1120, 600, 220, 40);
+        this.crearMuro(1580, 600, 360, 40);
+
+        // Obstáculos por habitación
+        this.crearMuro(320, 220, 180, 40);
+        this.crearMuro(580, 380, 180, 40);
+        this.crearMuro(1250, 200, 40, 200);
+        this.crearMuro(1500, 350, 200, 40);
+        this.crearMuro(280, 880, 200, 40);
+        this.crearMuro(600, 950, 40, 180);
+        this.crearMuro(1250, 850, 160, 40);
+        this.crearMuro(1520, 950, 160, 40);
+
+        const posCajas = [
+            [450, 250], [450, 480], [1150, 300], [1400, 480],
+            [420, 750], [720, 850], [1180, 980], [1450, 760]
+        ];
+        posCajas.forEach(([cx, cy]) => this.crearCaja(cx, cy));
+
+        const p1 = this.add.image(110, 110, "tex-tunel").setDepth(5);
+        const p2 = this.add.image(ANCHO_MUNDO - 110, ALTO_MUNDO - 110, "tex-tunel").setDepth(5);
+        p1.destino = p2;
+        p2.destino = p1;
+        this.tuneles.push(p1, p2);
+
+        this.generarPezPoder(1550, 160);
+        this.generarPezPoder(220, 1040);
+    }
+
+    generarPezPoder(fx, fy) {
+        const x = fx || (150 + Math.random() * (ANCHO_MUNDO - 300));
+        const y = fy || (150 + Math.random() * (ALTO_MUNDO - 300));
+        const pez = this.add.text(x, y, "🐟", { fontSize: "26px" }).setOrigin(0.5).setDepth(10);
+        this.physics.world.enable(pez);
+        pez.body.setCircle(14);
+        this.peces.add(pez);
+        this.tweens.add({ targets: pez, y: y - 8, duration: 700, yoyo: true, repeat: -1 });
     }
 
     crearMuro(x, y, w, h) {
@@ -1121,31 +1193,94 @@ class EscenaGatoCazador extends Phaser.Scene {
     }
 
     configurarPartidaEnEscena() {
+        vidasGato = 3;
+        modoFuriaTimer = 0;
+        invulnerableTimer = 0;
+        perroAturdidoTimer = 0;
+
+        const anchoActual = modoMulti ? ANCHO_CAMARA : ANCHO_MUNDO;
+        const altoActual = modoMulti ? ALTO_CAMARA : ALTO_MUNDO;
+        this.physics.world.setBounds(0, 0, anchoActual, altoActual);
+        this.cameras.main.setBounds(0, 0, anchoActual, altoActual);
+        this.dibujarZonasMundo(anchoActual, altoActual);
+
         this.actualizarAparienciaGato();
-        this.construirArena(nivel);
+        this.construirMundoAbierto();
         this.cameras.main.setZoom(1);
 
         if (modoJefeFacilier) {
-            this.fondoRect.setFillStyle(0x180826);
-            this.dibujarCuadricula(0xa855f7, 0.12);
-            this.gatoContainer.setPosition(45, 45);
-            this.ratonContainer.setPosition(ANCHO_JUEGO / 2, ALTO_JUEGO / 2);
+            this.perroContainer.setVisible(false);
+            this.perroContainer.body.enable = false;
+            this.textoVidas.setVisible(false);
+            this.textoZona.setVisible(true);
+            this.radarGfx.setVisible(true);
+            this.gatoContainer.setPosition(200, 200);
+            this.ratonContainer.setPosition(450, 350);
             this.etiquetaGato.setText("DR. FACILIER").setColor("#c084fc");
             this.etiquetaRaton.setText("TÚ").setColor("#4ade80");
+            this.cameras.main.startFollow(this.ratonContainer, true, 0.12, 0.12);
         } else if (modoMulti) {
-            this.fondoRect.setFillStyle(0x0b1b3a);
-            this.dibujarCuadricula(0x38bdf8, 0.08);
+            this.perroContainer.setVisible(false);
+            this.perroContainer.body.enable = false;
+            this.textoVidas.setVisible(false);
+            this.textoZona.setVisible(false);
+            this.radarGfx.setVisible(false);
+            this.cameras.main.stopFollow();
+            this.cameras.main.setScroll(0, 0);
             this.gatoContainer.setPosition(480, 200);
             this.ratonContainer.setPosition(100, 200);
             this.etiquetaGato.setText(rolMulti === "gato" ? "TÚ" : "");
             this.etiquetaRaton.setText(rolMulti === "raton" ? "TÚ" : "");
         } else {
-            this.fondoRect.setFillStyle(FONDOS_HEX[(nivel - 1) % FONDOS_HEX.length]);
-            this.dibujarCuadricula(0x38bdf8, 0.06);
-            this.gatoContainer.setPosition(ANCHO_JUEGO / 2, ALTO_JUEGO / 2);
+            this.perroContainer.setVisible(true);
+            this.perroContainer.body.enable = true;
+            this.perroContainer.setPosition(1350, 850);
+            this.textoVidas.setVisible(true).setText("❤️❤️❤️");
+            this.textoZona.setVisible(true);
+            this.radarGfx.setVisible(true);
+            this.gatoContainer.setPosition(300, 280);
             this.etiquetaGato.setText("");
             this.etiquetaRaton.setText("");
+            this.cameras.main.startFollow(this.gatoContainer, true, 0.12, 0.12);
             this.reaparecerRatonSeguro();
+        }
+    }
+
+    colisionConPerro() {
+        if (perroAturdidoTimer > 0) return;
+
+        if (modoFuriaTimer > 0) {
+            perroAturdidoTimer = 6.0;
+            puntos += 5;
+            capturasTotales += 2;
+            monedas += 25;
+            monedasPartida += 25;
+            guardar("monedas", monedas);
+            guardar("capturasTotales", capturasTotales);
+            actualizarMarcador();
+            sonar("nivel");
+            this.cameras.main.shake(220, 0.015);
+            this.emisor.setPosition(this.perroContainer.x, this.perroContainer.y);
+            this.emisor.explode(28);
+            this.textoFlotante(this.perroContainer.x, this.perroContainer.y - 24, "¡PERRO ESPANTADO +5 PTS!", "#facc15");
+            return;
+        }
+
+        if (invulnerableTimer > 0) return;
+
+        vidasGato--;
+        invulnerableTimer = 2.2;
+        sonar("error");
+        this.cameras.main.shake(280, 0.02);
+        this.textoVidas.setText("❤️".repeat(Math.max(0, vidasGato)) || "💀");
+        this.textoFlotante(this.gatoContainer.x, this.gatoContainer.y - 24, "¡MORDIDA! -1 VIDA", "#ef4444");
+
+        const ang = Phaser.Math.Angle.Between(this.perroContainer.x, this.perroContainer.y, this.gatoContainer.x, this.gatoContainer.y);
+        this.gatoContainer.body.setVelocity(Math.cos(ang) * 420, Math.sin(ang) * 420);
+
+        if (vidasGato <= 0) {
+            mostrarLogro("🐕 ¡El Perro Guardián te atrapó!");
+            terminarJuego();
         }
     }
 
@@ -1153,16 +1288,15 @@ class EscenaGatoCazador extends Phaser.Scene {
         const gx = this.gatoContainer.x;
         const gy = this.gatoContainer.y;
 
-        for (let intento = 0; intento < 35; intento++) {
-            const rx = 45 + Math.random() * (ANCHO_JUEGO - 90);
-            const ry = 45 + Math.random() * (ALTO_JUEGO - 90);
+        for (let intento = 0; intento < 45; intento++) {
+            const rx = 80 + Math.random() * (ANCHO_MUNDO - 160);
+            const ry = 80 + Math.random() * (ALTO_MUNDO - 160);
             if (Math.hypot(rx - gx, ry - gy) < DISTANCIA_MIN_APARICION) continue;
 
-            // Evitar aparecer encima de un muro
             let chocaMuro = false;
             this.muros.getChildren().forEach((m) => {
                 if (Phaser.Geom.Intersects.RectangleToRectangle(
-                    new Phaser.Geom.Rectangle(rx - 16, ry - 16, 32, 32),
+                    new Phaser.Geom.Rectangle(rx - 20, ry - 20, 40, 40),
                     m.getBounds()
                 )) chocaMuro = true;
             });
@@ -1172,22 +1306,22 @@ class EscenaGatoCazador extends Phaser.Scene {
                 return;
             }
         }
-        this.ratonContainer.setPosition(gx < ANCHO_JUEGO / 2 ? ANCHO_JUEGO - 50 : 50, gy < ALTO_JUEGO / 2 ? ALTO_JUEGO - 50 : 50);
+        this.ratonContainer.setPosition(ANCHO_MUNDO - 160, ALTO_MUNDO - 160);
     }
 
     efectoAnimeCamara(texto, colorHex, colorStr) {
         this.cameras.main.shake(260, 0.014);
-        this.cameras.main.zoomTo(1.14, 180, "Sine.easeOut", true, (cam, prog) => {
+        this.cameras.main.zoomTo(1.15, 180, "Sine.easeOut", true, (cam, prog) => {
             if (prog === 1) this.cameras.main.zoomTo(1.0, 420, "Sine.easeInOut");
         });
 
-        const banner = this.add.text(ANCHO_JUEGO / 2, ALTO_JUEGO / 2, texto, {
+        const banner = this.add.text(ANCHO_CAMARA / 2, ALTO_CAMARA / 2, texto, {
             fontFamily: "'Press Start 2P', Arial",
-            fontSize: "14px",
+            fontSize: "13px",
             color: "#ffffff",
             backgroundColor: "rgba(6, 9, 17, 0.88)",
             padding: { x: 16, y: 12 }
-        }).setOrigin(0.5).setDepth(45);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
 
         this.tweens.add({
             targets: banner,
@@ -1201,7 +1335,7 @@ class EscenaGatoCazador extends Phaser.Scene {
         const onda = this.add.circle(this.gatoContainer.x, this.gatoContainer.y, 14).setStrokeStyle(4, colorHex, 1).setDepth(20);
         this.tweens.add({
             targets: onda,
-            radius: 175,
+            radius: 190,
             alpha: 0,
             duration: 480,
             onComplete: () => onda.destroy()
@@ -1213,7 +1347,7 @@ class EscenaGatoCazador extends Phaser.Scene {
             fontFamily: "'Press Start 2P', Arial",
             fontSize: "11px",
             color: color || "#fbbf24"
-        }).setOrigin(0.5).setDepth(40);
+        }).setOrigin(0.5).setDepth(45);
         this.tweens.add({
             targets: txt,
             y: y - 34,
@@ -1221,6 +1355,37 @@ class EscenaGatoCazador extends Phaser.Scene {
             duration: 850,
             onComplete: () => txt.destroy()
         });
+    }
+
+    dibujarRadar() {
+        if (modoMulti) return;
+        this.radarGfx.clear();
+        const rw = 120;
+        const rh = 80;
+        const rx = ANCHO_CAMARA - rw - 12;
+        const ry = 14;
+
+        this.radarGfx.fillStyle(0x060911, 0.82);
+        this.radarGfx.fillRoundedRect(rx, ry, rw, rh, 6);
+        this.radarGfx.lineStyle(1.5, 0x38bdf8, 0.7);
+        this.radarGfx.strokeRoundedRect(rx, ry, rw, rh, 6);
+
+        const gx = rx + (this.gatoContainer.x / ANCHO_MUNDO) * rw;
+        const gy = ry + (this.gatoContainer.y / ALTO_MUNDO) * rh;
+        this.radarGfx.fillStyle(0xfacc15, 1);
+        this.radarGfx.fillCircle(gx, gy, 3.5);
+
+        const mx = rx + (this.ratonContainer.x / ANCHO_MUNDO) * rw;
+        const my = ry + (this.ratonContainer.y / ALTO_MUNDO) * rh;
+        this.radarGfx.fillStyle(0x4ade80, 1);
+        this.radarGfx.fillCircle(mx, my, 3);
+
+        if (this.perroContainer.visible) {
+            const px = rx + (this.perroContainer.x / ANCHO_MUNDO) * rw;
+            const py = ry + (this.perroContainer.y / ALTO_MUNDO) * rh;
+            this.radarGfx.fillStyle(modoFuriaTimer > 0 ? 0x38bdf8 : 0xef4444, 1);
+            this.radarGfx.fillCircle(px, py, 3.5);
+        }
     }
 
     update(time, delta) {
@@ -1237,23 +1402,34 @@ class EscenaGatoCazador extends Phaser.Scene {
         }
 
         const dt = Math.min(delta / 1000, 0.1);
+        if (modoFuriaTimer > 0) modoFuriaTimer = Math.max(0, modoFuriaTimer - dt);
+        if (invulnerableTimer > 0) invulnerableTimer = Math.max(0, invulnerableTimer - dt);
+        if (perroAturdidoTimer > 0) perroAturdidoTimer = Math.max(0, perroAturdidoTimer - dt);
+        if (cooldownPortal > 0) cooldownPortal = Math.max(0, cooldownPortal - dt);
 
-        // Dibujar auras dinámicas de Phaser
+        this.gatoContainer.setAlpha(invulnerableTimer > 0 ? (Math.sin(time * 0.03) > 0 ? 0.35 : 1) : 1);
+
         this.auraGfx.clear();
         const t = time * 0.006;
-        if (this.skinActualObj && (this.skinActualObj.facilier || this.skinActualObj.sombrero || habilidadActivaTimer > 0)) {
-            const col = this.skinActualObj.skillHex || 0xa855f7;
-            this.auraGfx.fillStyle(col, 0.24 + Math.sin(t * 2) * 0.08);
-            this.auraGfx.fillCircle(0, 0, 30 + Math.sin(t * 3) * 4);
-            this.auraGfx.lineStyle(2, col, 0.85);
-            this.auraGfx.strokeCircle(0, 0, 26 + Math.cos(t * 2) * 3);
+        if (modoFuriaTimer > 0 || (this.skinActualObj && (this.skinActualObj.facilier || this.skinActualObj.sombrero || habilidadActivaTimer > 0))) {
+            const col = modoFuriaTimer > 0 ? 0xfacc15 : (this.skinActualObj.skillHex || 0xa855f7);
+            this.auraGfx.fillStyle(col, 0.28 + Math.sin(t * 2) * 0.08);
+            this.auraGfx.fillCircle(0, 0, 32 + Math.sin(t * 3) * 4);
+            this.auraGfx.lineStyle(2.5, col, 0.9);
+            this.auraGfx.strokeCircle(0, 0, 28 + Math.cos(t * 2) * 3);
         }
 
-        // Rotar túneles
         this.tuneles.forEach((tun) => { tun.rotation += 1.8 * dt; });
-        if (cooldownTunel > 0) cooldownTunel = Math.max(0, cooldownTunel - dt);
+        this.revisarPortalesMundo();
 
-        // Movimiento según modo
+        if (!modoMulti) {
+            const ref = modoJefeFacilier ? this.ratonContainer : this.gatoContainer;
+            const este = ref.x >= ANCHO_MUNDO / 2;
+            const sur = ref.y >= ALTO_MUNDO / 2;
+            const nombreZona = !este && !sur ? "🍳 LA COCINA" : (este && !sur ? "🌿 EL JARDÍN" : (!este && sur ? "🌙 CALLEJÓN VUDÚ" : "🧪 LABORATORIO IA"));
+            this.textoZona.setText(`📍 ${nombreZona}`);
+        }
+
         if (modoJefeFacilier) {
             this.moverEntidadConEntrada(this.ratonContainer, VELOCIDAD_RATON_JUGADOR_VUDU);
             const boostFinal = tiempo <= 15 ? 25 : 0;
@@ -1271,25 +1447,70 @@ class EscenaGatoCazador extends Phaser.Scene {
             }
             enviarEstadoMulti();
         } else {
-            const boost = habilidadActivaTipo === "overdrive" ? 1.45 : 1.0;
+            const boost = (habilidadActivaTipo === "overdrive" || modoFuriaTimer > 0) ? 1.45 : 1.0;
             this.moverEntidadConEntrada(this.gatoContainer, velocidadGato * bonusSkin() * boost);
             this.actualizarRatonIAPhaser(dt);
-            this.revisarTunelesRaton();
+            this.actualizarPerroGuardian();
         }
 
-        // Actualizar barra superior
         if (modoJefeFacilier || modoMulti) {
             const prog = Math.max(0, tiempo / DURACION_PARTIDA);
-            this.barraProgreso.width = ANCHO_JUEGO * prog;
+            this.barraProgreso.width = ANCHO_CAMARA * prog;
             this.barraProgreso.fillColor = tiempo <= 10 ? 0xef4444 : (modoJefeFacilier ? 0xa855f7 : 0x22c55e);
         } else {
             const prog = (puntos % CAPTURAS_POR_NIVEL) / CAPTURAS_POR_NIVEL;
-            this.barraProgreso.width = ANCHO_JUEGO * prog;
-            this.barraProgreso.fillColor = 0xfacc15;
+            this.barraProgreso.width = ANCHO_CAMARA * prog;
+            this.barraProgreso.fillColor = modoFuriaTimer > 0 ? 0xfacc15 : 0x38bdf8;
         }
 
         this.stunTexto.setVisible(ratonAturdidoTimer > 0);
+        this.dibujarRadar();
         actualizarTiempo(dt);
+    }
+
+    actualizarPerroGuardian() {
+        if (!this.perroContainer.visible) return;
+        if (perroAturdidoTimer > 0) {
+            this.perroContainer.body.setVelocity(0, 0);
+            this.perroLabel.setText("💫 ATURDIDO");
+            return;
+        }
+
+        const distGato = Phaser.Math.Distance.Between(this.perroContainer.x, this.perroContainer.y, this.gatoContainer.x, this.gatoContainer.y);
+        if (modoFuriaTimer > 0) {
+            this.perroLabel.setText("😱 ¡HUYE!");
+            const ang = Phaser.Math.Angle.Between(this.gatoContainer.x, this.gatoContainer.y, this.perroContainer.x, this.perroContainer.y);
+            this.perroContainer.body.setVelocity(Math.cos(ang) * 210, Math.sin(ang) * 210);
+        } else if (distGato < 340) {
+            this.perroLabel.setText("💢 ¡TE VIO!");
+            this.physics.moveToObject(this.perroContainer, this.gatoContainer, 225 + nivel * 8);
+        } else {
+            this.perroLabel.setText("🐕 PATRULLANDO");
+            this.physics.moveToObject(this.perroContainer, this.gatoContainer, 115);
+        }
+    }
+
+    revisarPortalesMundo() {
+        if (cooldownPortal > 0 || this.tuneles.length < 2) return;
+        for (const tun of this.tuneles) {
+            if (Math.hypot(this.gatoContainer.x - tun.x, this.gatoContainer.y - tun.y) < 26) {
+                cooldownPortal = 3.0;
+                sonar("tunel");
+                this.emisor.setPosition(tun.x, tun.y);
+                this.emisor.explode(18);
+                this.gatoContainer.setPosition(tun.destino.x, tun.destino.y);
+                this.emisor.setPosition(tun.destino.x, tun.destino.y);
+                this.emisor.explode(18);
+                this.textoFlotante(tun.destino.x, tun.destino.y - 24, "¡PORTAL!", "#a855f7");
+                return;
+            }
+            if (Math.hypot(this.ratonContainer.x - tun.x, this.ratonContainer.y - tun.y) < 24) {
+                cooldownPortal = 3.0;
+                sonar("tunel");
+                this.ratonContainer.setPosition(tun.destino.x, tun.destino.y);
+                return;
+            }
+        }
     }
 
     moverEntidadConEntrada(entidad, velocidad) {
@@ -1305,7 +1526,7 @@ class EscenaGatoCazador extends Phaser.Scene {
             const ox = toque.x - entidad.x;
             const oy = toque.y - entidad.y;
             const dist = Math.hypot(ox, oy);
-            if (dist > 8) {
+            if (dist > 10) {
                 dx = ox / dist;
                 dy = oy / dist;
             } else {
@@ -1316,23 +1537,6 @@ class EscenaGatoCazador extends Phaser.Scene {
         entidad.body.setVelocity(dx * velocidad, dy * velocidad);
     }
 
-    revisarTunelesRaton() {
-        if (cooldownTunel > 0 || this.tuneles.length < 2) return;
-        for (const tun of this.tuneles) {
-            if (Math.hypot(this.ratonContainer.x - tun.x, this.ratonContainer.y - tun.y) < 22) {
-                cooldownTunel = 3.2;
-                sonar("tunel");
-                this.emisor.setPosition(tun.x, tun.y);
-                this.emisor.explode(14);
-                this.ratonContainer.setPosition(tun.destino.x, tun.destino.y);
-                this.emisor.setPosition(tun.destino.x, tun.destino.y);
-                this.emisor.explode(14);
-                this.textoFlotante(tun.destino.x, tun.destino.y - 18, "¡TÚNEL!", "#38bdf8");
-                break;
-            }
-        }
-    }
-
     actualizarRatonIAPhaser(dt) {
         if (ratonAturdidoTimer > 0) {
             this.ratonContainer.body.setVelocity(0, 0);
@@ -1340,10 +1544,10 @@ class EscenaGatoCazador extends Phaser.Scene {
         }
 
         if (habilidadActivaTipo === "magnet") {
-            this.physics.moveToObject(this.ratonContainer, this.gatoContainer, 210);
+            this.physics.moveToObject(this.ratonContainer, this.gatoContainer, 240);
             this.cajas.getChildren().forEach((caja) => {
-                if (Math.hypot(caja.x - this.gatoContainer.x, caja.y - this.gatoContainer.y) < 190) {
-                    this.physics.moveToObject(caja, this.gatoContainer, 150);
+                if (Math.hypot(caja.x - this.gatoContainer.x, caja.y - this.gatoContainer.y) < 220) {
+                    this.physics.moveToObject(caja, this.gatoContainer, 160);
                 }
             });
             return;
@@ -1386,7 +1590,7 @@ class EscenaGatoCazador extends Phaser.Scene {
 
         const mov = accionActualRaton || ACCIONES_IA[0];
         const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
-        let vel = (155 + nivel * 15 + nivelAprendizaje * 0.72) * dif.factorRaton;
+        let vel = (170 + nivel * 15 + nivelAprendizaje * 0.72) * dif.factorRaton;
         vel = Math.min(vel, velocidadGato * 1.05);
         this.ratonContainer.body.setVelocity(mov.dx * vel, mov.dy * vel);
     }
@@ -1399,8 +1603,8 @@ function iniciarMotorPhaser() {
     }
     phaserGame = new Phaser.Game({
         type: Phaser.AUTO,
-        width: ANCHO_JUEGO,
-        height: ALTO_JUEGO,
+        width: ANCHO_CAMARA,
+        height: ALTO_CAMARA,
         parent: "phaser-contenedor",
         backgroundColor: "#0d1322",
         physics: {
@@ -1448,6 +1652,8 @@ function activarHabilidadEspecial() {
     const gatoObj = escenaActiva.gatoContainer;
     const ratonObj = escenaActiva.ratonContainer;
     const colorHex = skin.skillHex || 0x38bdf8;
+    const limX = modoMulti ? ANCHO_CAMARA - 30 : ANCHO_MUNDO - 30;
+    const limY = modoMulti ? ALTO_CAMARA - 30 : ALTO_MUNDO - 30;
 
     prepararAudio();
     sonar("record");
@@ -1461,7 +1667,6 @@ function activarHabilidadEspecial() {
         ratonAturdidoTimer = 2.5;
         habilidadActivaTipo = "stun";
         habilidadActivaTimer = 2.5;
-        // Onda expansiva física que empuja cajas y ratón
         const ang = Phaser.Math.Angle.Between(gatoObj.x, gatoObj.y, ratonObj.x, ratonObj.y);
         ratonObj.body.setVelocity(Math.cos(ang) * 420, Math.sin(ang) * 420);
         escenaActiva.cajas.getChildren().forEach((caja) => {
@@ -1470,10 +1675,9 @@ function activarHabilidadEspecial() {
         });
         escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 20, "¡RUGIDO SÍSMICO!", skin.skillColor);
     } else if (skin.skillType === "blink") {
-        // Teletransporte que atraviesa muros directo hacia el ratón
         const ang = Phaser.Math.Angle.Between(ratonObj.x, ratonObj.y, gatoObj.x, gatoObj.y);
-        const nx = Phaser.Math.Clamp(ratonObj.x + Math.cos(ang) * 44, 30, ANCHO_JUEGO - 30);
-        const ny = Phaser.Math.Clamp(ratonObj.y + Math.sin(ang) * 44, 30, ALTO_JUEGO - 30);
+        const nx = Phaser.Math.Clamp(ratonObj.x + Math.cos(ang) * 48, 30, limX);
+        const ny = Phaser.Math.Clamp(ratonObj.y + Math.sin(ang) * 48, 30, limY);
         gatoObj.setPosition(nx, ny);
         escenaActiva.emisor.setPosition(nx, ny);
         escenaActiva.emisor.explode(26);
@@ -1484,8 +1688,8 @@ function activarHabilidadEspecial() {
         habilidadActivaTimer = 3.5;
     } else if (skin.skillType === "voodoo") {
         ratonObj.setPosition(
-            Phaser.Math.Clamp(gatoObj.x + (Math.random() < 0.5 ? 46 : -46), 30, ANCHO_JUEGO - 30),
-            Phaser.Math.Clamp(gatoObj.y + (Math.random() < 0.5 ? 46 : -46), 30, ALTO_JUEGO - 30)
+            Phaser.Math.Clamp(gatoObj.x + (Math.random() < 0.5 ? 50 : -50), 30, limX),
+            Phaser.Math.Clamp(gatoObj.y + (Math.random() < 0.5 ? 50 : -50), 30, limY)
         );
         ratonAturdidoTimer = 2.0;
         escenaActiva.emisor.setPosition(ratonObj.x, ratonObj.y);
@@ -1560,10 +1764,8 @@ function procesarCapturaPhaser() {
     if (nivelNuevo > nivel) {
         nivel = nivelNuevo;
         tiempo += BONUS_TIEMPO_NIVEL;
-        escenaActiva.fondoRect.setFillStyle(FONDOS_HEX[(nivel - 1) % FONDOS_HEX.length]);
         escenaActiva.ratonTexto.setText(RATONES[Math.floor((nivel - 1) / NIVELES_POR_RATON) % RATONES.length]);
-        escenaActiva.construirArena(nivel);
-        mostrarLogro(`¡Nivel ${nivel}! Nueva arena y +${BONUS_TIEMPO_NIVEL}s`);
+        mostrarLogro(`¡Nivel ${nivel}! +${BONUS_TIEMPO_NIVEL}s extra`);
         sonar("nivel");
     } else {
         sonar("captura");
@@ -1747,7 +1949,7 @@ function empezarJuego() {
 }
 
 // ============================================================
-//  DUELO VUDÚ: TATE DR. FACILIER (60s COMO RATÓN vs ÉL COMO GATO)
+//  DUELO VUDÚ: TATE DR. FACILIER (75s COMO RATÓN vs ÉL COMO GATO)
 // ============================================================
 function intentarDueloFacilier() {
     if (skinsCompradas.includes("tate_facilier")) {
@@ -1757,11 +1959,11 @@ function intentarDueloFacilier() {
     }
 
     const acepta = confirm(
-        "🎩✨ ¡TRATO CON EL OTRO LADO! ✨🎩\n\n" +
-        "Tate Dr. Facilier aparece con su sombrero vudú y cartas flotantes:\n" +
-        "• Los papeles se invierten: TÚ serás el RATÓN 🐭 y ÉL será el GATO CAZADOR 🎩.\n" +
-        "• Si sobrevives 60 SEGUNDOS sin que te atrape, lo desbloqueas para siempre.\n" +
-        "• Si te atrapa antes, te robará tus Gatomonedas y te dejará con 1.\n\n" +
+        "🎩✨ ¡TRATO CON EL OTRO LADO! ✨🎩\\n\\n" +
+        "Tate Dr. Facilier aparece con su sombrero vudú y cartas flotantes:\\n" +
+        "• Los papeles se invierten: TÚ serás el RATÓN 🐭 y ÉL será el GATO CAZADOR 🎩.\\n" +
+        "• Si sobrevives 75 SEGUNDOS sin que te atrape, lo desbloqueas para siempre.\\n" +
+        "• Si te atrapa antes, te robará tus Gatomonedas y te dejará con 1.\\n\\n" +
         "¿Aceptas el trato?"
     );
     if (!acepta) return;
@@ -1786,7 +1988,7 @@ function intentarDueloFacilier() {
     const elRol = document.getElementById("marcador-rol");
     elRol.style.display = "";
     elRol.style.color = "#c084fc";
-    elRol.innerText = "🎩 DUELO VUDÚ: ¡Huye 60s como RATÓN!";
+    elRol.innerText = "🎩 DUELO VUDÚ: ¡Huye 75s como RATÓN!";
 
     document.getElementById("marcador-puntos").style.display = "none";
     document.getElementById("marcador-monedas").style.display = "";
@@ -1798,7 +2000,7 @@ function intentarDueloFacilier() {
     iniciarMotorPhaser();
     sincronizarMusica();
     sonar("record");
-    mostrarLogro("🎩 ¡CORRE! Usa las cajas para frenar a Dr. Facilier");
+    mostrarLogro("🎩 ¡CORRE! Usa los portales y cajas para frenar a Dr. Facilier");
 }
 
 function terminarDueloFacilier(victoria) {
@@ -1822,7 +2024,7 @@ function terminarDueloFacilier(victoria) {
 
         cambiarPantalla("fin-juego");
         document.getElementById("fin-titulo").innerText = "🎩✨ ¡TRATO SUPERADO!";
-        document.getElementById("fin-subtitulo").innerText = "Sobreviviste 60s como ratón. ¡Tate Dr. Facilier se une a tu equipo!";
+        document.getElementById("fin-subtitulo").innerText = "Sobreviviste 75s como ratón. ¡Tate Dr. Facilier se une a tu equipo!";
         document.getElementById("fin-puntos-linea").style.display = "none";
         document.getElementById("fin-monedas-linea").style.display = "none";
         document.getElementById("fin-record-linea").style.display = "none";
@@ -1860,7 +2062,7 @@ function terminarJuego() {
     sonar(esRecord ? "record" : "fin");
     cambiarPantalla("fin-juego");
 
-    document.getElementById("fin-titulo").innerText = "¡TIEMPO AGOTADO!";
+    document.getElementById("fin-titulo").innerText = vidasGato <= 0 ? "🐕 ¡ATRAPADO POR EL GUARDIÁN!" : "¡TIEMPO AGOTADO!";
     document.getElementById("fin-subtitulo").innerText = "";
     document.getElementById("fin-puntos-linea").style.display = "";
     document.getElementById("fin-monedas-linea").style.display = "";
@@ -2322,15 +2524,15 @@ let accionActualRaton = ACCIONES_IA[0];
 let memoria = [];
 
 function obtenerEstadoRed(rx, ry, gx, gy) {
-    return [rx / ANCHO_JUEGO, ry / ALTO_JUEGO, gx / ANCHO_JUEGO, gy / ALTO_JUEGO, (gx - rx) / ANCHO_JUEGO, (gy - ry) / ALTO_JUEGO];
+    return [rx / ANCHO_MUNDO, ry / ALTO_MUNDO, gx / ANCHO_MUNDO, gy / ALTO_MUNDO, (gx - rx) / ANCHO_MUNDO, (gy - ry) / ALTO_MUNDO];
 }
 
 function entrenarIAAcelerado() {
     const numPartidas = 50;
     let capturasSim = 0;
     for (let p = 0; p < numPartidas; p++) {
-        let simGato = { x: Math.random() * (ANCHO_JUEGO - 35), y: Math.random() * (ALTO_JUEGO - 35) };
-        let simRaton = { x: Math.random() * (ANCHO_JUEGO - 28), y: Math.random() * (ALTO_JUEGO - 28) };
+        let simGato = { x: Math.random() * (ANCHO_MUNDO - 35), y: Math.random() * (ALTO_MUNDO - 35) };
+        let simRaton = { x: Math.random() * (ANCHO_MUNDO - 28), y: Math.random() * (ALTO_MUNDO - 28) };
         for (let s = 0; s < 150; s++) {
             const estado = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
             const res = propagarRed(estado, redRaton);
@@ -2341,13 +2543,13 @@ function entrenarIAAcelerado() {
                 for (let i = 1; i < SALIDAS_RED; i++) if (res.salidas[i] > maxQ) { maxQ = res.salidas[i]; accion = i; }
             }
             const mov = ACCIONES_IA[accion];
-            simRaton.x = Math.max(0, Math.min(ANCHO_JUEGO - 28, simRaton.x + mov.dx * 4.5));
-            simRaton.y = Math.max(0, Math.min(ALTO_JUEGO - 28, simRaton.y + mov.dy * 4.5));
+            simRaton.x = Math.max(0, Math.min(ANCHO_MUNDO - 28, simRaton.x + mov.dx * 4.5));
+            simRaton.y = Math.max(0, Math.min(ALTO_MUNDO - 28, simRaton.y + mov.dy * 4.5));
             const dx = simRaton.x - simGato.x;
             const dy = simRaton.y - simGato.y;
             const dist = Math.hypot(dx, dy) || 1;
-            simGato.x = Math.max(0, Math.min(ANCHO_JUEGO - 35, simGato.x + (dx / dist) * 4.8));
-            simGato.y = Math.max(0, Math.min(ALTO_JUEGO - 35, simGato.y + (dy / dist) * 4.8));
+            simGato.x = Math.max(0, Math.min(ANCHO_MUNDO - 35, simGato.x + (dx / dist) * 4.8));
+            simGato.y = Math.max(0, Math.min(ALTO_MUNDO - 35, simGato.y + (dy / dist) * 4.8));
             const distDespues = Math.hypot(simRaton.x - simGato.x, simRaton.y - simGato.y);
             const estadoNuevo = obtenerEstadoRed(simRaton.x, simRaton.y, simGato.x, simGato.y);
             if (distDespues < 34) {
@@ -2482,7 +2684,7 @@ function intentarRitualInfierno() {
     const faltan = verificarRequisitosInfierno();
     if (faltan.length > 0) {
         sonar("error");
-        alert("🔥 RITUAL DE TATE CON SOMBRERO BLOQUEADO 🔥\n\nPara entrar a la Prueba del Infierno necesitas cumplir TODO esto:\n\n" + faltan.join("\n"));
+        alert("🔥 RITUAL DE TATE CON SOMBRERO BLOQUEADO 🔥\\n\\nPara entrar a la Prueba del Infierno necesitas cumplir TODO esto:\\n\\n" + faltan.join("\\n"));
         return;
     }
     abrirQuiz("infierno");
@@ -2691,7 +2893,6 @@ const FIREBASE_ACTIVO = Boolean(FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKe
 let temporizadorNube = null;
 let accionEnCurso = false;
 let nubeConectada = false;
-let avisoPermisoMostrado = false;
 
 const nube = {
     listo: false, auth: null, db: null, f: null,
@@ -2905,7 +3106,7 @@ function iniciarJuegoMultiLocal(datos) {
     teclas.arriba = teclas.abajo = teclas.izquierda = teclas.derecha = false;
     const elRol = document.getElementById("marcador-rol");
     elRol.style.display = "";
-    elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 GATO (¡Atrápalo!)" : "Rol: 🐭 RATÓN (¡Huye 60s!)";
+    elRol.innerText = rolMulti === "gato" ? "Rol: 🐱 GATO (¡Atrápalo!)" : "Rol: 🐭 RATÓN (¡Huye 75s!)";
 
     document.getElementById("marcador-puntos").style.display = "none";
     document.getElementById("marcador-monedas").style.display = "none";
@@ -2982,7 +3183,7 @@ function terminarJuegoMulti(ganador) {
     cambiarPantalla("fin-juego");
 
     document.getElementById("fin-titulo").innerText = yoGane ? "🏆 ¡GANASTE! (+50 🪙)" : "💀 ¡PERDISTE!";
-    document.getElementById("fin-subtitulo").innerText = ganador === "gato" ? "🐱 El Gato atrapó al Ratón." : "🐭 El Ratón sobrevivió 1 minuto completo.";
+    document.getElementById("fin-subtitulo").innerText = ganador === "gato" ? "🐱 El Gato atrapó al Ratón." : "🐭 El Ratón sobrevivió el tiempo completo.";
     document.getElementById("fin-puntos-linea").style.display = "none";
     document.getElementById("fin-monedas-linea").style.display = "none";
     document.getElementById("fin-record-linea").style.display = "none";
@@ -3161,4 +3362,8 @@ cambiarPantalla("menu-inicio");
 prepararNube();
 </script>
 </body>
-</html>
+</html>'''
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_code)
+print("Archivo index.html generado correctamente.")
