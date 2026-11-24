@@ -82,8 +82,13 @@ function activarHabilidadEspecial() {
         habilidadActivaTimer = 2.0;
     } else {
         habilidadActivaTipo = "overdrive";
-        habilidadActivaTimer = 3.5;
+  habilidadActivaTimer = 3.5;
     }
+
+    if (typeof ejecutarAnimacionHabilidad === "function" && escenaActiva) {
+        ejecutarAnimacionHabilidad(escenaActiva, skin, gatoObj.x, gatoObj.y, ratonObj.x, ratonObj.y);
+    }
+}
 
     actualizarBotonHabilidad();
 }
