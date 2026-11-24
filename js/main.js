@@ -88,7 +88,7 @@ function activarHabilidadEspecial() {
     if (typeof ejecutarAnimacionHabilidad === "function" && escenaActiva) {
         ejecutarAnimacionHabilidad(escenaActiva, skin, gatoObj.x, gatoObj.y, ratonObj.x, ratonObj.y);
     }
-}
+
 
     actualizarBotonHabilidad();
 }
