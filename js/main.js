@@ -1,6 +1,25 @@
 // ============================================================
 //  CONTROL PRINCIPAL: FLUJO DE PARTIDA, HABILIDADES Y UI
 // ============================================================
+function obtenerSkinActivaCompleta() {
+    if (skinActual === "custom_cat") {
+        const guardado = localStorage.getItem("gato_custom_usuario");
+        if (guardado) {
+            const custom = JSON.parse(guardado);
+            return {
+                emoji: "custom_cat",
+                nombre: custom.nombre,
+                icono: custom.icono,
+                skillName: custom.habilidad === "magnet" ? "Imán de Ratones" : "Turbo Felino",
+                skillType: custom.habilidad || "overdrive",
+                skillHex: custom.skillHex,
+                skillColor: "#" + custom.skillHex.toString(16).padStart(6, "0"),
+                skillCd: 7
+            };
+        }
+    }
+    return SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
+}
 function actualizarBotonHabilidad() {
     const contenedor = document.getElementById("contenedor-habilidad");
     const btn = document.getElementById("btn-habilidad");
