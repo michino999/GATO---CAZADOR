@@ -294,7 +294,8 @@ class EscenaGatoCazador extends Phaser.Scene {
         const caja = this.cajas.create(x, y, "tex-caja");
         caja.setBounce(0.55).setDrag(360, 360).setCollideWorldBounds(true);
     }
-actualizarAparienciaGato() {
+
+    actualizarAparienciaGato() {
         const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
         
         // Si eligió su personaje creado
@@ -324,7 +325,6 @@ actualizarAparienciaGato() {
         }
         this.skinActualObj = skin;
     }
-  
 
     configurarPartidaEnEscena() {
         vidasGato = 3;
@@ -670,7 +670,8 @@ actualizarAparienciaGato() {
         }
         entidad.body.setVelocity(dx * velocidad, dy * velocidad);
     }
-actualizarRatonIAPhaser(dt) {
+
+    actualizarRatonIAPhaser(dt) {
         if (ratonAturdidoTimer > 0) {
             this.ratonContainer.body.setVelocity(0, 0);
             return;
@@ -767,11 +768,6 @@ function iniciarMotorPhaser() {
         physics: {
             default: "arcade",
             arcade: { debug: false }
-        },
-        scene: [EscenaGatoCazador]
-    });
-}
-    
         },
         scene: [EscenaGatoCazador]
     });
