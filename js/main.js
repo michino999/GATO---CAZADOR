@@ -1,16 +1,109 @@
 // ============================================================
 //  CONTROL PRINCIPAL: FLUJO DE PARTIDA, HABILIDADES Y UI
 // ============================================================
+const DESCRIPCIONES_PODER = {
+    overdrive: {
+        nombre: "Turbo Felino",
+        texto: "⚡ <strong>Turbo Felino:</strong> Aumenta tu velocidad un 45% durante 3.5 segundos para alcanzar ratones rápidos."
+    },
+    magnet: {
+        nombre: "Imán de Ratones",
+        texto: "🧲 <strong>Imán de Ratones:</strong> Atrae hacia ti al ratón y a las cajas cercanas durante 3.5 segundos."
+    },
+    stun: {
+        nombre: "Rugido Sísmico",
+        texto: "💥 <strong>Rugido Sísmico:</strong> Lanza una onda que aturde al ratón por 2.5s y empuja las cajas del mapa."
+    },
+    blink: {
+        nombre: "Teletransporte",
+        texto: "🌀 <strong>Teletransporte:</strong> Te teletransporta al instante justo al lado del ratón para sorprenderlo."
+    }
+};
+
+let matrizPixelActual = Array(144).fill(null);
+let modoPincelPixel = "pintar";
+let pintandoPixel = false;
+
+function iniciarEditorPixel() {
+    const grid = document.getElementById("grid-pixel-gato");
+    if (!grid) return;
+
+    const guardado = localStorage.getItem("gato_custom_usuario");
+    if (guardado) {
+        const datos = JSON.parse(guardado);
+        if (datos.matriz) matrizPixelActual = datos.matriz;
+        if (datos.nombre) document.getElementById("custom-nombre").value = datos.nombre;
+        if (datos.habilidad) document.getElementById("custom-poder").value = datos.habilidad;
+        if (datos.sombrero) document.getElementById("custom-sombrero").checked = datos.sombrero;
+    } else {
+        const orejasYCara = [
+            14, 21, 26, 27, 32, 33,
+            38, 39, 40, 41, 42, 43, 44, 45,
+            50, 51, 52, 53, 54, 55, 56, 57,
+            62, 63, 65, 66, 68, 69,
+            74, 75, 76, 77, 78, 79, 80, 81,
+            87, 88, 89, 90, 91, 92
+        ];
+        orejasYCara.forEach((idx) => { matrizPixelActual[idx] = "#facc15"; });
+        matrizPixelActual[64] = "#0f172a";
+        matrizPixelActual[67] = "#0f172a";
+        matrizPixelActual[77] = "#f43f5e";
+    }
+
+    grid.innerHTML = "";
+    for (let i = 0; i < 144; i++) {
+        const celda = document.createElement("div");
+        celda.style.background = matrizPixelActual[i] || "#0f172a";
+        celda.style.cursor = "crosshair";
+        celda.dataset.idx = i;
+
+        const pintarCelda = () => {
+            const color = document.getElementById("pixel-color").value;
+            matrizPixelActual[i] = modoPincelPixel === "pintar" ? color : null;
+            celda.style.background = matrizPixelActual[i] || "#0f172a";
+        };
+
+        celda.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+            pintandoPixel = true;
+            pintarCelda();
+        });
+        celda.addEventListener("pointerenter", () => {
+            if (pintandoPixel) pintarCelda();
+        });
+        grid.appendChild(celda);
+    }
+    window.addEventListener("pointerup", () => { pintandoPixel = false; });
+    actualizarDescripcionPoder();
+}
+
+function setModoPixel(modo) {
+    modoPincelPixel = modo;
+}
+
+function limpiarGridPixel() {
+    matrizPixelActual = Array(144).fill(null);
+    iniciarEditorPixel();
+}
+
+function actualizarDescripcionPoder() {
+    const sel = document.getElementById("custom-poder");
+    const desc = document.getElementById("desc-poder-custom");
+    if (sel && desc && DESCRIPCIONES_PODER[sel.value]) {
+        desc.innerHTML = DESCRIPCIONES_PODER[sel.value].texto;
+    }
+}
+
 function obtenerSkinActivaCompleta() {
     if (skinActual === "custom_cat") {
         const guardado = localStorage.getItem("gato_custom_usuario");
         if (guardado) {
             const custom = JSON.parse(guardado);
+            const infoPoder = DESCRIPCIONES_PODER[custom.habilidad] || DESCRIPCIONES_PODER.overdrive;
             return {
                 emoji: "custom_cat",
                 nombre: custom.nombre,
-                icono: custom.icono,
-                skillName: custom.habilidad === "magnet" ? "Imán de Ratones" : "Turbo Felino",
+                skillName: infoPoder.nombre,
                 skillType: custom.habilidad || "overdrive",
                 skillHex: custom.skillHex,
                 skillColor: "#" + custom.skillHex.toString(16).padStart(6, "0"),
@@ -23,16 +116,15 @@ function obtenerSkinActivaCompleta() {
 
 function aplicarGatoCustomDesdeUI() {
     const nombre = document.getElementById("custom-nombre").value.trim();
-    const icono = document.getElementById("custom-icono").value;
-    const color = document.getElementById("custom-color").value;
+    const color = document.getElementById("pixel-color").value;
     const sombrero = document.getElementById("custom-sombrero").checked;
     const poder = document.getElementById("custom-poder").value;
 
-    guardarGatoCustom(nombre, icono, color, sombrero, poder);
+    guardarGatoCustom(nombre, matrizPixelActual, color, sombrero, poder);
     guardar("skin", "custom_cat");
     if (typeof actualizarBotonesTienda === "function") actualizarBotonesTienda();
     sonar("equipar");
-    mostrarLogro(`✨ ¡${nombre || "Tu Gato"} equipado!`);
+    mostrarLogro(`🎨 ¡${nombre || "Tu Gato Pixel"} guardado y equipado!`);
 }
 
 function actualizarBotonHabilidad() {
@@ -656,6 +748,7 @@ window.addEventListener("blur", () => {
 // --- INICIALIZACIÓN DE LA APLICACIÓN ---
 cargarImagenTate();
 construirTienda();
+iniciarEditorPixel();
 actualizarTextoSonido();
 actualizarTextoMusica();
 actualizarTextoDificultad();
