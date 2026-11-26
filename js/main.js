@@ -20,6 +20,21 @@ function obtenerSkinActivaCompleta() {
     }
     return SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
 }
+
+function aplicarGatoCustomDesdeUI() {
+    const nombre = document.getElementById("custom-nombre").value.trim();
+    const icono = document.getElementById("custom-icono").value;
+    const color = document.getElementById("custom-color").value;
+    const sombrero = document.getElementById("custom-sombrero").checked;
+    const poder = document.getElementById("custom-poder").value;
+
+    guardarGatoCustom(nombre, icono, color, sombrero, poder);
+    guardar("skin", "custom_cat");
+    if (typeof actualizarBotonesTienda === "function") actualizarBotonesTienda();
+    sonar("equipar");
+    mostrarLogro(`✨ ¡${nombre || "Tu Gato"} equipado!`);
+}
+
 function actualizarBotonHabilidad() {
     const contenedor = document.getElementById("contenedor-habilidad");
     const btn = document.getElementById("btn-habilidad");
@@ -31,7 +46,7 @@ function actualizarBotonHabilidad() {
     }
 
     contenedor.style.display = "flex";
-   const skin = obtenerSkinActivaCompleta();
+    const skin = obtenerSkinActivaCompleta();
 
     if (habilidadActivaTimer > 0) {
         btn.disabled = true;
@@ -50,7 +65,7 @@ function activarHabilidadEspecial() {
     if (modoMulti && rolMulti !== "gato") return;
     if (cooldownHabilidad > 0 || habilidadActivaTimer > 0) return;
 
-   const skin = obtenerSkinActivaCompleta();
+    const skin = obtenerSkinActivaCompleta();
     const gatoObj = escenaActiva.gatoContainer;
     const ratonObj = escenaActiva.ratonContainer;
     const colorHex = skin.skillHex || 0x38bdf8;
@@ -431,6 +446,7 @@ function terminarJuego() {
     document.getElementById("mensaje-record").style.display = esRecord ? "block" : "none";
     actualizarNivelVisualIA();
 }
+
 function copiarRecordWhatsApp() {
     const skin = obtenerSkinActivaCompleta();
     const texto = `🐱 GATO CAZADOR — Nivel ${nivel} | ${puntos} ratones cazados contra la IA (Gen ${partidasEntrenadas || 2319}) 🧠🔥\n` +
@@ -444,6 +460,7 @@ function copiarRecordWhatsApp() {
         alert(texto);
     });
 }
+
 function reiniciarJuego() { empezarJuego(); }
 function abrirAjustes() { cambiarPantalla("menu-ajustes"); }
 function abrirTienda() {
