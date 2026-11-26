@@ -67,7 +67,6 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.sueloGfx = this.add.graphics();
         this.dibujarZonasMundo(anchoActual, altoActual);
 
-        // HUD fijo en pantalla
         this.barraFondo = this.add.rectangle(ANCHO_CAMARA / 2, 4, ANCHO_CAMARA, 8, 0x1e293b).setScrollFactor(0).setDepth(40);
         this.barraProgreso = this.add.rectangle(0, 4, ANCHO_CAMARA, 8, 0xfacc15).setOrigin(0, 0.5).setScrollFactor(0).setDepth(41);
 
@@ -82,7 +81,6 @@ class EscenaGatoCazador extends Phaser.Scene {
 
         this.radarGfx = this.add.graphics().setScrollFactor(0).setDepth(45);
 
-        // Grupos físicos
         this.muros = this.physics.add.staticGroup();
         this.cajas = this.physics.add.group({ bounceX: 0.5, bounceY: 0.5, dragX: 360, dragY: 360, collideWorldBounds: true });
         this.peces = this.physics.add.group();
@@ -238,7 +236,6 @@ class EscenaGatoCazador extends Phaser.Scene {
 
         if (modoMulti) return;
 
-        // Paredes entre las 4 habitaciones dejando puertas abiertas
         this.crearMuro(900, 140, 40, 220);
         this.crearMuro(900, 600, 40, 320);
         this.crearMuro(900, 1060, 40, 220);
@@ -248,7 +245,6 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.crearMuro(1120, 600, 220, 40);
         this.crearMuro(1580, 600, 360, 40);
 
-        // Obstáculos por habitación
         this.crearMuro(320, 220, 180, 40);
         this.crearMuro(580, 380, 180, 40);
         this.crearMuro(1250, 200, 40, 200);
@@ -297,16 +293,20 @@ class EscenaGatoCazador extends Phaser.Scene {
 
     actualizarAparienciaGato() {
         const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
-        
-        // Si eligió su personaje creado
+
         if (skinId === "custom_cat") {
             const guardado = localStorage.getItem("gato_custom_usuario");
             if (guardado) {
                 const custom = JSON.parse(guardado);
-                this.gatoSprite.setVisible(false);
-                this.gatoTexto.setVisible(true).setText(custom.icono);
+                if (custom.matriz && generarTexturaDesdeMatriz(this, custom.matriz)) {
+                    this.gatoSprite.setTexture("custom-pixel-sprite").setDisplaySize(44, 44).setVisible(true);
+                    this.gatoTexto.setVisible(false);
+                } else {
+                    this.gatoSprite.setVisible(false);
+                    this.gatoTexto.setVisible(true).setText("🐱");
+                }
                 this.sombreroGfx.setVisible(Boolean(custom.sombrero));
-                this.etiquetaGato.setText(custom.nombre.toUpperCase()).setColor("#38bdf8");
+                this.etiquetaGato.setText((custom.nombre || "MI GATO").toUpperCase()).setColor("#38bdf8");
                 this.skinActualObj = custom;
                 return;
             }
@@ -315,7 +315,7 @@ class EscenaGatoCazador extends Phaser.Scene {
         const skin = SKINS.find((s) => s.emoji === skinId) || SKINS[0];
 
         if (skin.archivoBase && this.textures.exists("tate-sprite")) {
-            this.gatoSprite.setVisible(true);
+            this.gatoSprite.setTexture("tate-sprite").setDisplaySize(44, 44).setVisible(true);
             this.gatoTexto.setVisible(false);
             this.sombreroGfx.setVisible(Boolean(skin.sombrero || skin.facilier));
         } else {
@@ -373,7 +373,7 @@ class EscenaGatoCazador extends Phaser.Scene {
             this.textoZona.setVisible(true);
             this.radarGfx.setVisible(true);
             this.gatoContainer.setPosition(300, 280);
-            this.etiquetaGato.setText("");
+            if (skinActual !== "custom_cat") this.etiquetaGato.setText("");
             this.etiquetaRaton.setText("");
             this.cameras.main.startFollow(this.gatoContainer, true, 0.12, 0.12);
             this.reaparecerRatonSeguro();
@@ -693,18 +693,16 @@ class EscenaGatoCazador extends Phaser.Scene {
         if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
             temporizadorDecisionIA = 0;
 
-            // Predecimos dónde estará el gato en 0.35 segundos según su velocidad
             const gatoFuturoX = this.gatoContainer.x + (this.gatoContainer.body.velocity.x * 0.35);
             const gatoFuturoY = this.gatoContainer.y + (this.gatoContainer.body.velocity.y * 0.35);
             const estadoActual = obtenerEstadoRed(this.ratonContainer.x, this.ratonContainer.y, gatoFuturoX, gatoFuturoY);
 
             if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-                // Castigo si el ratón choca contra muro o caja; premio extra si se aleja
                 const chocoPared = this.ratonContainer.body.blocked.none === false;
                 const distGato = Math.hypot(this.ratonContainer.x - this.gatoContainer.x, this.ratonContainer.y - this.gatoContainer.y);
                 let recompensa = PREMIO_VIVO;
-                if (chocoPared) recompensa -= 1.5; // Aprende a no acorralarse contra paredes
-                if (distGato > 260) recompensa += 0.4; // Premia mantener distancia segura
+                if (chocoPared) recompensa -= 1.5;
+                if (distGato > 260) recompensa += 0.4;
 
                 memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: recompensa, estadoNuevo: estadoActual });
                 if (memoria.length > MEMORIA_MAX) memoria.shift();
@@ -741,14 +739,35 @@ class EscenaGatoCazador extends Phaser.Scene {
     }
 }
 
-function guardarGatoCustom(nombre, icono, colorHex, conSombrero, poder) {
+function generarTexturaDesdeMatriz(scene, matriz) {
+    if (!matriz || matriz.length !== 144) return false;
+    if (scene.textures.exists("custom-pixel-sprite")) {
+        scene.textures.remove("custom-pixel-sprite");
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = 48;
+    canvas.height = 48;
+    const ctx = canvas.getContext("2d");
+
+    for (let i = 0; i < 144; i++) {
+        if (!matriz[i]) continue;
+        const col = i % 12;
+        const fila = Math.floor(i / 12);
+        ctx.fillStyle = matriz[i];
+        ctx.fillRect(col * 4, fila * 4, 4, 4);
+    }
+    scene.textures.addCanvas("custom-pixel-sprite", canvas);
+    return true;
+}
+
+function guardarGatoCustom(nombre, matriz, colorHex, conSombrero, poder) {
     const custom = {
         nombre: nombre || "Mi Gato",
         emoji: "custom_cat",
-        icono: icono || "🐱",
+        matriz: matriz,
         skillHex: parseInt(colorHex.replace("#", "0x"), 16),
         sombrero: conSombrero,
-        habilidad: poder // "overdrive" o "magnet"
+        habilidad: poder
     };
     localStorage.setItem("gato_custom_usuario", JSON.stringify(custom));
     skinActual = "custom_cat";
