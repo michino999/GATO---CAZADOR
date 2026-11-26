@@ -201,16 +201,85 @@ function equiparSkin(emoji, mensaje) {
     mostrarLogro((mensaje || "Equipado: " + nombre) + extra);
 }
 
-function renderizarMisiones() {
-    const lista = document.getElementById("lista-misiones");
-    if (!lista) return;
-    lista.textContent = "";
+function obtenerRangoIA() {
+    const nivelIA = Math.min(10, Math.floor((experienciaRaton || 0) / 25) + 1);
+    const gen = Math.max(partidasEntrenadas || 0, nivelIA * 25);
 
-    MISIONES.forEach((m) => {
+    if (nivelIA <= 2) return { nivel: 1, titulo: "🌱 Aprendiz de Caza", mult: 1, nivelIA };
+    if (nivelIA <= 5) return { nivel: 2, titulo: "⚡ Cazador Táctico", mult: 2, nivelIA };
+    if (nivelIA <= 8) return { nivel: 3, titulo: "🔥 Domador de Redes", mult: 4, nivelIA };
+    return { nivel: 4, titulo: "🧠 Leyenda vs IA Suprema", mult: 8, nivelIA };
+}
+
+function obtenerMisionesSegunIA() {
+    const rango = obtenerRangoIA();
+    const m = rango.mult;
+
+    return [
+        {
+            id: `cap_rango_${rango.nivel}`,
+            tipo: "capturas",
+            titulo: `🐾 Cazador ${rango.titulo}`,
+            desc: `Atrapa ratones entrenados por la IA`,
+            meta: 25 * m,
+            premio: 60 * m
+        },
+        {
+            id: `rec_rango_${rango.nivel}`,
+            tipo: "record",
+            titulo: `🏆 Récord vs IA (LVL ${rango.nivelIA})`,
+            desc: `Supera esta puntuación en una partida`,
+            meta: 8 + (rango.nivel * 5),
+            premio: 90 * m
+        },
+        {
+            id: `ia_rango_${rango.nivel}`,
+            tipo: "entrenamiento",
+            titulo: `🧠 Evolución Neuronal`,
+            desc: `Entrena o juega partidas contra la red`,
+            meta: 150 * m,
+            premio: 75 * m
+        },
+        {
+            id: `custom_rango_${rango.nivel}`,
+            tipo: "custom",
+            titulo: `🎨 Cazador Personalizado`,
+            desc: `Juega con tu propio gato pixel art equipado`,
+            meta: 1,
+            premio: 50 * m
+        }
+    ];
+}
+
+function renderizarMisiones() {
+    const contenedor = document.getElementById("lista-misiones");
+    if (!contenedor) return;
+
+    contenedor.innerHTML = "";
+    const rango = obtenerRangoIA();
+    const misionesActivas = obtenerMisionesSegunIA();
+
+    // Banner superior que muestra el rango detectado según tu IA
+    const banner = document.createElement("div");
+    banner.className = "tarjeta-mision";
+    banner.style.borderColor = "var(--accent-cyan)";
+    banner.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:var(--accent-cyan);">🧠 Rango IA: ${rango.titulo}</strong>
+            <span style="font-size:0.75rem; color:var(--accent-gold-light); font-weight:800;">Premios x${rango.mult}</span>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+            Las misiones se adaptan automáticamente al nivel de inteligencia de los ratones (LVL ${rango.nivelIA}/10).
+        </div>
+    `;
+    contenedor.appendChild(banner);
+
+    misionesActivas.forEach((m) => {
         let actual = 0;
         if (m.tipo === "capturas") actual = capturasTotales;
         if (m.tipo === "record") actual = record;
-        if (m.tipo === "1v1") actual = victorias1v1;
+        if (m.tipo === "entrenamiento") actual = partidasEntrenadas;
+        if (m.tipo === "custom") actual = skinActual === "custom_cat" ? 1 : 0;
 
         const completada = actual >= m.meta;
         const reclamada = Boolean(misionesReclamadas[m.id]);
@@ -241,6 +310,7 @@ function renderizarMisiones() {
         };
 
         card.appendChild(btn);
-        lista.appendChild(card);
+        contenedor.appendChild(card);
     });
 }
+
