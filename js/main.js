@@ -31,7 +31,7 @@ function actualizarBotonHabilidad() {
     }
 
     contenedor.style.display = "flex";
-    const skin = SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
+   const skin = obtenerSkinActivaCompleta();
 
     if (habilidadActivaTimer > 0) {
         btn.disabled = true;
@@ -50,7 +50,7 @@ function activarHabilidadEspecial() {
     if (modoMulti && rolMulti !== "gato") return;
     if (cooldownHabilidad > 0 || habilidadActivaTimer > 0) return;
 
-    const skin = SKINS.find((s) => s.emoji === skinActual) || SKINS[0];
+   const skin = obtenerSkinActivaCompleta();
     const gatoObj = escenaActiva.gatoContainer;
     const ratonObj = escenaActiva.ratonContainer;
     const colorHex = skin.skillHex || 0x38bdf8;
@@ -431,7 +431,19 @@ function terminarJuego() {
     document.getElementById("mensaje-record").style.display = esRecord ? "block" : "none";
     actualizarNivelVisualIA();
 }
+function copiarRecordWhatsApp() {
+    const skin = obtenerSkinActivaCompleta();
+    const texto = `🐱 GATO CAZADOR — Nivel ${nivel} | ${puntos} ratones cazados contra la IA (Gen ${partidasEntrenadas || 2319}) 🧠🔥\n` +
+                  `🐾 Personaje: ${skin.nombre || skin.emoji}\n` +
+                  `¿Puedes superar mi récord? Juega gratis aquí: https://michino999.github.io/GATO---CAZADOR/`;
 
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarLogro("📋 ¡Récord copiado! Pégalo en WhatsApp o Discord");
+        sonar("equipar");
+    }).catch(() => {
+        alert(texto);
+    });
+}
 function reiniciarJuego() { empezarJuego(); }
 function abrirAjustes() { cambiarPantalla("menu-ajustes"); }
 function abrirTienda() {
