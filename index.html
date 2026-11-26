@@ -8,7 +8,6 @@
     <meta name="keywords" content="Gato Cazador, juego Gato Cazador, juego de gatos gratis, juego navegador arcade, mundo abierto, multijugador 1v1">
     <meta name="author" content="michino999">
 
-    <!-- Vista previa para WhatsApp, Discord y redes sociales -->
     <meta property="og:title" content="Gato Cazador · Juego Arcade Mundo Abierto">
     <meta property="og:description" content="Explora 4 zonas conectadas, come Peces Dorados para activar el Modo Furia y atrapa ratones con inteligencia artificial.">
     <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
@@ -73,7 +72,7 @@
                     <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ EXPLORAR MUNDO (75s)</button>
                     <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y NIVELES</button>
+                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y EDITOR</button>
                         <button class="tactical-btn" onclick="abrirMisiones()">🎯 MISIONES</button>
                     </div>
                 </div>
@@ -115,34 +114,38 @@
         </section>
 
         <section id="menu-tienda" class="panel-sub" style="display:none;">
-            <h2 style="margin-top:0;">🛒 TIENDA DE CAZADORES</h2>
+            <h2 style="margin-top:0;">🛒 TIENDA Y CREADOR PIXEL</h2>
             <p style="font-size:0.82rem; color:var(--text-muted);">Saldo disponible: <strong style="color:var(--accent-gold-light);">🪙 <span id="monedas-tienda">0</span></strong></p>
 
-            <div style="background:rgba(15,23,42,0.85); border:1px solid var(--accent-cyan); border-radius:10px; padding:12px; margin-bottom:16px;">
-                <strong style="font-size:0.85rem; color:var(--accent-cyan); display:block; margin-bottom:8px;">🎨 CREA TU PROPIO CAZADOR</strong>
-                <input id="custom-nombre" class="tactical-input" type="text" maxlength="16" placeholder="Nombre de tu gato (ej: Michi Pro)" style="margin-bottom:8px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
-                    <select id="custom-icono" class="tactical-input" style="margin:0;">
-                        <option value="🐱">🐱 Gato Clásico</option>
-                        <option value="🐯">🐯 Tigre</option>
-                        <option value="🦁">🦁 León</option>
-                        <option value="🦊">🦊 Zorro</option>
-                        <option value="🐺">🐺 Lobo</option>
-                        <option value="👾">👾 Cyber-Gato</option>
-                    </select>
-                    <select id="custom-poder" class="tactical-input" style="margin:0;">
-                        <option value="overdrive">⚡ Turbo Felino</option>
-                        <option value="magnet">🧲 Imán de Ratones</option>
-                    </select>
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; font-size:0.8rem;">
-                    <label style="display:flex; align-items:center; gap:6px;">
-                        Aura: <input id="custom-color" type="color" value="#38bdf8" style="border:none; width:32px; height:24px; background:none; cursor:pointer;">
-                    </label>
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <div style="background:rgba(15,23,42,0.9); border:1px solid var(--accent-cyan); border-radius:10px; padding:12px; margin-bottom:16px;">
+                <strong style="font-size:0.85rem; color:var(--accent-cyan); display:block; margin-bottom:8px;">🎨 DIBUJA TU GATO PIXEL ART (12x12)</strong>
+                <input id="custom-nombre" class="tactical-input" type="text" maxlength="16" placeholder="Nombre de tu gato (ej: Michi Pixel)" style="margin-bottom:8px;">
+
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <input id="pixel-color" type="color" value="#facc15" style="width:32px; height:26px; border:none; background:none; cursor:pointer;" title="Color del pincel">
+                        <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="setModoPixel('pintar')">🖌️ Pintar</button>
+                        <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="setModoPixel('borrar')">🧽 Borrar</button>
+                        <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="limpiarGridPixel()">🗑️ Limpiar</button>
+                    </div>
+                    <label style="font-size:0.75rem; display:flex; align-items:center; gap:4px; cursor:pointer;">
                         <input id="custom-sombrero" type="checkbox"> 🎩 Sombrero
                     </label>
                 </div>
+
+                <div id="grid-pixel-gato" style="display:grid; grid-template-columns:repeat(12, 1fr); gap:1px; width:216px; height:216px; margin:0 auto 10px; background:#1e293b; border:2px solid #38bdf8; border-radius:6px; padding:2px; touch-action:none;"></div>
+
+                <label style="font-size:0.75rem; color:var(--accent-gold-light); font-weight:700; display:block; margin-bottom:4px;">⚡ ELIGE TU HABILIDAD ESPECIAL:</label>
+                <select id="custom-poder" class="tactical-input" style="margin-bottom:6px;" onchange="actualizarDescripcionPoder()">
+                    <option value="overdrive">⚡ Turbo Felino (Velocidad extrema)</option>
+                    <option value="magnet">🧲 Imán de Ratones (Atracción)</option>
+                    <option value="stun">💥 Rugido Sísmico (Aturde y empuja)</option>
+                    <option value="blink">🌀 Teletransporte (Salto rápido)</option>
+                </select>
+                <p id="desc-poder-custom" style="font-size:0.75rem; color:var(--text-muted); background:rgba(6,9,17,0.7); padding:8px; border-radius:6px; margin:0 0 10px; line-height:1.4;">
+                    ⚡ <strong>Turbo Felino:</strong> Aumenta tu velocidad un 45% durante 3.5 segundos para alcanzar ratones rápidos.
+                </p>
+
                 <button class="tactical-btn btn-cyan" style="margin:0;" onclick="aplicarGatoCustomDesdeUI()">✨ GUARDAR Y EQUIPAR MI GATO</button>
             </div>
 
