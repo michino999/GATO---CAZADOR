@@ -670,8 +670,7 @@ actualizarAparienciaGato() {
         }
         entidad.body.setVelocity(dx * velocidad, dy * velocidad);
     }
-
-    actualizarRatonIAPhaser(dt) {
+actualizarRatonIAPhaser(dt) {
         if (ratonAturdidoTimer > 0) {
             this.ratonContainer.body.setVelocity(0, 0);
             return;
@@ -690,7 +689,7 @@ actualizarAparienciaGato() {
         const dif = DIFICULTADES[dificultad - 1];
         temporizadorDecisionIA += dt;
 
-       if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
+        if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
             temporizadorDecisionIA = 0;
 
             // Predecimos dónde estará el gato en 0.35 segundos según su velocidad
@@ -733,24 +732,6 @@ actualizarAparienciaGato() {
             ultimaAccionIA = accionElegida;
         }
 
-            const epsilon = Math.max(0.05, 0.3 - partidasEntrenadas * 0.001);
-            let accionElegida = 0;
-            const res = propagarRed(estadoActual, redRaton);
-
-            if (Math.random() < epsilon) {
-                accionElegida = Math.floor(Math.random() * SALIDAS_RED);
-            } else {
-                let mejorQ = res.salidas[0];
-                for (let i = 1; i < SALIDAS_RED; i++) {
-                    if (res.salidas[i] > mejorQ) { mejorQ = res.salidas[i]; accionElegida = i; }
-                }
-            }
-
-            accionActualRaton = ACCIONES_IA[accionElegida];
-            ultimoEstadoIA = estadoActual;
-            ultimaAccionIA = accionElegida;
-        }
-
         const mov = accionActualRaton || ACCIONES_IA[0];
         const nivelAprendizaje = Math.min(experienciaRaton, TOPE_APRENDIZAJE);
         let vel = (170 + nivel * 15 + nivelAprendizaje * 0.72) * dif.factorRaton;
@@ -758,6 +739,7 @@ actualizarAparienciaGato() {
         this.ratonContainer.body.setVelocity(mov.dx * vel, mov.dy * vel);
     }
 }
+
 function guardarGatoCustom(nombre, icono, colorHex, conSombrero, poder) {
     const custom = {
         nombre: nombre || "Mi Gato",
@@ -770,6 +752,7 @@ function guardarGatoCustom(nombre, icono, colorHex, conSombrero, poder) {
     localStorage.setItem("gato_custom_usuario", JSON.stringify(custom));
     skinActual = "custom_cat";
 }
+
 function iniciarMotorPhaser() {
     if (phaserGame) {
         if (escenaActiva) escenaActiva.configurarPartidaEnEscena();
@@ -784,6 +767,11 @@ function iniciarMotorPhaser() {
         physics: {
             default: "arcade",
             arcade: { debug: false }
+        },
+        scene: [EscenaGatoCazador]
+    });
+}
+    
         },
         scene: [EscenaGatoCazador]
     });
