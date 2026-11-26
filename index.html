@@ -117,6 +117,35 @@
         <section id="menu-tienda" class="panel-sub" style="display:none;">
             <h2 style="margin-top:0;">🛒 TIENDA DE CAZADORES</h2>
             <p style="font-size:0.82rem; color:var(--text-muted);">Saldo disponible: <strong style="color:var(--accent-gold-light);">🪙 <span id="monedas-tienda">0</span></strong></p>
+
+            <div style="background:rgba(15,23,42,0.85); border:1px solid var(--accent-cyan); border-radius:10px; padding:12px; margin-bottom:16px;">
+                <strong style="font-size:0.85rem; color:var(--accent-cyan); display:block; margin-bottom:8px;">🎨 CREA TU PROPIO CAZADOR</strong>
+                <input id="custom-nombre" class="tactical-input" type="text" maxlength="16" placeholder="Nombre de tu gato (ej: Michi Pro)" style="margin-bottom:8px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <select id="custom-icono" class="tactical-input" style="margin:0;">
+                        <option value="🐱">🐱 Gato Clásico</option>
+                        <option value="🐯">🐯 Tigre</option>
+                        <option value="🦁">🦁 León</option>
+                        <option value="🦊">🦊 Zorro</option>
+                        <option value="🐺">🐺 Lobo</option>
+                        <option value="👾">👾 Cyber-Gato</option>
+                    </select>
+                    <select id="custom-poder" class="tactical-input" style="margin:0;">
+                        <option value="overdrive">⚡ Turbo Felino</option>
+                        <option value="magnet">🧲 Imán de Ratones</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; font-size:0.8rem;">
+                    <label style="display:flex; align-items:center; gap:6px;">
+                        Aura: <input id="custom-color" type="color" value="#38bdf8" style="border:none; width:32px; height:24px; background:none; cursor:pointer;">
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input id="custom-sombrero" type="checkbox"> 🎩 Sombrero
+                    </label>
+                </div>
+                <button class="tactical-btn btn-cyan" style="margin:0;" onclick="aplicarGatoCustomDesdeUI()">✨ GUARDAR Y EQUIPAR MI GATO</button>
+            </div>
+
             <div id="lista-tienda" class="lista-scroll"></div>
             <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER AL MENÚ</button>
         </section>
@@ -194,6 +223,7 @@
             <p id="fin-monedas-linea">Gatomonedas ganadas: <strong id="monedas-partida" style="color:var(--accent-gold-light);">0</strong> 🪙</p>
             <p id="fin-record-linea">Récord actual: <strong id="record-final">0</strong></p>
             <p id="mensaje-record" style="display:none; color:var(--accent-green); font-weight:800;">🎉 ¡NUEVO RÉCORD PERSONAL!</p>
+            <button class="tactical-btn btn-green" onclick="copiarRecordWhatsApp()">📋 COMPARTIR RÉCORD (WHATSAPP)</button>
             <button id="btn-reiniciar" class="tactical-btn btn-gold" onclick="reiniciarJuego()">🔄 EXPLORAR DE NUEVO</button>
             <button class="tactical-btn" onclick="volverMenu()">🏠 MENÚ PRINCIPAL</button>
         </section>
@@ -205,9 +235,9 @@
 
     <div id="toast-logro"></div>
 
-<script src="js/config.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/audio.js"></script>
-    <script src="js/ia_raton.js"></script>
+    <script src="js/ia.js"></script>
     <script src="js/tienda.js"></script>
     <script src="js/secretos.js"></script>
     <script src="js/red.js"></script>
