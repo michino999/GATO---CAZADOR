@@ -294,9 +294,23 @@ class EscenaGatoCazador extends Phaser.Scene {
         const caja = this.cajas.create(x, y, "tex-caja");
         caja.setBounce(0.55).setDrag(360, 360).setCollideWorldBounds(true);
     }
-
-    actualizarAparienciaGato() {
+actualizarAparienciaGato() {
         const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
+        
+        // Si eligió su personaje creado
+        if (skinId === "custom_cat") {
+            const guardado = localStorage.getItem("gato_custom_usuario");
+            if (guardado) {
+                const custom = JSON.parse(guardado);
+                this.gatoSprite.setVisible(false);
+                this.gatoTexto.setVisible(true).setText(custom.icono);
+                this.sombreroGfx.setVisible(Boolean(custom.sombrero));
+                this.etiquetaGato.setText(custom.nombre.toUpperCase()).setColor("#38bdf8");
+                this.skinActualObj = custom;
+                return;
+            }
+        }
+
         const skin = SKINS.find((s) => s.emoji === skinId) || SKINS[0];
 
         if (skin.archivoBase && this.textures.exists("tate-sprite")) {
@@ -310,6 +324,7 @@ class EscenaGatoCazador extends Phaser.Scene {
         }
         this.skinActualObj = skin;
     }
+  
 
     configurarPartidaEnEscena() {
         vidasGato = 3;
@@ -675,12 +690,23 @@ class EscenaGatoCazador extends Phaser.Scene {
         const dif = DIFICULTADES[dificultad - 1];
         temporizadorDecisionIA += dt;
 
-        if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
+       if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
             temporizadorDecisionIA = 0;
-            const estadoActual = obtenerEstadoRed(this.ratonContainer.x, this.ratonContainer.y, this.gatoContainer.x, this.gatoContainer.y);
+
+            // Predecimos dónde estará el gato en 0.35 segundos según su velocidad
+            const gatoFuturoX = this.gatoContainer.x + (this.gatoContainer.body.velocity.x * 0.35);
+            const gatoFuturoY = this.gatoContainer.y + (this.gatoContainer.body.velocity.y * 0.35);
+            const estadoActual = obtenerEstadoRed(this.ratonContainer.x, this.ratonContainer.y, gatoFuturoX, gatoFuturoY);
 
             if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
-                memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: PREMIO_VIVO, estadoNuevo: estadoActual });
+                // Castigo si el ratón choca contra muro o caja; premio extra si se aleja
+                const chocoPared = this.ratonContainer.body.blocked.none === false;
+                const distGato = Math.hypot(this.ratonContainer.x - this.gatoContainer.x, this.ratonContainer.y - this.gatoContainer.y);
+                let recompensa = PREMIO_VIVO;
+                if (chocoPared) recompensa -= 1.5; // Aprende a no acorralarse contra paredes
+                if (distGato > 260) recompensa += 0.4; // Premia mantener distancia segura
+
+                memoria.push({ estado: ultimoEstadoIA, accion: ultimaAccionIA, recompensa: recompensa, estadoNuevo: estadoActual });
                 if (memoria.length > MEMORIA_MAX) memoria.shift();
                 if (memoria.length >= TAMANO_LOTE) {
                     const lote = [];
@@ -688,6 +714,24 @@ class EscenaGatoCazador extends Phaser.Scene {
                     entrenarLote(lote, redRaton);
                 }
             }
+
+            const epsilon = Math.max(0.04, 0.25 - partidasEntrenadas * 0.001);
+            let accionElegida = 0;
+            const res = propagarRed(estadoActual, redRaton);
+
+            if (Math.random() < epsilon) {
+                accionElegida = Math.floor(Math.random() * SALIDAS_RED);
+            } else {
+                let mejorQ = res.salidas[0];
+                for (let i = 1; i < SALIDAS_RED; i++) {
+                    if (res.salidas[i] > mejorQ) { mejorQ = res.salidas[i]; accionElegida = i; }
+                }
+            }
+
+            accionActualRaton = ACCIONES_IA[accionElegida];
+            ultimoEstadoIA = estadoActual;
+            ultimaAccionIA = accionElegida;
+        }
 
             const epsilon = Math.max(0.05, 0.3 - partidasEntrenadas * 0.001);
             let accionElegida = 0;
@@ -714,7 +758,18 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.ratonContainer.body.setVelocity(mov.dx * vel, mov.dy * vel);
     }
 }
-
+function guardarGatoCustom(nombre, icono, colorHex, conSombrero, poder) {
+    const custom = {
+        nombre: nombre || "Mi Gato",
+        emoji: "custom_cat",
+        icono: icono || "🐱",
+        skillHex: parseInt(colorHex.replace("#", "0x"), 16),
+        sombrero: conSombrero,
+        habilidad: poder // "overdrive" o "magnet"
+    };
+    localStorage.setItem("gato_custom_usuario", JSON.stringify(custom));
+    skinActual = "custom_cat";
+}
 function iniciarMotorPhaser() {
     if (phaserGame) {
         if (escenaActiva) escenaActiva.configurarPartidaEnEscena();
