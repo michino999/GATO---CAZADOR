@@ -6,12 +6,17 @@
     <title>Gato Cazador · Juego Arcade Mundo Abierto</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
     <meta name="description" content="Juega gratis a Gato Cazador, un juego arcade de mundo abierto donde exploras 4 zonas conectadas, esquivas al Perro Guardián, entrenas una red neuronal y compites en duelos 1v1 online.">
-    <meta name="keywords" content="Gato Cazador, juego Gato Cazador, juego de gatos gratis, juego navegador arcade, mundo abierto, multijugador 1v1">
+    <meta name="keywords" content="Gato Cazador, juego Gato Cazador, juego de gatos gratis, juego navegador arcade, mundo abierto, multijugador 1v1, inteligencia artificial">
     <meta name="author" content="michino999">
+    <meta name="theme-color" content="#0d1322">
+
+    <!-- Open Graph y Twitter Cards para compartir en redes -->
     <meta property="og:title" content="Gato Cazador · Juego Arcade Mundo Abierto">
     <meta property="og:description" content="Explora 4 zonas conectadas, come Peces Dorados para activar el Modo Furia y atrapa ratones con inteligencia artificial.">
     <meta property="og:url" content="https://michino999.github.io/GATO---CAZADOR/">
+    <meta property="og:image" content="https://michino999.github.io/GATO---CAZADOR/tate.png">
     <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,19 +29,19 @@
 
     <header class="top-bar">
         <div class="brand">
-            <img id="brand-tate-img" src="tate.png" alt="Tate" class="brand-logo" onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
-            <span id="brand-fallback" style="display:none;">🐱</span>
+            <img id="brand-tate-img" src="tate.png" alt="Logo de Gato Cazador" class="brand-logo" onerror="this.style.display='none'; document.getElementById('brand-fallback').style.display='inline';">
+            <span id="brand-fallback" style="display:none;" aria-hidden="true">🐱</span>
             <span>GATO CAZADOR</span>
             <span class="phaser-tag">MUNDO ABIERTO</span>
         </div>
-        <nav class="nav-links">
+        <nav class="nav-links" aria-label="Navegación principal">
             <button id="nav-inicio" class="nav-link-btn active" onclick="volverMenu()">INICIO</button>
             <button id="nav-misiones" class="nav-link-btn" onclick="abrirMisiones()">MISIONES</button>
             <button id="nav-tienda" class="nav-link-btn" onclick="abrirTienda()">TIENDA</button>
             <button id="nav-ajustes" class="nav-link-btn" onclick="abrirAjustes()">AJUSTES</button>
         </nav>
-        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas">
-            <span>🪙</span>
+        <div class="monedas-pill" onclick="toqueSecretoFacilier()" title="Gatomonedas" role="button" tabindex="0" aria-label="Gatomonedas acumuladas">
+            <span aria-hidden="true">🪙</span>
             <span id="monedas-header">0</span>
         </div>
     </header>
@@ -97,13 +102,13 @@
                     <p id="sesion-estado" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0 12px;"></p>
 
                     <div id="form-cuenta-integrado">
-                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username">
-                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
+                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username" aria-label="Nombre de usuario">
+                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password" aria-label="Contraseña">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
                             <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
                             <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR CUENTA</button>
                         </div>
-                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;"></p>
+                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;" role="status"></p>
                     </div>
 
                     <div id="panel-cuenta-activa" style="display:none;">
@@ -119,11 +124,11 @@
 
             <div style="background:rgba(15,23,42,0.9); border:1px solid var(--accent-cyan); border-radius:10px; padding:12px; margin-bottom:16px;">
                 <strong style="font-size:0.85rem; color:var(--accent-cyan); display:block; margin-bottom:8px;">🎨 DIBUJA TU GATO PIXEL ART (12x12)</strong>
-                <input id="custom-nombre" class="tactical-input" type="text" maxlength="16" placeholder="Nombre de tu gato (ej: Michi Pixel)" style="margin-bottom:8px;">
+                <input id="custom-nombre" class="tactical-input" type="text" maxlength="16" placeholder="Nombre de tu gato (ej: Michi Pixel)" style="margin-bottom:8px;" aria-label="Nombre de tu gato personalizado">
 
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
                     <div style="display:flex; gap:5px; align-items:center;">
-                        <input id="pixel-color" type="color" value="#facc15" style="width:32px; height:26px; border:none; background:none; cursor:pointer;" title="Color del pincel">
+                        <input id="pixel-color" type="color" value="#facc15" style="width:32px; height:26px; border:none; background:none; cursor:pointer;" title="Color del pincel" aria-label="Color del pincel">
                         <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="setModoPixel('pintar')">🖌️ Pintar</button>
                         <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="setModoPixel('borrar')">🧽 Borrar</button>
                         <button type="button" class="nav-link-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="limpiarGridPixel()">🗑️ Limpiar</button>
@@ -133,9 +138,9 @@
                     </label>
                 </div>
 
-                <div id="grid-pixel-gato" style="display:grid; grid-template-columns:repeat(12, 1fr); gap:1px; width:216px; height:216px; margin:0 auto 10px; background:#1e293b; border:2px solid #38bdf8; border-radius:6px; padding:2px; touch-action:none;"></div>
+                <div id="grid-pixel-gato" role="grid" aria-label="Cuadrícula de dibujo pixel art 12 por 12" style="display:grid; grid-template-columns:repeat(12, 1fr); gap:1px; width:216px; height:216px; margin:0 auto 10px; background:#1e293b; border:2px solid #38bdf8; border-radius:6px; padding:2px; touch-action:none;"></div>
 
-                <label style="font-size:0.75rem; color:var(--accent-gold-light); font-weight:700; display:block; margin-bottom:4px;">⚡ ELIGE TU HABILIDAD ESPECIAL:</label>
+                <label for="custom-poder" style="font-size:0.75rem; color:var(--accent-gold-light); font-weight:700; display:block; margin-bottom:4px;">⚡ ELIGE TU HABILIDAD ESPECIAL:</label>
                 <select id="custom-poder" class="tactical-input" style="margin-bottom:6px;" onchange="actualizarDescripcionPoder()">
                     <option value="overdrive">⚡ Turbo Felino (Velocidad extrema)</option>
                     <option value="magnet">🧲 Imán de Ratones (Atracción)</option>
@@ -164,10 +169,10 @@
             <p style="font-size:0.82rem; color:var(--text-muted);">Un jugador será el Gato y otro el Ratón durante 75 segundos.</p>
             <button class="tactical-btn btn-gold" onclick="crearSalaMulti()">➕ CREAR SALA NUEVA</button>
             <div style="margin:14px 0; border-top:1px solid var(--border-color); padding-top:12px;">
-                <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
+                <input id="multi-codigo-input" class="tactical-input" type="text" maxlength="6" placeholder="CÓDIGO DE 6 LETRAS" aria-label="Código de sala multijugador" style="text-transform:uppercase; text-align:center; font-weight:800; letter-spacing:3px;">
                 <button class="tactical-btn btn-cyan" onclick="unirseSalaMulti()">🔗 UNIRSE A SALA</button>
             </div>
-            <p id="multi-mensaje" style="font-size:0.8rem; color:var(--accent-gold-light);"></p>
+            <p id="multi-mensaje" style="font-size:0.8rem; color:var(--accent-gold-light);" role="status"></p>
             <button class="tactical-btn" onclick="volverMenu()">⬅ VOLVER</button>
         </section>
 
@@ -216,7 +221,7 @@
             <div id="contenedor-habilidad" class="barra-habilidad">
                 <button id="btn-habilidad" onclick="activarHabilidadEspecial()">⚡ HABILIDAD ESPECIAL [ESPACIO]</button>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas/WASD · ESPACIO: Poder Anime · P: Pausa | 🐟 Pez Dorado = Modo Furia (Caza al Perro) | 🌀 Portales cruzables</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">PC: Flechas/WASD · ESPACIO: Poder · P: Pausa | Celular: Desliza el dedo (Joystick) · Toca el botón de poder | 🐟 Pez Dorado = Modo Furia</p>
         </section>
 
         <section id="fin-juego" class="panel-sub" style="display:none;">
@@ -236,7 +241,7 @@
         <strong style="color:var(--text-main);">Sobre Gato Cazador</strong> · Juego arcade gratuito de mundo abierto creado por <strong>michino999</strong>. Recorre cuatro zonas conectadas (La Cocina, El Jardín, Callejón Vudú y Laboratorio IA), desbloquea cazadores legendarios como Tate, entrena la inteligencia artificial del ratón y reta a tus amigos en el modo Duelo 1v1 Online directamente desde el navegador en PC o celular.
     </footer>
 
-    <div id="toast-logro"></div>
+    <div id="toast-logro" role="status" aria-live="polite"></div>
 
     <script src="js/config.js"></script>
     <script src="js/audio.js"></script>
