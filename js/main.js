@@ -23,15 +23,17 @@ const DESCRIPCIONES_PODER = {
 let matrizPixelActual = Array(144).fill(null);
 let modoPincelPixel = "pintar";
 let pintandoPixel = false;
+let listenerPointerUpEditorRegistrado = false;
+let ultimaCapturaTimestamp = 0;
+let rachaCapturas = 0;
 
 function iniciarEditorPixel() {
     const grid = document.getElementById("grid-pixel-gato");
     if (!grid) return;
 
-    const guardado = localStorage.getItem("gato_custom_usuario");
-    if (guardado) {
-        const datos = JSON.parse(guardado);
-        if (datos.matriz) matrizPixelActual = datos.matriz;
+    const datos = leerJSONSeguro(localStorage.getItem("gato_custom_usuario"), null);
+    if (datos) {
+        if (Array.isArray(datos.matriz) && datos.matriz.length === 144) matrizPixelActual = datos.matriz;
         if (datos.nombre) document.getElementById("custom-nombre").value = datos.nombre;
         if (datos.habilidad) document.getElementById("custom-poder").value = datos.habilidad;
         if (datos.sombrero) document.getElementById("custom-sombrero").checked = datos.sombrero;
@@ -73,7 +75,11 @@ function iniciarEditorPixel() {
         });
         grid.appendChild(celda);
     }
-    window.addEventListener("pointerup", () => { pintandoPixel = false; });
+
+    if (!listenerPointerUpEditorRegistrado) {
+        listenerPointerUpEditorRegistrado = true;
+        window.addEventListener("pointerup", () => { pintandoPixel = false; });
+    }
     actualizarDescripcionPoder();
 }
 
@@ -83,7 +89,10 @@ function setModoPixel(modo) {
 
 function limpiarGridPixel() {
     matrizPixelActual = Array(144).fill(null);
-    iniciarEditorPixel();
+    const grid = document.getElementById("grid-pixel-gato");
+    if (grid) {
+        grid.querySelectorAll("div").forEach((c) => { c.style.background = "#0f172a"; });
+    }
 }
 
 function actualizarDescripcionPoder() {
@@ -96,17 +105,17 @@ function actualizarDescripcionPoder() {
 
 function obtenerSkinActivaCompleta() {
     if (skinActual === "custom_cat") {
-        const guardado = localStorage.getItem("gato_custom_usuario");
-        if (guardado) {
-            const custom = JSON.parse(guardado);
+        const custom = leerJSONSeguro(localStorage.getItem("gato_custom_usuario"), null);
+        if (custom) {
             const infoPoder = DESCRIPCIONES_PODER[custom.habilidad] || DESCRIPCIONES_PODER.overdrive;
+            const hex = Number.isFinite(custom.skillHex) ? custom.skillHex : 0x38bdf8;
             return {
                 emoji: "custom_cat",
                 nombre: custom.nombre,
                 skillName: infoPoder.nombre,
                 skillType: custom.habilidad || "overdrive",
-                skillHex: custom.skillHex,
-                skillColor: "#" + custom.skillHex.toString(16).padStart(6, "0"),
+                skillHex: hex,
+                skillColor: "#" + hex.toString(16).padStart(6, "0"),
                 skillCd: 7
             };
         }
@@ -167,7 +176,7 @@ function activarHabilidadEspecial() {
     prepararAudio();
     sonar("record");
     cooldownHabilidad = skin.skillCd || 7;
-    escenaActiva.efectoAnimeCamara(`⚡ ¡${skin.skillName.toUpperCase()}!`, colorHex, skin.skillColor);
+    escenaActiva.efectoAnimeCamara(`⚡ ¡${skin.skillName.toUpperCase()}!`, colorHex);
 
     escenaActiva.emisor.setPosition(gatoObj.x, gatoObj.y);
     escenaActiva.emisor.explode(26);
@@ -253,10 +262,22 @@ function procesarCapturaPhaser() {
         ultimaAccionIA = null;
     }
 
-    const monedasGanadas = Math.round(dif.monedasPorCaptura * bonusMonedasSkin(skinActual));
+    // Sistema de racha rápida (Combo)
+    const ahora = Date.now();
+    if (ahora - ultimaCapturaTimestamp <= 4200) {
+        rachaCapturas = Math.min(4, rachaCapturas + 1);
+    } else {
+        rachaCapturas = 1;
+    }
+    ultimaCapturaTimestamp = ahora;
+
+    const bonusCombo = rachaCapturas > 1 ? (rachaCapturas - 1) * 2 : 0;
+    const monedasGanadas = Math.round(dif.monedasPorCaptura * bonusMonedasSkin(skinActual)) + bonusCombo;
+
     escenaActiva.emisor.setPosition(ratonObj.x, ratonObj.y);
     escenaActiva.emisor.explode(18);
-    escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 16, `+${monedasGanadas} 🪙`, "#fbbf24");
+    const textoPremio = rachaCapturas > 1 ? `+${monedasGanadas} 🪙 (COMBO x${rachaCapturas})` : `+${monedasGanadas} 🪙`;
+    escenaActiva.textoFlotante(ratonObj.x, ratonObj.y - 16, textoPremio, "#fbbf24");
     escenaActiva.cameras.main.shake(120, 0.007);
 
     if (cooldownHabilidad > 0) {
@@ -387,10 +408,14 @@ function empezarJuego() {
     juegoIniciado = true;
     pausado = false;
     toque.activo = false;
+    toque.dx = 0;
+    toque.dy = 0;
     tiempo = DURACION_PARTIDA;
     puntos = 0;
     nivel = 1;
     monedasPartida = 0;
+    rachaCapturas = 0;
+    ultimaCapturaTimestamp = 0;
     ultimoSegundoMostrado = null;
     temporizadorDecisionIA = 0;
     ultimoEstadoIA = null;
@@ -439,6 +464,8 @@ function intentarDueloFacilier() {
     juegoIniciado = true;
     pausado = false;
     toque.activo = false;
+    toque.dx = 0;
+    toque.dy = 0;
     tiempo = DURACION_PARTIDA;
     puntos = 0;
     nivel = 1;
