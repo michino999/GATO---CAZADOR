@@ -47,73 +47,173 @@
     </header>
 
     <main class="app-container">
-        <section id="menu-inicio">
-            <div class="panel-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <span style="font-size:0.75rem; font-weight:800; color:var(--accent-cyan);" id="texto-dificultad-actual">DIFICULTAD: FÁCIL</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);" id="resumen-ajustes"></span>
-                </div>
-
-                <h1 style="margin:12px 0 6px; font-size:1.6rem; font-weight:800;">Gato Cazador · Mundo Abierto</h1>
-                <p style="margin:0; color:var(--text-muted); font-size:0.86rem;">Explora 4 habitaciones conectadas, esquiva al Perro Guardián, come Peces Dorados para activar el Modo Furia y usa portales.</p>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">🏆 Récord</div>
-                        <div class="stat-val" id="record-valor">0</div>
+   <section id="menu-inicio" class="rally-lobby">
+            <!-- Cabecera Hero con Título Inclinado y Píldora en Vivo -->
+            <div class="rally-hero">
+                <div class="rally-hero-top">
+                    <div>
+                        <div class="rally-kicker">🐾 MUNDO ABIERTO · PHASER 3 ENGINE</div>
+                        <h1 class="rally-title">GATO <span>CAZADOR</span></h1>
+                        <p class="rally-subtitle">4 ZONAS CONECTADAS. UNA RED NEURONAL QUE APRENDE DE TI. EL RELOJ NUNCA MIENTE.</p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">🐾 Capturas Totales</div>
-                        <div class="stat-val" id="capturas-totales-valor" style="color:var(--accent-cyan);">0</div>
+                    <div class="rally-live-pill">
+                        <span class="live-dot"></span>
+                        <span id="ia-nivel-texto">LVL 1/10</span> · <span id="ia-stats-texto">IA ACTIVA</span>
                     </div>
                 </div>
 
-                <div class="badges-secretos">
-                    <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
-                    <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
-                </div>
-
-                <div style="margin-top:10px;">
-                    <button class="tactical-btn btn-gold" style="font-size:0.95rem; padding:14px;" onclick="empezarJuego()">▶ EXPLORAR MUNDO (75s)</button>
-                    <button class="tactical-btn btn-cyan" onclick="abrirMultijugador()">⚔️ DUELO 1v1 ONLINE</button>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button class="tactical-btn" onclick="abrirTienda()">🛒 TIENDA Y EDITOR</button>
-                        <button class="tactical-btn" onclick="abrirMisiones()">🎯 MISIONES</button>
+                <!-- Selector rápido de Dificultad estilo ARCADA / PRO -->
+                <div class="rally-mode-row">
+                    <span class="rally-mode-label" id="texto-dificultad-actual">MODO DE CAZA</span>
+                    <div class="rally-mode-pills">
+                        <button type="button" class="rally-pill active" id="pill-dif-1" onclick="seleccionarDificultadDirecta(1)">
+                            <strong>FÁCIL</strong>
+                            <span>ARCADE · RELAJADO</span>
+                        </button>
+                        <button type="button" class="rally-pill" id="pill-dif-2" onclick="seleccionarDificultadDirecta(2)">
+                            <strong>NORMAL</strong>
+                            <span>TÁCTICO · EQUILIBRADO</span>
+                        </button>
+                        <button type="button" class="rally-pill" id="pill-dif-3" onclick="seleccionarDificultadDirecta(3)">
+                            <strong>DIFÍCIL</strong>
+                            <span>PRO · IA AGRESIVA</span>
+                        </button>
+                    </div>
+                    <div class="badges-secretos" style="margin-left:auto;">
+                        <span id="badge-tate-infierno" class="badge-item" style="display:none;">🎩🔥 TATE INFIERNO</span>
+                        <span id="badge-tate-facilier" class="badge-item" style="display:none;">🎩🃏 DR. FACILIER</span>
                     </div>
                 </div>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">🧠 RED NEURONAL DEL RATÓN</strong>
-                        <span id="ia-nivel-texto" style="font-size:0.78rem; color:var(--accent-cyan); font-weight:800;">LVL 1</span>
+            <!-- Carrusel de las 4 Zonas del Mundo Abierto -->
+            <div class="rally-carousel-header">
+                <span>🗺️ ZONAS DEL MAPA CONECTADAS (PORTALES ACTIVOS)</span>
+                <span>RÉCORD: <strong id="record-valor" style="color:#d9f99d;">0</strong> · CAPTURAS: <strong id="capturas-totales-valor" style="color:#38bdf8;">0</strong></span>
+            </div>
+
+            <div class="rally-cards-grid">
+                <div class="rally-card zona-cocina active">
+                    <div class="rally-card-top">
+                        <span class="zona-num">01</span>
+                        <span class="zona-tag">ZONA INICIAL</span>
                     </div>
-                    <p id="ia-stats-texto" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0;">Partidas simuladas: 0 · Exp: 0</p>
-                    <div class="ia-segments" id="ia-barra-segmentos"></div>
-                    <button class="tactical-btn" style="margin-top:14px;" onclick="entrenarIAAcelerado()">⚡ ENTRENAR IA (+50 PARTIDAS)</button>
+                    <div class="rally-card-body">
+                        <div class="zona-icon">🍳</div>
+                        <h3>LA COCINA</h3>
+                        <p>SUELO DESLIZANTE Y CAJAS</p>
+                        <div class="zona-meta"><span>NOROESTE</span><span>PORTAL ALPHA</span></div>
+                    </div>
+                    <div class="rally-card-footer">ZONA SEGURA DE INICIO</div>
                 </div>
 
-                <div class="panel-box">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="font-size:0.88rem;">☁️ GUARDADO EN NUBE</strong>
-                        <span id="estado-cuenta-badge" style="font-size:0.72rem; font-weight:800; color:var(--accent-green);">ESTADO: LOCAL</span>
+                <div class="rally-card zona-jardin">
+                    <div class="rally-card-top">
+                        <span class="zona-num">02</span>
+                        <span class="zona-tag">PEZ DORADO</span>
+                        <span class="zona-badge-new">¡¡FURIA!!</span>
                     </div>
-                    <p id="sesion-estado" style="font-size:0.78rem; color:var(--text-muted); margin:8px 0 12px;"></p>
+                    <div class="rally-card-body">
+                        <div class="zona-icon">🌿</div>
+                        <h3>EL JARDÍN</h3>
+                        <p>CAMPO ABIERTO Y VELOCIDAD</p>
+                        <div class="zona-meta"><span>NORESTE</span><span>MODO FURIA</span></div>
+                    </div>
+                    <div class="rally-card-footer">COME PECES PARA CAZAR AL PERRO</div>
+                </div>
 
-                    <div id="form-cuenta-integrado">
-                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario (ej: michino999)" autocomplete="username" aria-label="Nombre de usuario">
-                        <input id="login-clave" class="tactical-input" type="password" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password" aria-label="Contraseña">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
-                            <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
-                            <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR CUENTA</button>
+                <div class="rally-card zona-vudu">
+                    <div class="rally-card-top">
+                        <span class="zona-num">03</span>
+                        <span class="zona-tag">ZONA MÍSTICA</span>
+                        <span class="zona-badge-new">¡¡SECRETO!!</span>
+                    </div>
+                    <div class="rally-card-body">
+                        <div class="zona-icon">🌙</div>
+                        <h3>CALLEJÓN VUDÚ</h3>
+                        <p>SOMBRAS Y TRATOS OCULTOS</p>
+                        <div class="zona-meta"><span>SUROESTE</span><span>ALTA TENSIÓN</span></div>
+                    </div>
+                    <div class="rally-card-footer">CUIDADO CON EL GUARDIÁN</div>
+                </div>
+
+                <div class="rally-card zona-lab">
+                    <div class="rally-card-top">
+                        <span class="zona-num">04</span>
+                        <span class="zona-tag">RED NEURONAL</span>
+                        <span class="zona-badge-new">¡¡IA!!</span>
+                    </div>
+                    <div class="rally-card-body">
+                        <div class="zona-icon">🧪</div>
+                        <h3>LABORATORIO IA</h3>
+                        <p>NÚCLEO DE APRENDIZAJE DQN</p>
+                        <div class="zona-meta"><span>SURESTE</span><span>PORTAL OMEGA</span></div>
+                    </div>
+                    <div class="rally-card-footer">CONECTADO CON LA COCINA</div>
+                </div>
+            </div>
+
+            <!-- Barra de Módulos y Botón Principal Gigante -->
+            <div class="rally-dock">
+                <div class="rally-dock-tools">
+                    <button type="button" class="dock-item" onclick="abrirTienda()">
+                        <span class="dock-icon">🎨</span>
+                        <div>
+                            <small>GARAGE PIXEL</small>
+                            <strong>TIENDA Y EDITOR</strong>
                         </div>
-                        <p id="login-mensaje" style="font-size:0.75rem; margin:8px 0 0;" role="status"></p>
-                    </div>
+                    </button>
+                    <button type="button" class="dock-item" onclick="abrirMisiones()">
+                        <span class="dock-icon">🎯</span>
+                        <div>
+                            <small>DESAFÍOS IA</small>
+                            <strong>MISIONES</strong>
+                        </div>
+                    </button>
+                    <button type="button" class="dock-item" onclick="entrenarIAAcelerado()">
+                        <span class="dock-icon">🧠</span>
+                        <div>
+                            <small>+50 SIMULACIONES</small>
+                            <strong>ENTRENAR IA</strong>
+                        </div>
+                    </button>
+                    <button type="button" class="dock-item" onclick="abrirMultijugador()">
+                        <span class="dock-icon">⚔️</span>
+                        <div>
+                            <small>SALA ONLINE</small>
+                            <strong>DUELO 1V1</strong>
+                        </div>
+                    </button>
+                </div>
 
-                    <div id="panel-cuenta-activa" style="display:none;">
-                        <button class="tactical-btn btn-danger" onclick="cerrarSesion()">CERRAR SESIÓN</button>
+                <button class="rally-start-btn" onclick="empezarJuego()">
+                    EXPLORAR MUNDO <span>&raquo;</span>
+                </button>
+            </div>
+
+            <!-- Panel Compacto de Nube y Controles de Teclado -->
+            <div class="rally-bottom-bar">
+                <div class="rally-cloud-strip">
+                    <span id="estado-cuenta-badge" class="cloud-badge">ESTADO: LOCAL</span>
+                    <span id="sesion-estado" class="cloud-text"></span>
+                    <div id="form-cuenta-integrado" class="cloud-inline-form">
+                        <input id="login-nombre" class="tactical-input" type="text" placeholder="Usuario" autocomplete="username">
+                        <input id="login-clave" class="tactical-input" type="password" placeholder="Clave (6+)" autocomplete="current-password">
+                        <button id="btn-entrar" class="tactical-btn btn-cyan" onclick="iniciarSesion()">ENTRAR</button>
+                        <button id="btn-crear" class="tactical-btn" onclick="crearCuenta()">CREAR</button>
+                        <span id="login-mensaje" style="font-size:0.72rem;"></span>
                     </div>
+                    <div id="panel-cuenta-activa" style="display:none;">
+                        <button class="tactical-btn btn-danger" style="padding:5px 10px; font-size:0.72rem; margin:0;" onclick="cerrarSesion()">CERRAR SESIÓN</button>
+                    </div>
+                </div>
+
+                <div class="rally-keybinds">
+                    <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover</span>
+                    <span><kbd>ESPACIO</kbd> poder especial</span>
+                    <span><kbd>P</kbd> pausa</span>
+                    <span id="resumen-ajustes" style="display:none;"></span>
+                    <div id="ia-barra-segmentos" style="display:none;"></div>
                 </div>
             </div>
         </section>
