@@ -39,15 +39,6 @@ const SKINS = [
     { emoji: "tate_facilier", archivoBase: "tate.png", icono: "🃏", nombre: "Tate Dr. Facilier", precio: 0, velocidad: 1.35, costoMejora: 320, secreta: true, facilier: true, skillName: "Pacto de Sombras", skillType: "voodoo", skillCd: 7.5, skillColor: "#c084fc", skillHex: 0xc084fc, descripcion: "Maestro Vudú · Invoca y aturde al ratón." }
 ];
 
-const MISIONES = [
-    { id: "cap_10", titulo: "Primeros pasos", desc: "Consigue 10 capturas totales", meta: 10, tipo: "capturas", premio: 60 },
-    { id: "cap_50", titulo: "Cazador experto", desc: "Consigue 50 capturas totales", meta: 50, tipo: "capturas", premio: 180 },
-    { id: "cap_150", titulo: "Leyenda felina", desc: "Consigue 150 capturas totales", meta: 150, tipo: "capturas", premio: 450 },
-    { id: "rec_20", titulo: "Reflejos rápidos", desc: "Alcanza un récord de 20 puntos", meta: 20, tipo: "record", premio: 150 },
-    { id: "rec_40", titulo: "Imparable", desc: "Alcanza un récord de 40 puntos", meta: 40, tipo: "record", premio: 400 },
-    { id: "win_1v1", titulo: "Duelista Online", desc: "Gana 1 partida en Duelo 1v1", meta: 1, tipo: "1v1", premio: 200 }
-];
-
 const cacheDataUrlSkins = { "tate.png": "tate.png" };
 
 function cargarImagenTate() {
@@ -77,23 +68,36 @@ function cargarImagenTate() {
     intentarSiguiente();
 }
 
+// --- Utilidades seguras de almacenamiento ---
+function leerJSONSeguro(texto, respaldo) {
+    if (!texto || typeof texto !== "string") return respaldo;
+    try {
+        const parsed = JSON.parse(texto);
+        return parsed !== null && parsed !== undefined ? parsed : respaldo;
+    } catch (e) {
+        return respaldo;
+    }
+}
+
 let sesion = null;
 function claveAlmacen(k) { return sesion ? `gc_${sesion.uid}_${k}` : `gc_local_${k}`; }
-function leerNumero(k) { return Number(localStorage.getItem(claveAlmacen(k))) || 0; }
-function leerTexto(k, def) { return localStorage.getItem(claveAlmacen(k)) || def; }
+function leerNumero(k) {
+    try { return Number(localStorage.getItem(claveAlmacen(k))) || 0; } catch (e) { return 0; }
+}
+function leerTexto(k, def) {
+    try { return localStorage.getItem(claveAlmacen(k)) || def; } catch (e) { return def; }
+}
 function leerLista(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
+    const v = leerJSONSeguro(leerTexto(k, ""), def);
+    return Array.isArray(v) ? v : def;
 }
 function leerObjeto(k, def) {
-    try {
-        const v = JSON.parse(localStorage.getItem(claveAlmacen(k)));
-        return v && typeof v === "object" && !Array.isArray(v) ? v : def;
-    } catch (e) { return def; }
+    const v = leerJSONSeguro(leerTexto(k, ""), def);
+    return v && typeof v === "object" && !Array.isArray(v) ? v : def;
 }
-function guardarLocal(k, v) { try { localStorage.setItem(claveAlmacen(k), v); } catch (e) {} }
+function guardarLocal(k, v) {
+    try { localStorage.setItem(claveAlmacen(k), v); } catch (e) {}
+}
 function guardar(k, v) {
     guardarLocal(k, v);
     guardarLocal("actualizado", Date.now());
@@ -112,7 +116,7 @@ let skinsCompradas = leerLista("skinsCompradas", ["🐱"]);
 if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
 let nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
 let skinActual = leerTexto("skin", "🐱");
-if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
+if (skinActual !== "custom_cat" && !skinsCompradas.includes(skinActual)) skinActual = "🐱";
 
 let sonidoActivo = leerTexto("sonido", "1") === "1";
 let musicaActiva = leerTexto("musica", "1") === "1";
@@ -125,6 +129,7 @@ let nivel = 1;
 let monedasPartida = 0;
 let ultimoSegundoMostrado = null;
 
+// Variables de estado Multijugador 1v1
 let modoMulti = false;
 let modoJefeFacilier = false;
 let rolMulti = null;
@@ -134,12 +139,14 @@ let enFlujoMulti = false;
 let desuscribirSala = null;
 let desuscribirRival = null;
 let skinGatoSala = "🐱";
+let customGatoSala = null;
 let ganadoraMulti = null;
 let destinoRemoto = { x: 100, y: 200 };
 let ultimaPosEnviada = { x: -1, y: -1 };
 let ultimoSegundoEnviado = -1;
 let ultimaSyncRed = 0;
 
+// Variables de habilidades y mundo abierto
 let cooldownHabilidad = 0;
 let habilidadActivaTipo = null;
 let habilidadActivaTimer = 0;
@@ -152,4 +159,5 @@ let perroAturdidoTimer = 0;
 let cooldownPortal = 0;
 
 const teclas = { arriba: false, abajo: false, izquierda: false, derecha: false };
-const toque = { activo: false, x: 0, y: 0 };
+// Joystick virtual táctil normalizado (-1 a 1)
+const toque = { activo: false, pointerId: null, origenX: 0, origenY: 0, dx: 0, dy: 0 };
