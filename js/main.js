@@ -674,7 +674,17 @@ function cambiarDificultad() {
     guardar("dificultad", dificultad);
     actualizarTextoDificultad();
 }
-
+function seleccionarDificultadDirecta(nivelDif) {
+    dificultad = nivelDif;
+    velocidadGato = DIFICULTADES[dificultad - 1].velGato;
+    guardar("dificultad", dificultad);
+    actualizarTextoDificultad();
+    [1, 2, 3].forEach((n) => {
+        const pill = document.getElementById(`pill-dif-${n}`);
+        if (pill) pill.classList.toggle("active", n === dificultad);
+    });
+    sonar("equipar");
+}
 function actualizarTextoSonido() {
     document.getElementById("btn-sonido").textContent = `Sonido: ${sonidoActivo ? "Sí" : "No"}`;
     actualizarTextoDificultad();
