@@ -730,6 +730,10 @@ function borrarProgreso() {
     if (sesion) {
         guardarLocal("actualizado", Date.now());
         subirProgreso();
+        [1, 2, 3].forEach((n) => {
+        const pill = document.getElementById(`pill-dif-${n}`);
+        if (pill) pill.classList.toggle("active", n === dificultad);
+    });
     }
     mostrarLogro("Progreso, mejoras y red neuronal borrados");
 }
