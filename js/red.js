@@ -63,7 +63,7 @@ const nube = {
         if (codigo) await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo), datos, { merge: true });
     },
     async escribirPosicion(codigo, rol, x, y) {
-        if (codigo && rol) await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", rol), { x: x, y: y });
+        if (codigo && rol) await this.f.setDoc(this.f.doc(this.db, "salas1v1", codigo, "pos", rol), { x: x, y: y, ts: Date.now() });
     },
     escucharPosicion(codigo, rolRival, callback) {
         return this.f.onSnapshot(this.f.doc(this.db, "salas1v1", codigo, "pos", rolRival), (snap) => {
@@ -84,6 +84,11 @@ const nube = {
         });
     }
 };
+
+function obtenerPayloadSkinCustom() {
+    if (skinActual !== "custom_cat") return null;
+    return leerJSONSeguro(localStorage.getItem("gato_custom_usuario"), null);
+}
 
 function abrirMultijugador() {
     if (!FIREBASE_ACTIVO) {
@@ -109,6 +114,7 @@ function limpiarSalaMulti() {
     if (desuscribirRival) { desuscribirRival(); desuscribirRival = null; }
     salaId = null;
     enFlujoMulti = false;
+    customGatoSala = null;
 }
 
 async function crearSalaMulti() {
@@ -120,7 +126,17 @@ async function crearSalaMulti() {
 
     const codigo = generarCodigoSala();
     try {
-        await nube.crearSala(codigo, { estado: "esperando", rolHost: "gato", skinHost: skinActual, skinGuest: "🐱", tiempo: DURACION_PARTIDA, ganador: null });
+        await nube.crearSala(codigo, {
+            estado: "esperando",
+            rolHost: "gato",
+            skinHost: skinActual,
+            customHost: obtenerPayloadSkinCustom(),
+            skinGuest: "🐱",
+            customGuest: null,
+            tiempo: DURACION_PARTIDA,
+            ganador: null,
+            creadaEn: Date.now()
+        });
         salaId = codigo;
         esAnfitrionMulti = true;
         rolMulti = null;
@@ -146,7 +162,11 @@ async function unirseSalaMulti() {
         const datos = await nube.leerSala(codigo);
         if (!datos) { msg.textContent = "Esa sala no existe."; return; }
         if (datos.estado !== "esperando") { msg.textContent = "La sala ya está llena."; return; }
-        await nube.actualizarSala(codigo, { estado: "listo", skinGuest: skinActual });
+        await nube.actualizarSala(codigo, {
+            estado: "listo",
+            skinGuest: skinActual,
+            customGuest: obtenerPayloadSkinCustom()
+        });
         salaId = codigo;
         esAnfitrionMulti = false;
         rolMulti = null;
@@ -187,12 +207,22 @@ async function lanzarPartidaMulti() {
     const hostEsGato = Math.random() < 0.5;
     const rolHost = hostEsGato ? "gato" : "raton";
     const datosActuales = await nube.leerSala(salaId);
+    if (!datosActuales) return;
+
     const skinGatoElegida = hostEsGato ? (datosActuales.skinHost || "🐱") : (datosActuales.skinGuest || "🐱");
+    const customGatoElegido = hostEsGato ? (datosActuales.customHost || null) : (datosActuales.customGuest || null);
 
     await Promise.all([
         nube.escribirPosicion(salaId, "gato", 480, 200),
         nube.escribirPosicion(salaId, "raton", 100, 200),
-        nube.actualizarSala(salaId, { estado: "jugando", rolHost: rolHost, skinGato: skinGatoElegida, tiempo: DURACION_PARTIDA, ganador: null })
+        nube.actualizarSala(salaId, {
+            estado: "jugando",
+            rolHost: rolHost,
+            skinGato: skinGatoElegida,
+            customGato: customGatoElegido,
+            tiempo: DURACION_PARTIDA,
+            ganador: null
+        })
     ]);
 }
 
@@ -203,6 +233,7 @@ function iniciarJuegoMultiLocal(datos) {
     const rolRival = rolMulti === "gato" ? "raton" : "gato";
 
     skinGatoSala = datos.skinGato || "🐱";
+    customGatoSala = datos.customGato || null;
     ganadoraMulti = null;
     modoMulti = true;
     juegoIniciado = true;
@@ -245,7 +276,7 @@ function iniciarJuegoMultiLocal(datos) {
 function enviarEstadoMulti() {
     if (!salaId || !nube.listo || !juegoIniciado || !escenaActiva) return;
     const ahora = Date.now();
-    if (ahora - ultimaSyncRed < 55) return;
+    if (ahora - ultimaSyncRed < 50) return;
     let envioAlgo = false;
 
     if (rolMulti === "gato") {
@@ -313,6 +344,13 @@ function terminarJuegoMulti(ganador) {
     document.getElementById("btn-reiniciar").style.display = "none";
 }
 
+// Limpieza de sala si el jugador cierra la pestaña abruptamente
+window.addEventListener("beforeunload", () => {
+    if (salaId && nube.listo) {
+        nube.borrarSala(salaId).catch(() => {});
+    }
+});
+
 // --- Progreso <-> nube ---
 function datosDeProgreso() {
     return {
@@ -342,7 +380,7 @@ function recargarProgreso() {
     if (!skinsCompradas.includes("🐱")) skinsCompradas.push("🐱");
     nivelesSkins = leerObjeto("nivelesSkins", { "🐱": 1 });
     skinActual = leerTexto("skin", "🐱");
-    if (!skinsCompradas.includes(skinActual)) skinActual = "🐱";
+    if (skinActual !== "custom_cat" && !skinsCompradas.includes(skinActual)) skinActual = "🐱";
     actualizarTextoDificultad(); actualizarNivelVisualIA(); construirTienda(); actualizarBotonesTienda();
 }
 async function bajarProgreso() {
