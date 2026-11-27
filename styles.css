@@ -436,3 +436,409 @@ body {
     border: 1px solid #9333ea;
     color: #e9d5ff;
 }
+/* ============================================================
+   ESTILO ARCADE CONSOLA (INSPIRADO EN GROWBLOCKS RALLY)
+   ============================================================ */
+.rally-lobby {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+    background:
+        radial-gradient(circle at 78% 22%, rgba(250, 204, 21, 0.22), transparent 42%),
+        radial-gradient(circle at 20% 15%, rgba(56, 189, 248, 0.16), transparent 45%),
+        linear-gradient(180deg, #0b111e 0%, #070a12 100%);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.rally-hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rally-kicker {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #d9f99d;
+}
+
+.rally-title {
+    margin: 2px 0 4px;
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -1px;
+    line-height: 0.95;
+    color: #ffffff;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);
+}
+
+.rally-title span {
+    color: #d9f99d;
+    display: inline-block;
+    transform: skewX(-6deg);
+}
+
+.rally-subtitle {
+    margin: 4px 0 0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #cbd5e1;
+}
+
+.rally-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(217, 249, 157, 0.45);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #bef264;
+    box-shadow: 0 0 10px #bef264;
+}
+
+.rally-mode-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.rally-mode-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 1.5px;
+}
+
+.rally-mode-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.rally-pill {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #e2e8f0;
+    padding: 7px 14px;
+    cursor: pointer;
+    text-align: left;
+    transform: skewX(-8deg);
+    transition: all 0.15s ease;
+}
+
+.rally-pill strong, .rally-pill span {
+    display: block;
+    transform: skewX(8deg);
+}
+
+.rally-pill strong {
+    font-size: 0.85rem;
+    font-weight: 900;
+    font-style: italic;
+}
+
+.rally-pill span {
+    font-size: 0.62rem;
+    opacity: 0.85;
+}
+
+.rally-pill.active, .rally-pill:hover {
+    background: #d9f99d;
+    border-color: #d9f99d;
+    color: #090d16;
+}
+
+.rally-carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    padding-top: 10px;
+}
+
+.rally-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 820px) {
+    .rally-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.rally-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 155px;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.rally-card:hover {
+    transform: translateY(-3px);
+    border-color: #d9f99d;
+}
+
+.rally-card.zona-cocina { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); }
+.rally-card.zona-jardin { background: linear-gradient(160deg, #064e3b 0%, #052e16 100%); }
+.rally-card.zona-vudu   { background: linear-gradient(160deg, #3b0764 0%, #1e1b4b 100%); }
+.rally-card.zona-lab    { background: linear-gradient(160deg, #0c4a6e 0%, #082f49 100%); }
+
+.rally-card-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px 0;
+}
+
+.zona-num {
+    font-weight: 900;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #d9f99d;
+}
+
+.zona-tag {
+    background: rgba(0, 0, 0, 0.65);
+    color: #f8fafc;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.zona-badge-new {
+    position: absolute;
+    top: 26px;
+    right: -4px;
+    background: #d9f99d;
+    color: #090d16;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    transform: skewX(-8deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.rally-card-body {
+    padding: 10px;
+}
+
+.zona-icon {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.rally-card-body h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+}
+
+.rally-card-body p {
+    margin: 2px 0 8px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+
+.zona-meta {
+    display: flex;
+    gap: 5px;
+    font-size: 0.6rem;
+    font-weight: 800;
+}
+
+.zona-meta span {
+    background: rgba(0, 0, 0, 0.55);
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #e2e8f0;
+}
+
+.rally-card-footer {
+    background: rgba(0, 0, 0, 0.55);
+    padding: 5px 10px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #94a3b8;
+}
+
+.rally-card.active .rally-card-footer {
+    background: #d9f99d;
+    color: #090d16;
+}
+
+.rally-dock {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.rally-dock-tools {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    flex: 1;
+}
+
+@media (max-width: 760px) {
+    .rally-dock-tools {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.dock-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #f8fafc;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dock-item:hover {
+    border-color: #d9f99d;
+    background: rgba(30, 41, 59, 0.95);
+}
+
+.dock-icon {
+    font-size: 1.25rem;
+}
+
+.dock-item small {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.dock-item strong {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #d9f99d;
+}
+
+.rally-start-btn {
+    background: #d9f99d;
+    color: #090d16;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 26px;
+    font-size: 1.05rem;
+    font-weight: 900;
+    font-style: italic;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 24px rgba(217, 249, 157, 0.35);
+    transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.rally-start-btn:hover {
+    background: #ecfccb;
+    transform: scale(1.02);
+}
+
+.rally-bottom-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    padding-top: 10px;
+}
+
+.rally-cloud-strip {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.74rem;
+}
+
+.cloud-badge {
+    font-weight: 800;
+    color: #4ade80;
+}
+
+.cloud-inline-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.cloud-inline-form .tactical-input {
+    width: 130px;
+    padding: 5px 8px;
+    margin: 0;
+    font-size: 0.74rem;
+}
+
+.cloud-inline-form .tactical-btn {
+    width: auto;
+    padding: 5px 10px;
+    margin: 0;
+    font-size: 0.72rem;
+}
+
+.rally-keybinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.rally-keybinds kbd {
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: monospace;
+    font-size: 0.68rem;
+    color: #f8fafc;
+    margin-right: 2px;
+}
