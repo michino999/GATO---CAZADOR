@@ -109,12 +109,13 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.physics.world.enable(this.gatoContainer);
         this.gatoContainer.body.setSize(32, 32).setOffset(-16, -16).setCollideWorldBounds(true).setBounce(0.25);
 
-        // Ratón
+        // Ratón + Indicador visual de IA
         this.ratonContainer = this.add.container(900, 600).setDepth(15);
         this.ratonTexto = this.add.text(0, 0, "🐭", { fontSize: "28px" }).setOrigin(0.5);
         this.stunTexto = this.add.text(0, -20, "💫", { fontSize: "15px" }).setOrigin(0.5).setVisible(false);
+        this.iaChipTexto = this.add.text(0, -22, "⚡IA", { fontFamily: "'Press Start 2P', Arial", fontSize: "7px", color: "#38bdf8" }).setOrigin(0.5).setVisible(false);
         this.etiquetaRaton = this.add.text(0, -24, "", { fontFamily: "'Press Start 2P', Arial", fontSize: "9px", color: "#4ade80" }).setOrigin(0.5);
-        this.ratonContainer.add([this.ratonTexto, this.stunTexto, this.etiquetaRaton]);
+        this.ratonContainer.add([this.ratonTexto, this.stunTexto, this.iaChipTexto, this.etiquetaRaton]);
         this.physics.world.enable(this.ratonContainer);
         this.ratonContainer.body.setSize(24, 24).setOffset(-12, -12).setCollideWorldBounds(true).setBounce(0.35);
 
@@ -151,13 +152,16 @@ class EscenaGatoCazador extends Phaser.Scene {
             pez.destroy();
             modoFuriaTimer = 7.0;
             sonar("record");
-            this.efectoAnimeCamara("🐟 ¡MODO FURIA! CAZA AL PERRO", 0xfacc15, "#facc15");
+            this.efectoAnimeCamara("🐟 ¡MODO FURIA! CAZA AL PERRO", 0xfacc15);
             this.time.delayedCall(9000, () => {
                 if (juegoIniciado && !modoMulti) this.generarPezPoder();
             });
         });
 
-        // Controles táctiles
+        // Joystick Virtual Táctil fijo a la pantalla (sin lag ni vibración por cámara)
+        this.joyBase = this.add.circle(0, 0, 42, 0x38bdf8, 0.16).setStrokeStyle(2, 0x38bdf8, 0.65).setScrollFactor(0).setDepth(52).setVisible(false);
+        this.joyThumb = this.add.circle(0, 0, 18, 0xfacc15, 0.75).setScrollFactor(0).setDepth(53).setVisible(false);
+
         this.input.on("pointerdown", (pointer) => {
             if (!juegoIniciado) return;
             if (pausado && !modoMulti && !modoJefeFacilier) {
@@ -166,17 +170,53 @@ class EscenaGatoCazador extends Phaser.Scene {
                 if (this.textoPausa) this.textoPausa.setVisible(false);
                 return;
             }
-            toque.activo = true;
-            toque.x = pointer.worldX;
-            toque.y = pointer.worldY;
-        });
-        this.input.on("pointermove", (pointer) => {
-            if (toque.activo) {
-                toque.x = pointer.worldX;
-                toque.y = pointer.worldY;
+            if (!toque.activo) {
+                toque.activo = true;
+                toque.pointerId = pointer.id;
+                toque.origenX = pointer.x;
+                toque.origenY = pointer.y;
+                toque.dx = 0;
+                toque.dy = 0;
+                this.joyBase.setPosition(pointer.x, pointer.y).setVisible(true);
+                this.joyThumb.setPosition(pointer.x, pointer.y).setVisible(true);
             }
         });
-        this.input.on("pointerup", () => { toque.activo = false; });
+
+        this.input.on("pointermove", (pointer) => {
+            if (!toque.activo || pointer.id !== toque.pointerId) return;
+            const rawX = pointer.x - toque.origenX;
+            const rawY = pointer.y - toque.origenY;
+            const dist = Math.hypot(rawX, rawY);
+            const maxRadio = 42;
+            const clampedDist = Math.min(dist, maxRadio);
+            const ang = Math.atan2(rawY, rawX);
+
+            if (dist > 6) {
+                const fuerza = clampedDist / maxRadio;
+                toque.dx = Math.cos(ang) * fuerza;
+                toque.dy = Math.sin(ang) * fuerza;
+            } else {
+                toque.dx = 0;
+                toque.dy = 0;
+            }
+            this.joyThumb.setPosition(
+                toque.origenX + Math.cos(ang) * clampedDist,
+                toque.origenY + Math.sin(ang) * clampedDist
+            );
+        });
+
+        const soltarJoystick = (pointer) => {
+            if (toque.activo && (!pointer || pointer.id === toque.pointerId)) {
+                toque.activo = false;
+                toque.pointerId = null;
+                toque.dx = 0;
+                toque.dy = 0;
+                this.joyBase.setVisible(false);
+                this.joyThumb.setVisible(false);
+            }
+        };
+        this.input.on("pointerup", soltarJoystick);
+        this.input.on("pointerupoutside", soltarJoystick);
 
         this.textoPausa = this.add.text(ANCHO_CAMARA / 2, ALTO_CAMARA / 2, "PAUSA", {
             fontFamily: "'Press Start 2P', Arial",
@@ -295,9 +335,11 @@ class EscenaGatoCazador extends Phaser.Scene {
         const skinId = modoJefeFacilier ? "tate_facilier" : (modoMulti ? skinGatoSala : skinActual);
 
         if (skinId === "custom_cat") {
-            const guardado = localStorage.getItem("gato_custom_usuario");
-            if (guardado) {
-                const custom = JSON.parse(guardado);
+            const custom = modoMulti && customGatoSala
+                ? customGatoSala
+                : leerJSONSeguro(localStorage.getItem("gato_custom_usuario"), null);
+
+            if (custom) {
                 if (custom.matriz && generarTexturaDesdeMatriz(this, custom.matriz)) {
                     this.gatoSprite.setTexture("custom-pixel-sprite").setDisplaySize(44, 44).setVisible(true);
                     this.gatoTexto.setVisible(false);
@@ -331,6 +373,8 @@ class EscenaGatoCazador extends Phaser.Scene {
         modoFuriaTimer = 0;
         invulnerableTimer = 0;
         perroAturdidoTimer = 0;
+        if (this.joyBase) this.joyBase.setVisible(false);
+        if (this.joyThumb) this.joyThumb.setVisible(false);
 
         const anchoActual = modoMulti ? ANCHO_CAMARA : ANCHO_MUNDO;
         const altoActual = modoMulti ? ALTO_CAMARA : ALTO_MUNDO;
@@ -363,7 +407,9 @@ class EscenaGatoCazador extends Phaser.Scene {
             this.cameras.main.setScroll(0, 0);
             this.gatoContainer.setPosition(480, 200);
             this.ratonContainer.setPosition(100, 200);
-            this.etiquetaGato.setText(rolMulti === "gato" ? "TÚ" : "");
+            if (skinGatoSala !== "custom_cat") {
+                this.etiquetaGato.setText(rolMulti === "gato" ? "TÚ" : "");
+            }
             this.etiquetaRaton.setText(rolMulti === "raton" ? "TÚ" : "");
         } else {
             this.perroContainer.setVisible(true);
@@ -443,7 +489,7 @@ class EscenaGatoCazador extends Phaser.Scene {
         this.ratonContainer.setPosition(ANCHO_MUNDO - 160, ALTO_MUNDO - 160);
     }
 
-    efectoAnimeCamara(texto, colorHex, colorStr) {
+    efectoAnimeCamara(texto, colorHex) {
         this.cameras.main.shake(260, 0.014);
         this.cameras.main.zoomTo(1.15, 180, "Sine.easeOut", true, (cam, prog) => {
             if (prog === 1) this.cameras.main.zoomTo(1.0, 420, "Sine.easeInOut");
@@ -656,17 +702,9 @@ class EscenaGatoCazador extends Phaser.Scene {
             dy *= Math.SQRT1_2;
         }
 
-        if (toque.activo) {
-            const ox = toque.x - entidad.x;
-            const oy = toque.y - entidad.y;
-            const dist = Math.hypot(ox, oy);
-            if (dist > 10) {
-                dx = ox / dist;
-                dy = oy / dist;
-            } else {
-                dx = 0;
-                dy = 0;
-            }
+        if (toque.activo && (toque.dx !== 0 || toque.dy !== 0)) {
+            dx = toque.dx;
+            dy = toque.dy;
         }
         entidad.body.setVelocity(dx * velocidad, dy * velocidad);
     }
@@ -674,6 +712,7 @@ class EscenaGatoCazador extends Phaser.Scene {
     actualizarRatonIAPhaser(dt) {
         if (ratonAturdidoTimer > 0) {
             this.ratonContainer.body.setVelocity(0, 0);
+            this.iaChipTexto.setVisible(false);
             return;
         }
 
@@ -688,13 +727,16 @@ class EscenaGatoCazador extends Phaser.Scene {
         }
 
         const dif = DIFICULTADES[dificultad - 1];
+        const nivelIA = Math.min(10, Math.floor((experienciaRaton || 0) / 25) + 1);
         temporizadorDecisionIA += dt;
 
         if (temporizadorDecisionIA >= SEGUNDOS_ENTRE_DECISIONES) {
             temporizadorDecisionIA = 0;
 
-            const gatoFuturoX = this.gatoContainer.x + (this.gatoContainer.body.velocity.x * 0.35);
-            const gatoFuturoY = this.gatoContainer.y + (this.gatoContainer.body.velocity.y * 0.35);
+            // La IA avanzada (LVL >= 4) predice más adelante la trayectoria del gato
+            const horizontePrediccion = 0.25 + (nivelIA * 0.03);
+            const gatoFuturoX = this.gatoContainer.x + (this.gatoContainer.body.velocity.x * horizontePrediccion);
+            const gatoFuturoY = this.gatoContainer.y + (this.gatoContainer.body.velocity.y * horizontePrediccion);
             const estadoActual = obtenerEstadoRed(this.ratonContainer.x, this.ratonContainer.y, gatoFuturoX, gatoFuturoY);
 
             if (ultimoEstadoIA !== null && ultimaAccionIA !== null) {
@@ -719,11 +761,14 @@ class EscenaGatoCazador extends Phaser.Scene {
 
             if (Math.random() < epsilon) {
                 accionElegida = Math.floor(Math.random() * SALIDAS_RED);
+                this.iaChipTexto.setVisible(false);
             } else {
                 let mejorQ = res.salidas[0];
                 for (let i = 1; i < SALIDAS_RED; i++) {
                     if (res.salidas[i] > mejorQ) { mejorQ = res.salidas[i]; accionElegida = i; }
                 }
+                const distCerca = Math.hypot(this.ratonContainer.x - this.gatoContainer.x, this.ratonContainer.y - this.gatoContainer.y) < 260;
+                this.iaChipTexto.setVisible(nivelIA >= 3 && distCerca);
             }
 
             accionActualRaton = ACCIONES_IA[accionElegida];
@@ -740,7 +785,7 @@ class EscenaGatoCazador extends Phaser.Scene {
 }
 
 function generarTexturaDesdeMatriz(scene, matriz) {
-    if (!matriz || matriz.length !== 144) return false;
+    if (!Array.isArray(matriz) || matriz.length !== 144) return false;
     if (scene.textures.exists("custom-pixel-sprite")) {
         scene.textures.remove("custom-pixel-sprite");
     }
@@ -769,7 +814,9 @@ function guardarGatoCustom(nombre, matriz, colorHex, conSombrero, poder) {
         sombrero: conSombrero,
         habilidad: poder
     };
-    localStorage.setItem("gato_custom_usuario", JSON.stringify(custom));
+    try {
+        localStorage.setItem("gato_custom_usuario", JSON.stringify(custom));
+    } catch (e) {}
     skinActual = "custom_cat";
 }
 
