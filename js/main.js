@@ -392,7 +392,7 @@ function cambiarPantalla(pantallaObjetivo) {
         document.getElementById("zona-juego").style.display = "flex";
         document.getElementById("marcador").style.display = "flex";
     } else if (pantallaObjetivo === "menu-inicio") {
-        document.getElementById("menu-inicio").style.display = "grid";
+        document.getElementById("menu-inicio").style.display = "flex";
     } else {
         const pantalla = document.getElementById(pantallaObjetivo);
         if (pantalla) pantalla.style.display = "block";
@@ -661,11 +661,16 @@ function actualizarTiempo(dt) {
 
 function actualizarTextoDificultad() {
     const nombreDif = DIFICULTADES[dificultad - 1].nombre;
-    document.getElementById("btn-dificultad").innerText = `Dificultad: ${nombreDif}`;
+    const btnDif = document.getElementById("btn-dificultad");
+    if (btnDif) btnDif.innerText = `Dificultad: ${nombreDif}`;
     const elTexto = document.getElementById("texto-dificultad-actual");
     if (elTexto) elTexto.innerText = `DIFICULTAD: ${nombreDif.toUpperCase()}`;
     const elResumen = document.getElementById("resumen-ajustes");
     if (elResumen) elResumen.innerText = `Dificultad: ${nombreDif} · Sonido: ${sonidoActivo ? "Sí" : "No"} · Música: ${musicaActiva ? "Sí" : "No"}`;
+    [1, 2, 3].forEach((n) => {
+        const pill = document.getElementById(`pill-dif-${n}`);
+        if (pill) pill.classList.toggle("active", n === dificultad);
+    });
 }
 
 function cambiarDificultad() {
@@ -674,17 +679,15 @@ function cambiarDificultad() {
     guardar("dificultad", dificultad);
     actualizarTextoDificultad();
 }
+
 function seleccionarDificultadDirecta(nivelDif) {
     dificultad = nivelDif;
     velocidadGato = DIFICULTADES[dificultad - 1].velGato;
     guardar("dificultad", dificultad);
     actualizarTextoDificultad();
-    [1, 2, 3].forEach((n) => {
-        const pill = document.getElementById(`pill-dif-${n}`);
-        if (pill) pill.classList.toggle("active", n === dificultad);
-    });
     sonar("equipar");
 }
+
 function actualizarTextoSonido() {
     document.getElementById("btn-sonido").textContent = `Sonido: ${sonidoActivo ? "Sí" : "No"}`;
     actualizarTextoDificultad();
@@ -730,10 +733,6 @@ function borrarProgreso() {
     if (sesion) {
         guardarLocal("actualizado", Date.now());
         subirProgreso();
-        [1, 2, 3].forEach((n) => {
-        const pill = document.getElementById(`pill-dif-${n}`);
-        if (pill) pill.classList.toggle("active", n === dificultad);
-    });
     }
     mostrarLogro("Progreso, mejoras y red neuronal borrados");
 }
